@@ -5,15 +5,26 @@ const path = require("path");
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const admin = require("firebase-admin");
-const serviceAccount = require("./firebase-service-account.json");
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+let serviceAccount = null;
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  try {
+    serviceAccount = require("./firebase-service-account.json");
+  } catch (error) {
+    console.log("Firebase service account not found. Firebase disabled.");
+  }
+}
 
+if (serviceAccount && !admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
+const db = serviceAccount ? admin.firestore() : null;
 const db = admin.firestore();
 
 const ADMIN_JWT_SECRET = "apna_mart_admin_secret_2026";
