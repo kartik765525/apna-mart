@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Apna Mart</title>
+<meta name="theme-color" content="#f7fbff" id="themeColorMeta" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Supply Setu Mart</title>
 
 <style>
 :root{
@@ -18,12 +20,270 @@
     --muted:#6b7c8f;
     --border:#dbe5ee;
 }
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);} 
 body{
     font-family:Segoe UI,sans-serif;
     background:linear-gradient(180deg,#f7fbff 0%, #f2f8f5 100%);
     color:var(--text);
 }
+
+html[data-theme="dark"]{
+    --blue:#60a5fa;
+    --blue-dark:#bfdbfe;
+    --green:#22c55e;
+    --green-light:#163420;
+    --orange:#f59e0b;
+    --bg:#0f172a;
+    --card:#111827;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+    --border:#263244;
+}
+html[data-theme="dark"] body{
+    background:linear-gradient(180deg,#0f172a 0%, #111827 100%);
+    color:var(--text);
+}
+html[data-theme="dark"] .login-screen{background:linear-gradient(135deg,#0f172a,#14532d);}
+html[data-theme="dark"] .login-card,
+html[data-theme="dark"] .cart-btn,
+html[data-theme="dark"] .product-card,
+html[data-theme="dark"] .side-panel,
+html[data-theme="dark"] .profile-page,
+html[data-theme="dark"] .language-panel,
+html[data-theme="dark"] .support-panel,
+html[data-theme="dark"] .order-detail-panel,
+html[data-theme="dark"] .language-card,
+html[data-theme="dark"] .support-card,
+html[data-theme="dark"] .cart-summary-card,
+html[data-theme="dark"] .cart-payment-box,
+html[data-theme="dark"] .cart-delivery-box,
+html[data-theme="dark"] .order-card,
+html[data-theme="dark"] .order-detail-card,
+html[data-theme="dark"] .profile-box,
+html[data-theme="dark"] .search-box input,
+html[data-theme="dark"] .cat,
+html[data-theme="dark"] .form-input,
+html[data-theme="dark"] .support-textarea,
+html[data-theme="dark"] .cart-qty-select,
+html[data-theme="dark"] .orders-search-box,
+html[data-theme="dark"] .orders-search-row,
+html[data-theme="dark"] .cart-panel-header,
+html[data-theme="dark"] .orders-panel-header,
+html[data-theme="dark"] .order-detail-header,
+html[data-theme="dark"] .support-header,
+html[data-theme="dark"] .language-header{
+    background:#111827 !important;
+    color:#e5e7eb !important;
+    border-color:#263244 !important;
+}
+html[data-theme="dark"] .cart-delivery-sub,
+html[data-theme="dark"] .order-meta-line,
+html[data-theme="dark"] .profile-phone,
+html[data-theme="dark"] .language-card p,
+html[data-theme="dark"] .support-card p,
+html[data-theme="dark"] .order-detail-label,
+html[data-theme="dark"] .order-detail-item-sub,
+html[data-theme="dark"] .route-step-sub,
+html[data-theme="dark"] .delivery-boy-note,
+html[data-theme="dark"] .cart-product-sub,
+html[data-theme="dark"] .cart-summary-row,
+html[data-theme="dark"] .cart-delivery-line,
+html[data-theme="dark"] .order-status-line,
+html[data-theme="dark"] .order-product-name,
+html[data-theme="dark"] .brand-sub{
+    color:#94a3b8 !important;
+}
+html[data-theme="dark"] .profile-title,
+html[data-theme="dark"] .profile-name,
+html[data-theme="dark"] .order-detail-value,
+html[data-theme="dark"] .order-detail-item-name,
+html[data-theme="dark"] .support-title,
+html[data-theme="dark"] .language-title,
+html[data-theme="dark"] .cart-panel-title,
+html[data-theme="dark"] .orders-panel-title,
+html[data-theme="dark"] .cart-product-title,
+html[data-theme="dark"] .grand,
+html[data-theme="dark"] .top-cut,
+html[data-theme="dark"] .change-address-btn,
+html[data-theme="dark"] .profile-menu-left,
+html[data-theme="dark"] .profile-arrow,
+html[data-theme="dark"] .close-btn,
+html[data-theme="dark"] .order-route-title{
+    color:#e5e7eb !important;
+}
+html[data-theme="dark"] .product-image,
+html[data-theme="dark"] .cart-empty,
+html[data-theme="dark"] .orders-empty,
+html[data-theme="dark"] .order-detail-body,
+html[data-theme="dark"] .language-body,
+html[data-theme="dark"] .support-body,
+html[data-theme="dark"] .orders-list-wrap,
+html[data-theme="dark"] #cartPanel,
+html[data-theme="dark"] #ordersPanel{
+    background:#0f172a !important;
+}
+html[data-theme="dark"] .profile-menu-item,
+html[data-theme="dark"] .order-detail-row,
+html[data-theme="dark"] .order-detail-item,
+html[data-theme="dark"] .cart-action-row,
+html[data-theme="dark"] .cart-action-btn,
+html[data-theme="dark"] .profile-card-top{
+    border-color:#263244 !important;
+}
+html[data-theme="dark"] .product-name,
+html[data-theme="dark"] .product-price,
+html[data-theme="dark"] .stock-line,
+html[data-theme="dark"] .cart-final-price,
+html[data-theme="dark"] .cart-discount,
+html[data-theme="dark"] .delivery-boy-number,
+html[data-theme="dark"] .delivery-boy-label,
+html[data-theme="dark"] .route-step-title,
+html[data-theme="dark"] .order-status-pill,
+html[data-theme="dark"] #brandTitle{
+    color:#e5e7eb !important;
+}
+html[data-theme="dark"] .top-cut{color:#94a3b8 !important;}
+html[data-theme="dark"] .success-screen{background:rgba(15,23,42,.96);}
+
+
+html[data-theme="dark"] .header{
+    background:linear-gradient(135deg,#0b1220,#0f2c4f) !important;
+    box-shadow:0 10px 24px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .product-card{
+    background:linear-gradient(180deg,#111827 0%,#162033 100%) !important;
+    border:1px solid #31415d !important;
+    box-shadow:0 12px 28px rgba(0,0,0,.28) !important;
+}
+html[data-theme="dark"] .product-image{
+    background:linear-gradient(180deg,#1a2436,#101827) !important;
+    border:1px solid #27354d !important;
+}
+html[data-theme="dark"] .search-box input{
+    background:#111a29 !important;
+    border-color:#31415d !important;
+    box-shadow:0 8px 18px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] .cat{
+    background:#111a29 !important;
+    color:#cfe2ff !important;
+    border:1px solid #31415d !important;
+}
+html[data-theme="dark"] .cat{
+    position:relative;
+    overflow:hidden;
+}
+html[data-theme="dark"] .cat.active{
+    background:#2563eb !important;
+    color:#ffffff !important;
+    border-color:#60a5fa !important;
+    box-shadow:none !important;
+}
+html[data-theme="dark"] .cat.active::after{
+    content:none !important;
+    display:none !important;
+}
+html[data-theme="dark"] .cat:focus,
+html[data-theme="dark"] .cat:active{
+    outline:none !important;
+    box-shadow:none !important;
+}
+
+html[data-theme="dark"] .categories{
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    flex-wrap:nowrap !important;
+    scrollbar-width:none;
+}
+html[data-theme="dark"] .categories::-webkit-scrollbar{display:none;}
+html[data-theme="dark"] .cat{
+    flex:0 0 auto !important;
+    min-width:max-content !important;
+    text-align:center !important;
+    padding:9px 18px !important;
+    line-height:1.2;
+}
+html[data-theme="dark"] .add-btn{
+    background:#0b4f9c !important;
+    color:#ffffff !important;
+    box-shadow:0 8px 18px rgba(11,79,156,.35) !important;
+}
+html[data-theme="dark"] .add-btn:hover,
+html[data-theme="dark"] .add-btn:active{
+    background:#0d5db8 !important;
+}
+html[data-theme="dark"] #cartItems .cart-card,
+html[data-theme="dark"] .cart-card,
+html[data-theme="dark"] .cart-summary-card,
+html[data-theme="dark"] .cart-payment-box,
+html[data-theme="dark"] .cart-delivery-box,
+html[data-theme="dark"] .cart-bottom-bar,
+html[data-theme="dark"] .orders-search-box,
+html[data-theme="dark"] #orderList .order-card,
+html[data-theme="dark"] .order-card,
+html[data-theme="dark"] .order-detail-card{
+    background:linear-gradient(180deg,#111827 0%,#162033 100%) !important;
+    border-color:#31415d !important;
+    color:#e5e7eb !important;
+}
+html[data-theme="dark"] .cart-product-image,
+html[data-theme="dark"] .order-card .order-item-thumb,
+html[data-theme="dark"] .order-detail-item img{
+    background:#0f172a !important;
+    border-color:#31415d !important;
+}
+html[data-theme="dark"] .cart-original-price,
+html[data-theme="dark"] .orders-search-box input,
+html[data-theme="dark"] .order-arrow,
+html[data-theme="dark"] .cart-delivery-line,
+html[data-theme="dark"] .cart-delivery-line strong,
+html[data-theme="dark"] .cart-payment-box label,
+html[data-theme="dark"] .cart-summary-card h4,
+html[data-theme="dark"] .order-detail-title,
+html[data-theme="dark"] .order-status-line{
+    color:#e5e7eb !important;
+}
+html[data-theme="dark"] .change-address-btn{
+    background:#152236 !important;
+    border-color:#35507a !important;
+    color:#dbeafe !important;
+    box-shadow:none !important;
+}
+html[data-theme="dark"] .change-address-btn:hover,
+html[data-theme="dark"] .change-address-btn:active{
+    background:#1d2f4b !important;
+}
+html[data-theme="dark"] .delivery-tag,
+html[data-theme="dark"] .order-mini-chip{
+    background:#182335 !important;
+    border:1px solid #334155 !important;
+    color:#e5e7eb !important;
+}
+html[data-theme="dark"] .order-status-pill.need-confirmation{
+    background:#3a1d24 !important;
+    color:#fecdd3 !important;
+}
+html[data-theme="dark"] .order-status-pill.pending{
+    background:#3b2d14 !important;
+    color:#fde68a !important;
+}
+html[data-theme="dark"] .order-status-pill.out-for-delivery{
+    background:#172554 !important;
+    color:#bfdbfe !important;
+}
+html[data-theme="dark"] .order-status-pill.delivered{
+    background:#14532d !important;
+    color:#bbf7d0 !important;
+}
+html[data-theme="dark"] .cart-action-btn{
+    background:#111827 !important;
+    color:#dbeafe !important;
+}
+html[data-theme="dark"] .cart-place-order-btn{
+    box-shadow:0 10px 22px rgba(250,204,21,.18) !important;
+}
+
 
 /* OTP LOCK SCREEN */
 .login-screen{
@@ -52,6 +312,26 @@ body{
     outline:none;
     margin-top:10px;
 }
+
+.login-phone-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+.login-phone-row .login-input{
+    flex:1;
+}
+.login-inline-btn{
+    margin-top:10px;
+    padding:13px 14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--blue),var(--green));
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+}
 .login-btn{
     width:100%;
     margin-top:12px;
@@ -76,6 +356,8 @@ body{
 
 /* MAIN APP */
 #app{display:none}
+html.apnamart-has-token #loginScreen{display:none !important;}
+html.apnamart-has-token #app{display:block !important;}
 .header{
    
     background:linear-gradient(135deg,var(--blue),var(--green));
@@ -164,8 +446,15 @@ body{
     gap:10px;
     padding:10px 14px;
     overflow-x:auto;
+    overflow-y:hidden;
+    flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
 }
+.categories::-webkit-scrollbar{display:none;}
 .cat{
+    flex:0 0 auto;
+    min-width:max-content;
     padding:9px 15px;
     background:#fff;
     border:1px solid var(--border);
@@ -174,6 +463,7 @@ body{
     white-space:nowrap;
     font-weight:700;
     color:var(--blue);
+    text-align:center;
 }
 .cat.active{
     background:linear-gradient(135deg,var(--blue),var(--green));
@@ -251,11 +541,12 @@ body{
     margin-top:12px;
     padding:10px;
     border:none;
-    background:linear-gradient(135deg,var(--blue),var(--orange));
+    background:#0b4f9c;
     color:#fff;
     border-radius:14px;
     cursor:pointer;
     font-weight:700;
+    box-shadow:0 6px 14px rgba(11,79,156,.22);
 }
 .qty-box{
     display:flex;
@@ -499,6 +790,253 @@ body{
 
 @media (max-width:900px){
     .hero{grid-template-columns:1fr}
+}
+
+.language-panel{
+    position:fixed;
+    right:0;
+    top:0;
+    width:420px;
+    max-width:100%;
+    height:100%;
+    background:#fff;
+    z-index:1004;
+    transform:translateX(100%);
+    transition:.3s;
+    overflow-y:auto;
+    box-shadow:-8px 0 22px rgba(0,0,0,.14);
+}
+.language-panel.open{transform:translateX(0)}
+.language-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px;
+    border-bottom:1px solid #eceff3;
+    position:sticky;
+    top:0;
+    background:#fff;
+}
+.language-title{
+    font-size:22px;
+    font-weight:800;
+    color:#111827;
+}
+.language-body{
+    padding:16px;
+    background:#f5f6f8;
+    min-height:calc(100% - 72px);
+}
+.language-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:16px;
+}
+.language-card p{
+    color:#6b7280;
+    line-height:1.5;
+    font-size:14px;
+    margin-bottom:14px;
+}
+.language-option-btn{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:14px 16px;
+    font-weight:800;
+    cursor:pointer;
+    margin-bottom:10px;
+    background:#eef4ff;
+    color:#0b4f9c;
+}
+.language-option-btn.active{
+    background:linear-gradient(135deg,var(--blue),var(--green));
+    color:#fff;
+}
+
+
+
+.order-status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    margin-top:8px;
+}
+.order-status-pill.need-confirmation{background:#fee2e2;color:#b91c1c}
+.order-status-pill.pending{background:#fef3c7;color:#b45309}
+.order-status-pill.out-for-delivery{background:#dbeafe;color:#1d4ed8}
+.order-status-pill.delivered{background:#dcfce7;color:#15803d}
+.order-status-sub{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+.order-mini-chip{
+    padding:6px 10px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;
+    color:#475569;font-size:12px;font-weight:700;
+}
+.timeline-card{background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)}
+.order-route-title{font-size:17px;font-weight:800;color:#0f172a;margin-bottom:14px}
+.order-route{position:relative;padding-left:18px}
+.order-route::before{
+    content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,#dbeafe 0%,#e2e8f0 100%);
+}
+.route-step{position:relative;padding-left:22px;padding-bottom:18px}
+.route-step:last-child{padding-bottom:0}
+.route-step::before{
+    content:"";position:absolute;left:-17px;top:2px;width:14px;height:14px;border-radius:50%;
+    background:#e5e7eb;border:3px solid #fff;box-shadow:0 0 0 2px #e5e7eb;
+}
+.route-step.active::before{background:#3b82f6;box-shadow:0 0 0 2px #bfdbfe}
+.route-step.done::before{background:#16a34a;box-shadow:0 0 0 2px #bbf7d0}
+.route-step-title{font-weight:800;color:#334155;font-size:14px}
+.route-step-sub{color:#64748b;font-size:12px;margin-top:3px;line-height:1.5}
+.delivery-boy-box{
+    margin-top:16px;
+    padding:18px;
+    border-radius:22px;
+    background:linear-gradient(135deg,#ffffff 0%,#f8fbff 100%);
+    border:1px solid #d7e7fb;
+    box-shadow:0 14px 30px rgba(37,99,235,.10);
+}
+.delivery-boy-box.hidden{display:none !important;}
+.delivery-boy-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+}
+.delivery-boy-copy{flex:1;min-width:0;}
+.delivery-boy-label{font-size:12px;color:#1d4ed8;font-weight:900;text-transform:uppercase;letter-spacing:.45px}
+.delivery-boy-name{margin-top:8px;font-size:16px;font-weight:900;color:#0f172a;line-height:1.3}
+.delivery-boy-number{margin-top:6px;font-size:15px;font-weight:800;color:#334155;line-height:1.4;word-break:break-word}
+.delivery-boy-note{margin-top:8px;color:#64748b;font-size:12px;line-height:1.5}
+.delivery-boy-call{
+    width:58px;
+    min-width:58px;
+    height:58px;
+    border-radius:50%;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    background:linear-gradient(135deg,#0f172a,#111827);
+    color:#ffffff;
+    font-size:28px;
+    box-shadow:0 12px 24px rgba(15,23,42,.18);
+}
+.delivery-boy-call:active{transform:scale(.97);}
+
+.order-summary-card{
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+    border:1px solid #dbe7f3;
+    box-shadow:0 12px 28px rgba(15,23,42,.06);
+}
+.order-route-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.delivery-boy-box{
+    background:linear-gradient(135deg,#ffffff 0%,#f3f8ff 100%);
+    border:1px solid #cfe2ff;
+    box-shadow:0 10px 24px rgba(37,99,235,.10);
+}
+html[data-theme="dark"] .delivery-boy-box{
+    background:linear-gradient(135deg,#f8fafc 0%,#eef2f7 100%) !important;
+    border:1px solid #d8e2f0 !important;
+    box-shadow:0 14px 28px rgba(0,0,0,.30) !important;
+}
+html[data-theme="dark"] .delivery-boy-label{color:#1d4ed8 !important;}
+html[data-theme="dark"] .delivery-boy-name{color:#020617 !important;}
+html[data-theme="dark"] .delivery-boy-number{color:#111827 !important;}
+html[data-theme="dark"] .delivery-boy-note{color:#475569 !important;}
+html[data-theme="dark"] .delivery-boy-call{
+    background:linear-gradient(135deg,#020617,#111827) !important;
+    color:#ffffff !important;
+}
+.order-detail-card{
+    box-shadow:0 8px 24px rgba(15,23,42,.05);
+}
+.order-card{
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+.order-card:active{
+    transform:scale(.995);
+}
+.order-thumb-box{
+    width:78px !important;
+    min-width:78px !important;
+    height:78px !important;
+}
+.order-item-thumb{
+    width:78px !important;
+    height:78px !important;
+    object-fit:cover !important;
+    border-radius:14px !important;
+}
+.order-arrow{
+    font-size:26px !important;
+}
+.order-status-line{
+    font-size:15px !important;
+}
+.order-product-name{
+    font-size:19px !important;
+}
+.order-meta-line{
+    font-size:13px !important;
+}
+@media (max-width: 700px){
+    .order-thumb-box{
+        width:62px !important;
+        min-width:62px !important;
+        height:62px !important;
+        border-radius:14px !important;
+    }
+    .order-item-thumb{
+        width:62px !important;
+        height:62px !important;
+        border-radius:12px !important;
+    }
+    .order-product-name{
+        font-size:17px !important;
+        line-height:1.2 !important;
+    }
+    .order-status-line{
+        font-size:14px !important;
+    }
+    .order-arrow{
+        font-size:20px !important;
+        padding-left:8px !important;
+    }
+    .order-stars{
+        font-size:16px !important;
+    }
+    .order-rate-line,
+    .order-meta-line{
+        font-size:12px !important;
+    }
+    .order-status-pill{
+        font-size:11px !important;
+        padding:5px 10px !important;
+    }
+    .order-mini-chip{
+        font-size:11px !important;
+        padding:5px 9px !important;
+    }
+    .route-step-title{
+        font-size:13px !important;
+    }
+    .route-step-sub{
+        font-size:11px !important;
+    }
+    .delivery-boy-number{
+        font-size:15px !important;
+    }
 }
 
 @media (max-width:600px){
@@ -822,6 +1360,106 @@ body{
     font-weight:600;
     color:#374151;
 }
+
+.call-btn{
+    background:linear-gradient(135deg,#0f766e,#14b8a6);
+    color:#fff;
+}
+
+.order-detail-panel{
+    position:fixed;
+    right:0;
+    top:0;
+    width:420px;
+    max-width:100%;
+    height:100%;
+    background:#fff;
+    z-index:1002;
+    transform:translateX(100%);
+    transition:.3s;
+    overflow-y:auto;
+    box-shadow:-8px 0 22px rgba(0,0,0,.14);
+}
+.order-detail-panel.open{transform:translateX(0)}
+.order-detail-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    justify-content:space-between;
+    padding:16px;
+    border-bottom:1px solid #eceff3;
+    position:sticky;
+    top:0;
+    background:#fff;
+}
+.order-detail-title{
+    font-size:22px;
+    font-weight:800;
+    color:#111827;
+}
+.order-detail-body{
+    padding:16px;
+    background:#f5f6f8;
+    min-height:calc(100% - 72px);
+}
+.order-detail-card{
+    background:#fff;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:12px;
+    border:1px solid #e5e7eb;
+}
+.order-detail-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:8px 0;
+    border-bottom:1px solid #f0f2f5;
+}
+.order-detail-row:last-child{border-bottom:none}
+.order-detail-label{
+    color:#6b7280;
+    font-weight:600;
+}
+.order-detail-value{
+    color:#111827;
+    text-align:right;
+    font-weight:700;
+}
+.order-detail-items-title{
+    font-size:16px;
+    font-weight:800;
+    color:#111827;
+    margin-bottom:10px;
+}
+.order-detail-item{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid #f0f2f5;
+}
+.order-detail-item:last-child{border-bottom:none}
+.order-detail-item img{
+    width:52px;
+    height:52px;
+    object-fit:contain;
+    border:1px solid #eceff3;
+    border-radius:8px;
+    background:#fff;
+}
+.order-detail-item-text{
+    flex:1;
+}
+.order-detail-item-name{
+    font-weight:700;
+    color:#111827;
+}
+.order-detail-item-sub{
+    font-size:13px;
+    color:#6b7280;
+    margin-top:3px;
+}
 .cart-bottom-bar{
     position:sticky;
     bottom:0;
@@ -868,8 +1506,7 @@ body{
 }
 
 .orders-search-row{
-    display:flex;
-    gap:12px;
+    display:block;
     padding:12px 14px;
     background:#fff;
     border-bottom:1px solid #eceff3;
@@ -979,6 +1616,84 @@ body{
     border-top:1px solid #eceff3;
 }
 
+.support-panel{
+    position:fixed;
+    right:0;
+    top:0;
+    width:420px;
+    max-width:100%;
+    height:100%;
+    background:#fff;
+    z-index:1003;
+    transform:translateX(100%);
+    transition:.3s;
+    overflow-y:auto;
+    box-shadow:-8px 0 22px rgba(0,0,0,.14);
+}
+.support-panel.open{transform:translateX(0)}
+.support-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px;
+    border-bottom:1px solid #eceff3;
+    position:sticky;
+    top:0;
+    background:#fff;
+}
+.support-title{
+    font-size:22px;
+    font-weight:800;
+    color:#111827;
+}
+.support-body{
+    padding:16px;
+    background:#f5f6f8;
+    min-height:calc(100% - 72px);
+}
+.support-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:12px;
+}
+.support-card h4{
+    color:#111827;
+    font-size:18px;
+    margin-bottom:8px;
+}
+.support-card p{
+    color:#6b7280;
+    line-height:1.5;
+    font-size:14px;
+    margin-bottom:12px;
+}
+.support-textarea{
+    width:100%;
+    min-height:120px;
+    resize:vertical;
+    padding:12px 14px;
+    border:1px solid #d9e2eb;
+    border-radius:12px;
+    outline:none;
+    font-family:inherit;
+    font-size:15px;
+    background:#fff;
+}
+.support-send-btn{
+    width:100%;
+    margin-top:12px;
+    border:none;
+    border-radius:12px;
+    padding:13px 14px;
+    background:#25D366;
+    color:#fff;
+    font-weight:800;
+    cursor:pointer;
+}
+
+
 @media (max-width:600px){
     #cartPanel,
     #ordersPanel{
@@ -987,17 +1702,12 @@ body{
     }
     .orders-search-row{
         top:73px;
-        padding:0;
-        gap:0;
+        padding:12px 14px;
     }
     .orders-search-box{
-        border:none;
-        border-right:1px solid #eceff3;
-        border-radius:0;
+        border:1px solid #d8deea;
+        border-radius:8px;
         padding:0 14px;
-    }
-    .orders-filter-btn{
-        min-width:112px;
     }
     .cart-main-row{
         gap:12px;
@@ -1020,35 +1730,490 @@ body{
 }
 
 
-.offers-wrap{padding:0 14px 16px 14px;overflow:hidden}
-.offers-track{display:flex;gap:12px;width:max-content;animation:offerScroll 22s linear infinite}
-.offer-card{min-width:220px;background:linear-gradient(135deg,#fff7ed,#eff6ff);border:1px solid #e2eaf2;border-radius:18px;padding:14px;box-shadow:0 8px 18px rgba(13,51,84,.06)}
-.offer-title{font-size:15px;font-weight:800;color:var(--blue-dark)}
-.offer-sub{font-size:13px;color:var(--muted);margin-top:6px}
-@keyframes offerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.order-detail-modal,.voice-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:flex-end;justify-content:center;z-index:1200;padding:16px}.order-detail-modal.show,.voice-modal.show{display:flex}
-.order-detail-card,.voice-card{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)}
-.detail-header,.voice-header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eceff3;padding:16px;display:flex;justify-content:space-between;align-items:center;z-index:2}
-.detail-body,.voice-body{padding:16px}
-.detail-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px;background:#eef2ff;color:#1d4ed8}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.detail-box{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#fafcff}.detail-items{margin-top:14px;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.detail-item{display:flex;gap:12px;padding:12px;border-bottom:1px solid #eef2f7;background:#fff}.detail-item:last-child{border-bottom:none}.detail-item img{width:56px;height:56px;border-radius:10px;object-fit:contain;border:1px solid #e5e7eb;background:#fff}.detail-muted{color:#6b7280;font-size:14px;margin-top:4px}
-.lang-row{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;border-bottom:1px solid #eceff3}.lang-switch{display:flex;gap:8px}.lang-btn{border:none;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;background:#eef2ff;color:#1d4ed8}.lang-btn.active{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff}
-.location-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px;border:1px solid #dbe5ee;border-radius:14px;background:#f8fbff}.location-badge{font-size:13px;font-weight:700}.voice-recorder-box{border:1px dashed #cbd5e1;border-radius:18px;padding:16px;text-align:center;background:#f8fbff}.voice-time{font-size:28px;font-weight:800;color:var(--blue);margin:10px 0}.voice-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.secondary-btn{border:none;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700;background:#e5e7eb}.danger-btn{background:#ef4444;color:#fff}
-@media (max-width:600px){.detail-grid{grid-template-columns:1fr}.offer-card{min-width:180px}}
+
+
+.profile-upload-wrap{
+    position:relative;
+    width:170px;
+    height:170px;
+    margin:0 auto 16px;
+}
+.profile-upload-avatar{
+    width:170px;
+    height:170px;
+    border-radius:50%;
+    object-fit:cover;
+    display:block;
+    background:#e5e7eb;
+    border:3px solid #dbe5ee;
+}
+.profile-upload-btn{
+    position:absolute;
+    right:6px;
+    bottom:8px;
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    background:#b3b3b3;
+    color:#fff;
+    border:6px solid #f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+    user-select:none;
+    box-shadow:0 8px 18px rgba(0,0,0,.16);
+}
+.profile-upload-btn:active{transform:scale(.96);}
+.profile-hidden-file{display:none !important;}
+
+
+/* WELCOME HERO + OFFERS */
+.welcome-stack{
+    padding:0 14px 10px 14px;
+}
+.welcome-banner{
+    position:relative;
+    overflow:hidden;
+    border-radius:24px;
+    padding:26px 18px 18px;
+    background:linear-gradient(135deg,#9a6300 0%, #c78811 55%, #915600 100%);
+    color:#fff;
+    box-shadow:0 18px 36px rgba(145,86,0,.22);
+    animation:welcomeFloat .65s ease both;
+}
+.welcome-banner::before,
+.welcome-banner::after{
+    content:"🛍️";
+    position:absolute;
+    top:22px;
+    font-size:38px;
+    opacity:.32;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.18));
+}
+.welcome-banner::before{left:14px; transform:rotate(-10deg);}
+.welcome-banner::after{right:14px; transform:rotate(10deg);}
+.welcome-kicker{
+    text-align:center;
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:.18em;
+    margin-bottom:8px;
+    text-transform:uppercase;
+}
+.welcome-title{
+    text-align:center;
+    font-size:44px;
+    line-height:1;
+    font-weight:900;
+    margin-bottom:10px;
+    text-shadow:0 8px 18px rgba(0,0,0,.16);
+}
+.welcome-subtitle{
+    text-align:center;
+    font-size:16px;
+    font-weight:700;
+    opacity:.96;
+}
+.offers-heading{
+    width:max-content;
+    max-width:100%;
+    margin:-14px auto 10px;
+    padding:10px 18px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#ffd348,#facc15);
+    color:#233047;
+    font-weight:900;
+    font-size:14px;
+    box-shadow:0 12px 26px rgba(250,204,21,.24);
+    position:relative;
+    z-index:2;
+}
+.offers-strip{
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    padding:4px 2px 6px;
+    scroll-snap-type:x proximity;
+    animation:offersSlide .75s ease both;
+}
+.offers-strip::-webkit-scrollbar{display:none;}
+.offer-card{
+    min-width:250px;
+    max-width:250px;
+    scroll-snap-align:start;
+    background:linear-gradient(180deg,#fff7cf 0%, #fff1b8 100%);
+    border:1px solid #f6d97c;
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 12px 26px rgba(191,145,0,.12);
+}
+.offer-top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.offer-icon{
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    background:rgba(255,255,255,.72);
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
+}
+.offer-title{
+    font-size:17px;
+    font-weight:900;
+    color:#1f2937;
+    line-height:1.2;
+}
+.offer-desc{
+    margin-top:8px;
+    font-size:14px;
+    color:#5b6470;
+    line-height:1.45;
+    font-weight:700;
+}
+.offer-pill{
+    display:inline-flex;
+    margin-top:12px;
+    border-radius:999px;
+    padding:6px 11px;
+    font-size:12px;
+    font-weight:900;
+    background:#fff;
+    color:#9a6300;
+}
+@keyframes welcomeFloat{
+    0%{opacity:0;transform:translateY(18px) scale(.98)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes offersSlide{
+    0%{opacity:0;transform:translateY(24px)}
+    100%{opacity:1;transform:translateY(0)}
+}
+html[data-theme="dark"] .welcome-banner{
+    background:linear-gradient(135deg,#5d3b00 0%, #8f6200 55%, #5d3b00 100%);
+    box-shadow:0 20px 38px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .offers-heading{
+    background:linear-gradient(135deg,#facc15,#eab308);
+    color:#1f2937;
+}
+html[data-theme="dark"] .offer-card{
+    background:linear-gradient(180deg,#1d2432 0%, #162033 100%);
+    border-color:#3e4d68;
+    box-shadow:0 12px 28px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .offer-title{color:#f8fafc;}
+html[data-theme="dark"] .offer-desc{color:#cbd5e1;}
+html[data-theme="dark"] .offer-pill{
+    background:#0f172a;
+    color:#fde68a;
+    border:1px solid #475569;
+}
+html[data-theme="dark"] .offer-icon{background:#0f172a;color:#facc15;}
+@media (max-width:600px){
+    .welcome-stack{padding:0 10px 8px 10px;}
+    .welcome-banner{border-radius:20px;padding:22px 14px 16px;}
+    .welcome-title{font-size:34px;}
+    .welcome-subtitle{font-size:15px;}
+    .offer-card{min-width:225px;max-width:225px;padding:14px;}
+    .offers-heading{font-size:13px;padding:9px 14px;}
+}
+
+/* CUSTOM TOAST + SUCCESS SCREEN */
+.app-toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    min-width:240px;
+    max-width:92%;
+    background:linear-gradient(135deg,#111827,#1f2937);
+    color:#fff;
+    padding:14px 18px;
+    border-radius:16px;
+    font-size:14px;
+    font-weight:700;
+    text-align:center;
+    box-shadow:0 18px 40px rgba(0,0,0,.24);
+    opacity:0;
+    visibility:hidden;
+    transition:all .25s ease;
+    z-index:1000001;
+}
+.app-toast.show{
+    opacity:1;
+    visibility:visible;
+    transform:translateX(-50%) translateY(0);
+}
+.app-toast.success{background:linear-gradient(135deg,#16a34a,#22c55e);}
+.app-toast.error{background:linear-gradient(135deg,#dc2626,#ef4444);}
+.app-toast.info{background:linear-gradient(135deg,#2563eb,#3b82f6);}
+
+.success-screen{
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,.97);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:1000000;
+    opacity:0;
+    transition:opacity .28s ease;
+    padding:24px;
+}
+.success-screen.show{
+    display:flex;
+    opacity:1;
+}
+.success-box{
+    width:100%;
+    max-width:390px;
+    text-align:center;
+    transform:translateY(16px) scale(.94);
+    opacity:0;
+    transition:all .32s ease;
+}
+.success-screen.show .success-box{
+    transform:translateY(0) scale(1);
+    opacity:1;
+}
+.success-visual{
+    width:140px;
+    height:140px;
+    margin:0 auto 18px;
+    position:relative;
+}
+.success-ring{
+    width:118px;
+    height:118px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#34d399,#22c55e);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto;
+    box-shadow:0 18px 40px rgba(34,197,94,.25);
+    animation:successPop .6s ease;
+}
+.success-check{
+    color:#fff;
+    font-size:58px;
+    font-weight:900;
+    line-height:1;
+}
+.confetti-dot{
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    animation:floatDot 1.5s ease-in-out infinite alternate;
+}
+.confetti-dot:nth-child(2){top:12px;left:18px;background:#fb7185;}
+.confetti-dot:nth-child(3){top:8px;right:24px;background:#fbbf24;animation-delay:.2s;}
+.confetti-dot:nth-child(4){top:48px;right:4px;background:#3b82f6;animation-delay:.35s;}
+.confetti-dot:nth-child(5){bottom:24px;left:16px;background:#3b82f6;animation-delay:.15s;}
+.confetti-dot:nth-child(6){bottom:10px;right:36px;background:#c084fc;animation-delay:.28s;}
+.success-box h2{font-size:28px;font-weight:800;color:#111827;margin-bottom:14px;}
+.success-box p{font-size:15px;line-height:1.7;color:#5b6470;max-width:340px;margin:0 auto 28px;}
+.success-primary-btn{
+    border:none;
+    background:linear-gradient(135deg,#34d399,#22c55e);
+    color:#fff;
+    padding:14px 36px;
+    border-radius:999px;
+    font-size:18px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 14px 30px rgba(34,197,94,.22);
+}
+.success-secondary-btn{
+    margin-top:16px;
+    color:#22c55e;
+    font-weight:800;
+    font-size:18px;
+    cursor:pointer;
+}
+@keyframes successPop{
+    0%{transform:scale(.55);opacity:0;}
+    60%{transform:scale(1.08);opacity:1;}
+    100%{transform:scale(1);}
+}
+@keyframes floatDot{
+    0%{transform:translateY(0) scale(1);}
+    100%{transform:translateY(-8px) scale(1.08);}
+}
+
+
+
+/* HOME STICKY ONLY + FULL PAGE PANELS FIX */
+.welcome-banner{display:none !important;}
+
+html,body{
+    overflow-x:hidden;
+}
+
+.header{
+    position:sticky;
+    top:0;
+    z-index:120;
+    width:100%;
+    left:0;
+    right:0;
+    box-shadow:none !important;
+}
+.categories{
+    position:sticky;
+    top:118px;
+    z-index:119;
+    background:var(--bg);
+    width:100%;
+    left:0;
+    right:0;
+    box-shadow:none !important;
+}
+.search-box{
+    position:sticky;
+    top:178px;
+    z-index:118;
+    background:var(--bg);
+    width:100%;
+    left:0;
+    right:0;
+    box-shadow:none !important;
+    padding-bottom:10px;
+}
+.search-box input{
+    box-shadow:none !important;
+}
+.welcome-stack{
+    margin-top:14px;
+}
+.offers-heading{
+    margin-top:0 !important;
+}
+
+body.panel-open .header,
+body.panel-open .categories,
+body.panel-open .search-box{
+    position:relative !important;
+    top:auto !important;
+    z-index:auto !important;
+}
+
+#cartPanel,
+#ordersPanel,
+.profile-page,
+.order-detail-panel,
+.language-panel,
+.support-panel{
+    width:100% !important;
+    max-width:100% !important;
+    right:0 !important;
+    left:auto !important;
+    top:0 !important;
+    height:100% !important;
+    z-index:1001 !important;
+}
+
+@media (max-width:600px){
+    .header{top:0;}
+    .categories{top:118px;}
+    .search-box{top:178px;}
+    .welcome-stack{margin-top:16px;}
+}
+
+
+/* PLACE ORDER FULL SCREEN LOADER */
+.place-order-loader{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(4px);
+    z-index:1000002;
+    opacity:0;
+    transition:opacity .25s ease;
+    padding:24px;
+}
+.place-order-loader.show{
+    display:flex;
+    opacity:1;
+}
+.place-order-loader-box{
+    width:100%;
+    max-width:320px;
+    text-align:center;
+}
+.place-order-loader-spinner{
+    width:84px;
+    height:84px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    border:7px solid rgba(11,79,156,.12);
+    border-top-color:var(--blue);
+    border-right-color:var(--green);
+    animation:placeOrderSpin .9s linear infinite;
+    box-shadow:0 10px 30px rgba(11,79,156,.10);
+}
+.place-order-loader-title{
+    font-size:24px;
+    font-weight:800;
+    color:#111827;
+}
+.place-order-loader-sub{
+    margin-top:10px;
+    font-size:15px;
+    color:#64748b;
+    line-height:1.65;
+}
+@keyframes placeOrderSpin{
+    to{transform:rotate(360deg);}
+}
+html[data-theme="dark"] .place-order-loader{
+    background:rgba(15,23,42,.96);
+}
+html[data-theme="dark"] .place-order-loader-title{
+    color:#f8fafc;
+}
+html[data-theme="dark"] .place-order-loader-sub{
+    color:#94a3b8;
+}
 
 </style>
 </head>
 <body>
+<script>
+(function(){
+    try{
+        if(localStorage.getItem("apnaMartCustomerToken")){
+            document.documentElement.classList.add("apnamart-has-token");
+        }
+    }catch(e){}
+})();
+</script>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
-        <h2>🔐 OTP Login</h2>
-        <p>Login hone ke baad hi poora customer panel dikhega.</p>
-        <input type="text" id="loginPhone" class="login-input" placeholder="Mobile Number">
+        <h2 id="otpLoginTitle">🔐 OTP Login</h2>
+        <p id="otpLoginDesc">Login hone ke baad hi poora customer panel dikhega.</p>
+        <div class="login-phone-row">
+            <input type="text" id="loginPhone" class="login-input" placeholder="Mobile Number">
+            <button id="otpActionBtn" class="login-inline-btn" onclick="requestOtp()">Send OTP</button>
+        </div>
         <input type="text" id="loginOtp" class="login-input" placeholder="Enter OTP">
         <input type="text" id="loginVillage" class="login-input" placeholder="Village Name">
-        <button class="login-btn" onclick="requestOtp()">Send OTP</button>
-        <button class="login-btn" onclick="verifyOtp()">Verify OTP</button>
+        <button class="login-btn" id="verifyOtpBtn" onclick="verifyOtp()">Verify OTP</button>
         <div id="demoOtpBox" class="demo-otp"></div>
     </div>
 </div>
@@ -1058,17 +2223,17 @@ body{
         <div class="header-left">
             <div class="logo-badge">🛒</div>
             <div>
-                <div class="brand-title">Apna Mart</div>
-                <div class="brand-sub">Har ghar ki daily zarurat</div>
+                <div class="brand-title" id="brandTitle">Supply Setu Mart</div>
+                <div class="brand-sub" id="brandSub">Har ghar ki daily zarurat</div>
             </div>
         </div>
         <div class="header-right">
             <div class="cart-btn profile-trigger" onclick="openProfilePage()">
-                <img id="headerProfileImg" src="https://via.placeholder.com/44?text=U" alt="Profile">
-                <span>Profile</span>
+                <img id="headerProfileImg" src="data:image/jpeg;base64,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AAAAAAgQggAgggAAAAAAAAAAAAAAAAAAAAAAAAAAAAiwAAAAAAASwAgAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAACAwAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAABAgAAAAAAAAAAAAAAAAABCwAAAAAAAAAAAAAAAAADQAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAACwAAAAAAAAAwDDBQgAAAAAAAACAAAAAAAAAAABgAAAAAAAARgAAAABAgAAAAAAABQgAAAAAAAAACAAAAAAAACAAAAAAABCgAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAADAAAAAAAACwAAAAAAAAAQAAAAAAABwAAAAAAAABQAAAAAAADwAAAAAAAAAAAAAAAAACgAAAAAAAAACgAAAAAADgAAAAAAAAAAAAAAAAADAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAACgAAAAAAASAAAAAAAABQAAAAAAAABAAAAAAAAABSwgAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAzzwAAAAAAAAAAgAAAAAAAAADwAAAAAAAQSCAQAQSBAwAAAAAAACAAAAAAAAAABQAAAAAAiwAAAAAAAABAAgAAAAAQAAAAAAAAAAACAAAAAAAAAAAAAAAAAAATwAAADAAAAAAAAAAAAAAgAASAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAyAAAAAAAAAAAAAAAAAAAAAACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQgAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABDzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzjDDSjjzDTzzzzzzzzzzzzzzzzzzzzzzzzzzzSRzzzzzzzzzBTzzzzzzzzzzzzzzzzzzzzzzziRzzzzzzzzzzzzzjjzzzzzzzzzzzzzzzzzzzzRzzzzzzzzzzzzzzzzzDzzzzzzzzzzzzzzzzzyBTzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzzyzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzwzzzzzzzzzzzzzzzzzzzzzzxjzzzzzzzzzzzzzTzzzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzjDzzzzzzzziiyzxjjzzzzzzzzwjzzzzzzzzzzzzzzzzzzzzyQAAAABBDzzzzzzzzhzzzzzzzzzzhzzzzzzzzyQAAAAAAADzzzzzzzzzDzzzzzzzzzjzzzzzzzywAAAAAAAACDzzzzzzzwjzzzzzzzzzzzzzzzzzyQAAAAAAAAADzzzzzzzyzzzzzzzzzyDzzzzzzzzwAAAAAAAAABTzzzzzzzzTzzzzzzzzjzzzzzzzwgAAAAAAAABDDzzzzzzzzTzzzzzzzwzzzzzzzzzjQAAAAAAAAzzzzzzzzzjzzzzzzzzyzzzzzzzzzzAAAAAAAAQjzzzzzzzyzzzzzzzzzyjzzzzzzzzzwwgAAAADTzzzzzzzzyzzzzzzzzzyjzzzzzzzzzzzywgAADzzzzzzzzzyTzzzzzzzzzxTzzzzzzzjxDTzzjxQDDzzzzzzzzzzzzzzzzzzxzzzzzzzSwAAABAAAADxDzzzzzyhzzzzzzzzzzzxTzzzyRQAAAAAAAAAAAChTzzzxzzzzzzzzzzzzyjzzzgwAAAAAAAAAAAAADDzzyTzzzzzzzzzzzzzxTzzwAAAAAAAAAAAAAAABDzhzzzzzzzzzzzzzzyzTwAAAAAAAAAAAAAAAADzhTzzzzzzzzzzzzzzzywwAAAAAAAAAAAAAAAADizzzzzzzzzzzzzzzzzzzyggAAAAAAAAAAAAAARzzzzzzzzzzzzzzzzzzzzzywwgAAAAAAAAAAyzzzzzzzzzzzzzzzzzzzzzzzzzzywggQAAgxSzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz/xAAUEQEAAAAAAAAAAAAAAAAAAACg/9oACAECAQE/ADSf/8QAFBEBAAAAAAAAAAAAAAAAAAAAoP/aAAgBAwEBPwA0n//EADEQAAIBAwIEBQMDBAMAAAAAAAECAwARQAQSITFQUSIwQWFxIDJCEBNSFGCQkSMzof/aAAgBAQABPwL/AA+XHerjvVx3/sNpox60dUvoKOpbsK/ek71vc/kfp41vf+RoTSd6Gqel1a+q0J425HrTahFptSx5C1FmPM4AZl5GhqW9eNJOh6oSBT6kfjTSO3M4yyOnI0mqH5Cg1+XUJNUB9tM7Nzyldl5Go9SD93TXlVOf+qeVnzklZPio5Vbl0qXUei1xPQYp78G6OTapZi3AcuiRTbeB5UCCOiMwUXNSSlz7dGjlKfFIQwuOhMwUXNSSFz0iOQoaVgwuOgEgCpZS59ulRSmM+1BgRcZ80u42HLpkEu02PLO1Ev4jp0En4nMmk2LXPp17VFJvXLlfe3UIn2NlamSw29S00lxtyCbCnbcxOMIXNDTj1NfsR1+zH2r9iOjpx6GjC4xkbawNA3GPqX4bcTnSQfyoKo5DyCoPMU8H8a5Ymlfhtx5G3MThohc8KRAvmOgYU6FDxw422uDjahtqYaIXNKABYecVBFjTpsOHA90+MXUt4gO2EoLGwpVCi2AyhhY0wsbYWmbxEd8VjuYnChSwv3wp0uL9sJTtYHEnNkOFGu5gMSRdrEYUTXQYerPhAwtOOZxNQvI4WmPhIw9SfGPjCjFkXEkF0OFpj4z8Yc5vK3WITaRcN+Lt84K/cPnGb7jgobOvz0QcxjHmcH1wm5HDHLEPDDHIYLcsOI3QYkpshw15DBPI4enbiRiahuQwxyGEeeEDYg0DcYRNheibknCGG/B2+cOB/wAf9YU7/jhp96/OHP8A9rYkUm4e+BLJtHviQj/lXD1Q8d/bEBINxUcgb586SQIPeiSTxxNMPGT7YerHhU4vKkmv93mSTAfbXEm5xdKPCxw5xeM46yMtLOp9qv8AW06j3ppWbHiFoxiOu1iMgEjkaE0nev6hu1f1B/jX9Q3ajNIfWiSchBuYDF1K+IHEWJ29KaBh7+YsDH2po3X0xNMviJ7Ysy7kPthLAx58KWNV9P1KK3MU2nHoaMLj0raR6fRY9qELn0pdOPU0FVeQ/Vo1amgYcuOFCtox740ibXI89I2b4pY1Xl5NhW0dqsO3kuitTxFfjz413uBj6hOG7t50cHq2RJD6r52mXhu7454i1Ou1iPLVSxsKjjC/OVJEG+aIKmx8tF3MBQFhkamO43eUqljYUiBRmOgcUylTY+Vp0sN3fKlj2N7eQBc2FIgQZzoHFEWNvIiTe3tlzJvW1cvrij2i/r0CWPcPf6+dRR7FtmaiK/iH1Qx38R6FOlju+qCO3iOdPFtN/T6FXcwFAWFuhEXFqZdrEfRDFuNzyz248KljKH2/WBLC/fok63F+36xRlz7UBYW6A4DCxqSMofakXcwHRnXaxFRxlzQUKLDoTgMLGki2E/8AnRni3kUAFFh0Uj+zLdCt0q1Wz7dNK5luo2yLdVtVsILVutWrbVvKtVv8Yf8A/8QAKRAAAQMDAwMFAAMBAAAAAAAAAQARQCExQVBRYTBxoRAggZGxYJDR8P/aAAgBAQABPyH+nt1xFxlxv4HhaGulF2Aif/KN59icnJ9gO4oAt9iDUWhAKZVBrUJLLPOeFYryV9TAvyEPaPBErsedUAOSytQc74X5LG/O0dRg7oAOT86eSypQud8I65yj7tKiAx8IF9MBZFL9QbTrcX2IC922kumN3dEkclzoAJBcFigspnfRwA5LBFDR/WiFyfwgIg6I5BgtoYDRj7ZXCcw40LGhcBwNI40bhYAaAQElgFwNbSvMQQERwZ+3TzplWq53fM6c+AauJgn8mwRJIk304EQINkN3ORKJZHcwLahXHoaGVSFz+ak+Fi0gBCcIpmKATYOr8GX+JQ5vtf8AQo7R+1lKx79kQRcNFKNwgAIsY7A7r9ogBJgHRbl8LEnQF0Ci3L4KIJMQxiVR4tGJZeHIbE+yD0Fd+ozj9pmfaGfn6oViurXNBDbGMlBQKdeQdnGDDa3NaIr21V+YQQgbCAcoKcsQmtqin3Ywq/v+IVB3/EI+zGI7+P2F5EibOYhPfhofdRhMguaRHBs0hPbIw3gbQnwKI0+ITYN4ZwQgGEQrJg+JQyccoPgo3kmC4OEIo3PeD5wjecYIs7oQfChk4HiITCdofiQbvYw+06RO+qQ/CEHxIdQ5tEcI8VMPxIVzvCOMwUIBGYQjFhHOZhXDuhCBhyht1QgzR8wwcHCGDcpeICv3QAU7rRHoYyOBiAIlUB8ut4ACeV0R7YQ3bBigknBYodFB36lEqO6JII5itb00ht3Me3lxsVSzUgBsfcSBdWP6LNMNo7d/6sTgYyLsBBbu63BXE+1tAtkdldCTI5WKFIjDW4/IliYNygVCEIIuOkxNggTkhLs/kRHDcIv3pCrNBWqrc+oigUVj7rcnZG6IfHsB7Etid1uLshjMet+FdwqxQhV5eoxjfXdeq23ITRXfokmAuF9LjdG6iu6rd93XP9urRnhDu6rE2CAN3aQE4DsiCCxv1WT+DtHEEKxRTuOmwBBf1KBvbcmwV6Zd5QgAWEik7j86QChrD5MyvL4KIOkPJXs7SSHVCaq3QIIFU2BfJnNnOCiGK46FFwvLFvBUIgkQbj31xdoFYFnvAJAAVKBuMmZyMX9zxigt30KiBQ393OjacUw3+PYYAgACw0IBisUYjj2Uqp8zwAkhQrxt61Hf8aJTd/x68KXQgAKDQGQLwQUT7xNohDrwIuFC5QxY0JsFE93d/DRn+7NdDAKaKxogDptHOhBpQuRITgCUGabsIhpQDqnUSjERgCUBTao1PhFKA60z0k0xTH3MUx29QAfwRk39Pv8A/8QALBABAAECBQMDBAIDAQAAAAAAAREAQCExQVFxUGGREDCBIKGx8NHxYJDB4f/aAAgBAQABPxD/AE9oM0KRzD5K/vynST5Kk/wFQJWsEeIxaMDnsKyrPLWuzgFMS3lU55vl9IooWXmadkcZYq1G8g0LDvDUAcMzUVBOzg0InWAEuBRSGyKiJ3BxUnPMOFh9ohwqI5wxUeOHhoRJHqaoQ3WKEPhSmbSbMC0fRwkDdiUOfbSgoA5DLp4CVA1qR7yZKTpe2QcF1Iz2aVhQ39VABOmK3sBm0wi7O9abjvH/AJUrI1rM6SgoJxOrScU4ema9APKDJKXYZRpeaOjPzAYrThaLv0QuSabrQwyJ0R0ISkxKP9rUdFYyn+6KJSU6ElSBU+cDUdHmozVH3ldANMCVaS6ZX/r0oJjLqgACRL5QJpkR3t3TGNSh8UN6Ia4x7G3TsuRr1NrzEIyt5pw5TK9OasKkSjjcGGw3QBXIJpHLS479QWdDxNCIJk3IiuDj1ICvH7VwyQAl4K1qHA2NC1VhFsE1GoHu0LFXhFAzHzTv/KmGA8US4LkmscCe6l4dbNrjaSxNzUpt5ARt4Ozc8FRZnVJyClRC7aNg/YMioFi0/aGnigzG0Ndx+1bAFcimXcFjgWeGYNXkVD5tSz9xEMOgzKSFhoMmzkcwQ7hpAEcEtXmow7mzhUg/AVCwHvMgkanrF/NZ51gn8WsC7nKhYiZKviiryzd2wBCRydneh1xVlPrh98tFAVphsypxZEgbXayYPYWPeyGNyVoRJLON3HCfZZS7lM8CgAAMDKyQSGl3RPBsm1ck+MLOMeSPiy4XHBaQMYqXzZcqPmz2D+42UY7V5bTcKafFlN+X3izXakPBYhKG7USbFoJE3KcA2bGf7r5Fm6+v5rESf6TbD9LWxxDiLKUC7FPH7rFw/wC02zl9/wA1jhXYUpBsVCd1NiMUJWofNoKuQVpssXEsf2m1nPlxEvi073wPmz/RbWJnmfizAQyTyLQlWP3FmI4lkYHZWWcBJSpYCbLJsE1nJKbISe4szp6WcCXzl5bWUA+TP8bNytaDKyyREHkWYoiMJQIyfLvYKDH4nelVVZWziuytFkBX/ibSMAMmofMDJ70MkVQoaVm2n6hK2YxjNH5tTrgySo5jw2hEk9pyWhH8WKdAmrai1nD8LPZQSfGNu9AU0FL3MqLkE3H6hZQG7WHFfh5rC3s9u6WDEvOKzQSGkT1S3KQlDcaDiPBNGueJK/tFOi/la0hwUkrm6z6lqoBkjxQABaQBonm0ECvAFSveApeEHZ9oRCLsVwlDjSjIDuWhkMIB2W1VRmg/FiCoAq6VjD+ShcB5D6xasxBOzFWPYG6mmo55ek+j8L4Gtqt1FCR42Cjgvy9IrJ84DU+v5KRFER2bFG/yKi0QRHJpkkEzwffwRydeKLEupYvs5s3IV/XqAy8Z7I2XoGDUn8Kfk98wGCzwKAAGQUWsVsVHB90QCKsAVAgOjSc1BAFRaoJUyBqaXikQQMz3VfMVHBbmBIQ1raMHc9sKhWia4sx/hdYCQZUeQB7YI1Y8a0QUABwXCAG6e0JKV8Bu1CoVvCMCByFExCfc39qHv4FC4AIlMphifx9h4CnAoziO+mCwNBSwkJ7DAtz+NAAAQFFyt0SuzR1wkJ9ZRJGT2NugDHh942rJT6p6yQFDMyB71Rd4kMDDuGv1ROMcG9DoOqYjtfqYhEGF0N6LxBIaF3Ex2X0a3Tj2N6w0Ag6EYshDWogwdz6FGUnlQAQUXo0kISlEEvNt2fUVLocKhS3PVinDOUGICA6AlmDULcVQI8pngVAACAOhlEESRKaIwGeDRUJGoKMB0JNMVKyBAXRB6IEcQesaRUdYdEQaRduiZ5yqBlUdGmZOhZS9KIVmBfaJhQjpoxKpM10iozGgjp6DQ6U5gtsmKxE0Ay6otSTSJmWALkUHKwUB60u5UrRoLXarsP1dh9MOg6tbb/A4KhtUNqg2/wBPn//Z" alt="Profile">
+                <span id="profileBtnText">Profile</span>
             </div>
-            <div class="cart-btn" onclick="openOrdersPanel()">Orders</div>
-            <div class="cart-btn" onclick="openCartPanel()">Cart (<span id="count">0</span>)</div>
+            <div class="cart-btn" onclick="openOrdersPanel()"><span id="ordersBtnText">📦 Orders</span></div>
+            <div class="cart-btn" onclick="openCartPanel()"><span id="cartBtnText">🛒 Cart</span> (<span id="count">0</span>)</div>
         </div>
     </div>
 
@@ -1083,12 +2248,54 @@ body{
     <div class="cat" onclick="filterCategory('Fast Food', this)">Fast Food</div>
     <div class="cat" onclick="filterCategory('Drink', this)">Drink</div>
 </div>
+
     <div class="search-box">
         <input type="text" id="search" placeholder="Search products...">
     </div>
 
-    <div class="offers-wrap">
-        <div class="offers-track" id="offersTrack"></div>
+
+
+    <div class="welcome-stack">
+        <div class="welcome-banner">
+            <div class="welcome-kicker">WELCOME</div>
+            <div class="welcome-title">WELCOME</div>
+            <div class="welcome-subtitle">Order now and enjoy great offers</div>
+        </div>
+        <div class="offers-heading">✦ OFFERS FOR YOU ✦</div>
+        <div class="offers-strip">
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">💸</div>
+                    <div class="offer-title">Get FLAT ₹50 OFF</div>
+                </div>
+                <div class="offer-desc">On your first order above ₹199</div>
+                <div class="offer-pill">New Customer Offer</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🛵</div>
+                    <div class="offer-title">Enjoy FREE delivery</div>
+                </div>
+                <div class="offer-desc">On all your orders above ₹499</div>
+                <div class="offer-pill">Fast Delivery</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🥛</div>
+                    <div class="offer-title">Fresh dairy deals</div>
+                </div>
+                <div class="offer-desc">Milk, paneer and dahi par daily savings</div>
+                <div class="offer-pill">Daily Savings</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🧺</div>
+                    <div class="offer-title">Kitchen essentials combo</div>
+                </div>
+                <div class="offer-desc">Atta, oil and masala par special combo price</div>
+                <div class="offer-pill">Combo Offer</div>
+            </div>
+        </div>
     </div>
 
     <div class="products" id="products"></div>
@@ -1098,17 +2305,17 @@ body{
         <div class="cart-panel-header">
             <div class="cart-panel-title">
                 <button class="close-btn" onclick="closeAllPanels()">←</button>
-                <span>My Cart</span>
+                <span id="myCartTitle">My Cart</span>
             </div>
         </div>
 
         <div class="cart-delivery-box">
             <div class="cart-delivery-top">
                 <div class="cart-delivery-left">
-                    <div class="cart-delivery-line" id="cartDeliveryLine">Deliver to: <strong>Guest User</strong> <span class="delivery-tag">HOME</span></div>
+                    <div class="cart-delivery-line" id="cartDeliveryLine">Deliver to: <strong>Guest User</strong></div>
                     <div class="cart-delivery-sub" id="cartDeliverySub">Pehle profile save karo</div>
                 </div>
-                <button class="change-address-btn" onclick="openProfilePage()">Change</button>
+                <button class="change-address-btn" id="changeAddressBtn" onclick="openProfilePage()">Change</button>
             </div>
         </div>
 
@@ -1116,12 +2323,12 @@ body{
             <div id="cartItems"></div>
 
             <div class="cart-summary-card">
-                <h4>Price Details</h4>
-                <div class="cart-summary-row"><span>Subtotal</span><strong>₹<span id="subtotal">0</span></strong></div>
-                <div class="cart-summary-row"><span>Shipping</span><strong>₹<span id="shipping">0</span></strong></div>
-                <div class="cart-summary-row"><span>Total Items</span><strong><span id="countSummary">0</span></strong></div>
+                <h4 id="priceDetailsTitle">Price Details</h4>
+                <div class="cart-summary-row"><span id="subtotalLabel">Subtotal</span><strong>₹<span id="subtotal">0</span></strong></div>
+                <div class="cart-summary-row"><span id="shippingLabel">Shipping</span><strong>₹<span id="shipping">0</span></strong></div>
+                <div class="cart-summary-row"><span id="totalItemsLabel">Total Items</span><strong><span id="countSummary">0</span></strong></div>
                 <div class="cart-summary-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #eceff3;font-size:16px;">
-                    <span><strong>Total Pay</strong></span>
+                    <span><strong id="totalPayLabel">Total Pay</strong></span>
                     <strong>₹<span id="grandTotal">0</span></strong>
                 </div>
             </div>
@@ -1129,11 +2336,11 @@ body{
             <div id="savedProfileBox" class="profile-box" style="display:none;margin:10px 0 0 0;border-radius:0;border-left:none;border-right:none;"></div>
 
             <div class="cart-payment-box">
-                <h4 style="margin-bottom:8px;color:#111827;">Payment Option</h4>
-                <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
-                <label><input type="radio" name="payment" value="upi"> UPI Payment</label>
-                <button onclick="orderOnWhatsApp()" class="main-btn whatsapp-btn" style="margin-top:12px;">Order on WhatsApp</button>
-                <button onclick="openVoiceOrderModal()" class="main-btn blue-btn">Order on Voice</button>
+                <h4 id="paymentOptionTitle" style="margin-bottom:8px;color:#111827;">Payment Option</h4>
+                <label><input type="radio" name="payment" value="cod" checked> <span id="codLabel">Cash on Delivery</span></label>
+                <label><input type="radio" name="payment" value="upi"> <span id="upiLabel">UPI Payment</span></label>
+                <button onclick="orderOnWhatsApp()" id="orderWhatsappBtn" class="main-btn whatsapp-btn" style="margin-top:12px;">Order on WhatsApp</button>
+                <button onclick="orderOnCall()" id="orderCallBtn" class="main-btn call-btn">Order on Call</button>
             </div>
         </div>
 
@@ -1142,7 +2349,7 @@ body{
                 <div class="top-cut">₹<span id="total">0</span></div>
                 <div class="grand">₹<span id="bottomGrandTotal">0</span></div>
             </div>
-            <button onclick="placeOrder()" class="cart-place-order-btn">Place order</button>
+            <button onclick="placeOrder()" id="placeOrderBtn" class="cart-place-order-btn">Place order</button>
         </div>
     </div>
 
@@ -1151,7 +2358,7 @@ body{
         <div class="orders-panel-header">
             <div class="orders-panel-title">
                 <button class="close-btn" onclick="closeAllPanels()">←</button>
-                <span>My Orders</span>
+                <span id="myOrdersTitle">My Orders</span>
             </div>
         </div>
 
@@ -1160,10 +2367,69 @@ body{
                 <span style="font-size:24px;color:#9ca3af;">⌕</span>
                 <input type="text" id="ordersSearch" placeholder="Search your order here" oninput="filterOrdersList()">
             </div>
-            <button class="orders-filter-btn" type="button">Filters</button>
         </div>
 
         <div class="orders-list-wrap" id="orderList"></div>
+    </div>
+</div>
+
+
+<div class="order-detail-panel" id="orderDetailPanel">
+    <div class="order-detail-header">
+        <button class="close-btn" onclick="closeOrderDetails()">←</button>
+        <div class="order-detail-title" id="orderDetailsTitle">Order Details</div>
+        <button class="close-btn" onclick="closeOrderDetails()">✕</button>
+    </div>
+    <div class="order-detail-body" id="orderDetailBody"></div>
+</div>
+
+
+<div class="support-panel" id="supportPanel">
+    <div class="support-header">
+        <button class="close-btn" onclick="closeSupportPanel()">←</button>
+        <div class="support-title" id="supportTitle">Customer Service</div>
+        <button class="close-btn" onclick="closeSupportPanel()">✕</button>
+    </div>
+    <div class="support-body">
+        <div class="support-card">
+            <h4 id="helpSupportTitle">Help & Support</h4>
+            <p id="helpSupportDesc">Apni problem yahan likho. Message website ke andar type hoga aur WhatsApp par <strong>7518576269</strong> number par khul jayega.</p>
+            <textarea id="supportMessage" class="support-textarea" placeholder="Apni problem ya message yahan likhiye..."></textarea>
+            <button id="supportSendBtn" class="support-send-btn" onclick="sendSupportMessage()">Send on WhatsApp</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="language-panel" id="languagePanel">
+    <div class="language-header">
+        <button class="close-btn" onclick="closeLanguagePanel()">←</button>
+        <div class="language-title" id="languagePanelTitle">Change Language</div>
+        <button class="close-btn" onclick="closeLanguagePanel()">✕</button>
+    </div>
+    <div class="language-body">
+        <div class="language-card">
+            <p id="languagePanelDesc">Apni pasand ki language select kijiye.</p>
+            <button class="language-option-btn" id="langHindiBtn" onclick="setLanguage('hi')">हिन्दी</button>
+            <button class="language-option-btn" id="langEnglishBtn" onclick="setLanguage('en')">English</button>
+        </div>
+    </div>
+</div>
+
+<div class="language-panel" id="themePanel">
+    <div class="language-header">
+        <button class="close-btn" onclick="closeThemePanel()">←</button>
+        <div class="language-title" id="themePanelTitle">Theme</div>
+        <button class="close-btn" onclick="closeThemePanel()">✕</button>
+    </div>
+    <div class="language-body">
+        <div class="language-card">
+            <p id="themePanelDesc">Select your preferred theme.</p>
+            <button class="language-option-btn" id="themeSystemBtn" onclick="setThemeMode('system')">System</button>
+            <button class="language-option-btn" id="themeLightBtn" onclick="setThemeMode('light')">Light</button>
+            <button class="language-option-btn" id="themeDarkBtn" onclick="setThemeMode('dark')">Dark</button>
+        </div>
     </div>
 </div>
 
@@ -1171,45 +2437,26 @@ body{
 <div class="profile-page" id="profilePage">
     <div class="profile-header">
         <button class="close-btn" onclick="closeProfilePage()">←</button>
-        <div class="profile-title">My Profile</div>
+        <div class="profile-title" id="myProfileTitle">My Profile</div>
         <button class="close-btn" onclick="closeProfilePage()">⚙️</button>
     </div>
 
     <div class="profile-main">
         <div class="view-page" id="profileViewPage">
             <div class="profile-card-top">
-                <img id="profileViewImg" src="https://via.placeholder.com/90?text=User" alt="Profile">
+                <img id="profileViewImg" src="data:image/jpeg;base64,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AAAAAAgQggAgggAAAAAAAAAAAAAAAAAAAAAAAAAAAAiwAAAAAAASwAgAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAACAwAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAABAgAAAAAAAAAAAAAAAAABCwAAAAAAAAAAAAAAAAADQAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAACwAAAAAAAAAwDDBQgAAAAAAAACAAAAAAAAAAABgAAAAAAAARgAAAABAgAAAAAAABQgAAAAAAAAACAAAAAAAACAAAAAAABCgAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAADAAAAAAAACwAAAAAAAAAQAAAAAAABwAAAAAAAABQAAAAAAADwAAAAAAAAAAAAAAAAACgAAAAAAAAACgAAAAAADgAAAAAAAAAAAAAAAAADAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAACgAAAAAAASAAAAAAAABQAAAAAAAABAAAAAAAAABSwgAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAzzwAAAAAAAAAAgAAAAAAAAADwAAAAAAAQSCAQAQSBAwAAAAAAACAAAAAAAAAABQAAAAAAiwAAAAAAAABAAgAAAAAQAAAAAAAAAAACAAAAAAAAAAAAAAAAAAATwAAADAAAAAAAAAAAAAAgAASAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAyAAAAAAAAAAAAAAAAAAAAAACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQgAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABDzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzjDDSjjzDTzzzzzzzzzzzzzzzzzzzzzzzzzzzSRzzzzzzzzzBTzzzzzzzzzzzzzzzzzzzzzzziRzzzzzzzzzzzzzjjzzzzzzzzzzzzzzzzzzzzRzzzzzzzzzzzzzzzzzDzzzzzzzzzzzzzzzzzyBTzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzzyzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzwzzzzzzzzzzzzzzzzzzzzzzxjzzzzzzzzzzzzzTzzzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzjDzzzzzzzziiyzxjjzzzzzzzzwjzzzzzzzzzzzzzzzzzzzzyQAAAABBDzzzzzzzzhzzzzzzzzzzhzzzzzzzzyQAAAAAAADzzzzzzzzzDzzzzzzzzzjzzzzzzzywAAAAAAAACDzzzzzzzwjzzzzzzzzzzzzzzzzzyQAAAAAAAAADzzzzzzzyzzzzzzzzzyDzzzzzzzzwAAAAAAAAABTzzzzzzzzTzzzzzzzzjzzzzzzzwgAAAAAAAABDDzzzzzzzzTzzzzzzzwzzzzzzzzzjQAAAAAAAAzzzzzzzzzjzzzzzzzzyzzzzzzzzzzAAAAAAAAQjzzzzzzzyzzzzzzzzzyjzzzzzzzzzwwgAAAADTzzzzzzzzyzzzzzzzzzyjzzzzzzzzzzzywgAADzzzzzzzzzyTzzzzzzzzzxTzzzzzzzjxDTzzjxQDDzzzzzzzzzzzzzzzzzzxzzzzzzzSwAAABAAAADxDzzzzzyhzzzzzzzzzzzxTzzzyRQAAAAAAAAAAAChTzzzxzzzzzzzzzzzzyjzzzgwAAAAAAAAAAAAADDzzyTzzzzzzzzzzzzzxTzzwAAAAAAAAAAAAAAABDzhzzzzzzzzzzzzzzyzTwAAAAAAAAAAAAAAAADzh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" alt="Profile">
                 <div>
                     <div id="profileViewName" class="profile-name">User</div>
                     <div id="profileViewPhone" class="profile-phone">No number</div>
-                    <button class="profile-edit-btn" onclick="openEditProfile()">Edit Profile</button>
+                    <button class="profile-edit-btn" id="editProfileBtn" onclick="openEditProfile()">Edit Profile</button>
                 </div>
             </div>
 
             <div class="profile-menu">
-                <div class="lang-row">
-                    <div>
-                        <div style="font-weight:700;">Language / भाषा</div>
-                        <div class="detail-muted">Choose app language</div>
-                    </div>
-                    <div class="lang-switch">
-                        <button class="lang-btn" id="langBtnHi" onclick="setLanguage('hi')">हिंदी</button>
-                        <button class="lang-btn" id="langBtnEn" onclick="setLanguage('en')">English</button>
-                    </div>
-                </div>
-
-                <div class="location-row">
-                    <div>
-                        <div style="font-weight:700;">Live Location</div>
-                        <div class="detail-muted" id="locationAccuracyText">GPS not synced yet</div>
-                    </div>
-                    <button class="profile-edit-btn" style="margin-top:0;" onclick="refreshCustomerLocationNow()">Refresh</button>
-                </div>
-
                 <div class="profile-menu-item" onclick="openOrdersPanelFromProfile()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">📦</div>
-                        <div>My Orders</div>
+                        <div id="profileOrdersText">My Orders</div>
                     </div>
                     <div class="profile-arrow">›</div>
                 </div>
@@ -1217,7 +2464,31 @@ body{
                 <div class="profile-menu-item" onclick="clearOrderHistoryMessage()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">🗑️</div>
-                        <div>Clear Order History</div>
+                        <div id="clearOrderHistoryText">Clear Order History</div>
+                    </div>
+                    <div class="profile-arrow">›</div>
+                </div>
+
+                <div class="profile-menu-item" onclick="openSupportPanel()">
+                    <div class="profile-menu-left">
+                        <div class="profile-icon">💬</div>
+                        <div id="customerServiceText">Customer Service</div>
+                    </div>
+                    <div class="profile-arrow">›</div>
+                </div>
+
+                <div class="profile-menu-item" onclick="openThemePanel()">
+                    <div class="profile-menu-left">
+                        <div class="profile-icon">🌓</div>
+                        <div id="themeMenuText">Theme</div>
+                    </div>
+                    <div class="profile-arrow">›</div>
+                </div>
+
+                <div class="profile-menu-item" onclick="openLanguagePanel()">
+                    <div class="profile-menu-left">
+                        <div class="profile-icon">🌐</div>
+                        <div id="languageMenuText">Change Language</div>
                     </div>
                     <div class="profile-arrow">›</div>
                 </div>
@@ -1225,7 +2496,7 @@ body{
                 <div class="profile-menu-item" onclick="logoutCustomer()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">↪</div>
-                        <div>Log Out</div>
+                        <div id="logoutText">Log Out</div>
                     </div>
                     <div class="profile-arrow">›</div>
                 </div>
@@ -1234,8 +2505,11 @@ body{
 
         <div class="edit-page" id="profileEditPage">
             <div style="text-align:center;margin-bottom:12px;">
-                <img id="profilePreview" src="https://via.placeholder.com/90?text=User" alt="Profile" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #dbe5ee;">
-                <input type="file" id="profileImageInput" accept="image/*" class="form-input" style="margin-top:10px;">
+                <div class="profile-upload-wrap">
+                    <img id="profilePreview" src="data:image/jpeg;base64,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AAAAAAgQggAgggAAAAAAAAAAAAAAAAAAAAAAAAAAAAiwAAAAAAASwAgAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAACAwAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAABAgAAAAAAAAAAAAAAAAABCwAAAAAAAAAAAAAAAAADQAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAACwAAAAAAAAAwDDBQgAAAAAAAACAAAAAAAAAAABgAAAAAAAARgAAAABAgAAAAAAABQgAAAAAAAAACAAAAAAAACAAAAAAABCgAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAADAAAAAAAACwAAAAAAAAAQAAAAAAABwAAAAAAAABQAAAAAAADwAAAAAAAAAAAAAAAAACgAAAAAAAAACgAAAAAADgAAAAAAAAAAAAAAAAADAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAACgAAAAAAASAAAAAAAABQAAAAAAAABAAAAAAAAABSwgAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAzzwAAAAAAAAAAgAAAAAAAAADwAAAAAAAQSCAQAQSBAwAAAAAAACAAAAAAAAAABQAAAAAAiwAAAAAAAABAAgAAAAAQAAAAAAAAAAACAAAAAAAAAAAAAAAAAAATwAAADAAAAAAAAAAAAAAgAASAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAyAAAAAAAAAAAAAAAAAAAAAACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQgAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABDzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzjDDSjjzDTzzzzzzzzzzzzzzzzzzzzzzzzzzzSRzzzzzzzzzBTzzzzzzzzzzzzzzzzzzzzzzziRzzzzzzzzzzzzzjjzzzzzzzzzzzzzzzzzzzzRzzzzzzzzzzzzzzzzzDzzzzzzzzzzzzzzzzzyBTzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzzyzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzwzzzzzzzzzzzzzzzzzzzzzzxjzzzzzzzzzzzzzTzzzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzjDzzzzzzzziiyzxjjzzzzzzzzwjzzzzzzzzzzzzzzzzzzzzyQAAAABBDzzzzzzzzhzzzzzzzzzzhzzzzzzzzyQAAAAAAADzzzzzzzzzDzzzzzzzzzjzzzzzzzywAAAAAAAACDzzzzzzzwjzzzzzzzzzzzzzzzzzyQAAAAAAAAADzzzzzzzyzzzzzzzzzyDzzzzzzzzwAAAAAAAAABTzzzzzzzzTzzzzzzzzjzzzzzzzwgAAAAAAAABDDzzzzzzzzTzzzzzzzwzzzzzzzzzjQAAAAAAAAzzzzzzzzzjzzzzzzzzyzzzzzzzzzzAAAAAAAAQjzzzzzzzyzzzzzzzzzyjzzzzzzzzzwwgAAAADTzzzzzzzzyzzzzzzzzzyjzzzzzzzzzzzywgAADzzzzzzzzzyTzzzzzzzzzxTzzzzzzzjxDTzzjxQDDzzzzzzzzzzzzzzzzzzxzzzzzzzSwAAABAAAADxDzzzzzyhzzzzzzzzzzzxTzzzyRQAAAAAAAAAAAChTzzzxzzzzzzzzzzzzyjzzzgwAAAAAAAAAAAAADDzzyTzzzzzzzzzzzzzxTzzwAAAAAAAAAAAAAAABDzhzzzzzzzzzzzzzzyzTwAAAAAAAAAAAAAAAADzh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" alt="Profile" class="profile-upload-avatar">
+                    <div class="profile-upload-btn" onclick="triggerProfileImageInput()">+</div>
+                </div>
+                <input type="file" id="profileImageInput" accept="image/*" class="profile-hidden-file">
             </div>
 
             <input type="text" id="profileName" placeholder="Username" class="form-input">
@@ -1243,48 +2517,95 @@ body{
             <input type="text" id="profileAddress" placeholder="Full Address" class="form-input">
             <input type="text" id="profileLandmark" placeholder="Nearby Landmark" class="form-input">
 
-            <button onclick="saveProfile()" class="main-btn green-btn">Save Profile</button>
-            <button onclick="showProfileView()" class="main-btn blue-btn">Back</button>
+            <button onclick="saveProfile()" id="saveProfileBtn" class="main-btn green-btn">Save Profile</button>
+            <button onclick="showProfileView()" id="backProfileBtn" class="main-btn blue-btn">Back</button>
         </div>
     </div>
 </div>
 
 
-<div class="order-detail-modal" id="orderDetailModal">
-  <div class="order-detail-card">
-    <div class="detail-header">
-      <div style="font-size:20px;font-weight:800;color:#111827;">Order Details</div>
-      <button class="close-btn" onclick="closeOrderDetailModal()">✕</button>
+<div id="appToast" class="app-toast"></div>
+
+
+<div id="placeOrderLoader" class="place-order-loader">
+    <div class="place-order-loader-box">
+        <div class="place-order-loader-spinner"></div>
+        <div class="place-order-loader-title">Placing Order...</div>
+        <div class="place-order-loader-sub">Please wait, aapka order place ho raha hai.</div>
     </div>
-    <div class="detail-body" id="orderDetailContent"></div>
-  </div>
 </div>
 
-<div class="voice-modal" id="voiceOrderModal">
-  <div class="voice-card">
-    <div class="voice-header">
-      <div style="font-size:20px;font-weight:800;color:#111827;">Voice Order</div>
-      <button class="close-btn" onclick="closeVoiceOrderModal()">✕</button>
-    </div>
-    <div class="voice-body">
-      <div class="voice-recorder-box">
-        <div style="font-weight:800;font-size:18px;">Record what you need</div>
-        <div class="detail-muted">Speak product names, quantity, and address note. This recording will go to admin panel.</div>
-        <div class="voice-time" id="voiceTimer">00:00</div>
-        <audio id="voicePreview" controls style="width:100%;display:none;margin-top:10px;"></audio>
-        <textarea id="voiceOrderNote" class="form-input" placeholder="Optional note"></textarea>
-        <div class="voice-actions">
-          <button class="main-btn green-btn" style="width:auto;margin-top:0;" id="voiceStartBtn" onclick="startVoiceRecording()">Start Recording</button>
-          <button class="secondary-btn" id="voiceStopBtn" onclick="stopVoiceRecording()">Stop</button>
-          <button class="secondary-btn danger-btn" onclick="resetVoiceRecording()">Reset</button>
-          <button class="main-btn blue-btn" style="width:auto;margin-top:0;" onclick="submitVoiceOrder()">Send Voice Order</button>
+<div id="successScreen" class="success-screen">
+    <div class="success-box">
+        <div class="success-visual">
+            <div class="confetti-dot"></div>
+            <div class="confetti-dot"></div>
+            <div class="confetti-dot"></div>
+            <div class="confetti-dot"></div>
+            <div class="confetti-dot"></div>
+            <div class="success-ring"><div class="success-check">✓</div></div>
         </div>
-      </div>
+        <h2>Success</h2>
+        <p id="successMessage">Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.</p>
+        <button class="success-primary-btn" onclick="goToOrders()">View Order</button>
+        <div class="success-secondary-btn" onclick="closeSuccess()">Done</div>
     </div>
-  </div>
 </div>
 
 <script>
+let toastTimer = null;
+
+function showToast(message, type = "info"){
+    const toast = document.getElementById("appToast");
+    if(!toast) return;
+    toast.textContent = String(message || "Done");
+    toast.className = `app-toast ${type} show`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.className = `app-toast ${type}`;
+    }, 2400);
+}
+
+window.alert = function(message){
+    showToast(message, "info");
+};
+
+function showPlaceOrderLoader(){
+    const loader = document.getElementById("placeOrderLoader");
+    if(!loader) return;
+    loader.style.display = "flex";
+    requestAnimationFrame(() => loader.classList.add("show"));
+}
+
+function hidePlaceOrderLoader(){
+    const loader = document.getElementById("placeOrderLoader");
+    if(!loader) return;
+    loader.classList.remove("show");
+    setTimeout(() => { loader.style.display = "none"; }, 250);
+}
+
+function showSuccessScreen(customMessage){
+    const screen = document.getElementById("successScreen");
+    const message = document.getElementById("successMessage");
+    if(customMessage && message) message.textContent = customMessage;
+    if(!screen) return;
+    screen.style.display = "flex";
+    requestAnimationFrame(() => screen.classList.add("show"));
+}
+
+function closeSuccess(){
+    const screen = document.getElementById("successScreen");
+    if(!screen) return;
+    screen.classList.remove("show");
+    setTimeout(() => { screen.style.display = "none"; }, 280);
+}
+
+function goToOrders(){
+    closeSuccess();
+    openOrdersPanel();
+}
+
+
 let products = [];
 let filteredProducts = [];
 let cart = [];
@@ -1292,6 +2613,8 @@ const CUSTOMER_TOKEN_KEY = "apnaMartCustomerToken";
 let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 
 let latestOrders = [];
+let currentOpenOrderId = null;
+let otpSent = false;
 
 function getProfileDisplayInfo(){
     const profile = getSavedProfile() || {};
@@ -1300,8 +2623,8 @@ function getProfileDisplayInfo(){
     const address = profile.address || "Pehle profile save karo";
     const landmark = profile.landmark ? `, ${profile.landmark}` : "";
     const line = village
-        ? `Deliver to: <strong>${name}</strong>, ${village.toUpperCase()} <span class="delivery-tag">HOME</span>`
-        : `Deliver to: <strong>${name}</strong> <span class="delivery-tag">HOME</span>`;
+        ? `Deliver to: <strong>${name}</strong>, ${village.toUpperCase()}`
+        : `Deliver to: <strong>${name}</strong>`;
     return { line, sub: `${address}${landmark}` };
 }
 
@@ -1338,7 +2661,8 @@ function formatOrderStatusLine(order){
     const status = String(order?.status || "").toLowerCase();
     const date = order?.date || "";
     if(status.includes("cancel")) return `Cancelled on ${date}`;
-    if(status.includes("deliver")) return `Delivered on ${date}`;
+    if(status.includes("out for delivery")) return `Out for Delivery · ${order?.deliveryStartedAt || order?.deliveryPickedAt || date}`;
+    if(status.includes("deliver")) return `Delivered on ${order?.deliveredAt || date}`;
     if(status.includes("pending")) return `Pending since ${date}`;
     if(status.includes("need confirmation")) return `Need Confirmation · ${date}`;
     return `${order?.status || "Order"} · ${date}`;
@@ -1357,22 +2681,202 @@ function filterOrdersList(){
     renderOrdersList(filtered);
 }
 
+
+function getOrderStatusText(order){
+    return order?.status || "Pending";
+}
+
+function getOrderAddressText(order){
+    return order?.address || (getSavedProfile()?.address || "Address not available");
+}
+
+function getDeliveryBoyNumber(order){
+    return order?.deliveryBoyPhone || order?.deliveryPhone || order?.deliveryBoyNumber || order?.deliveryBoy?.phone || "";
+}
+
+function getDeliveryBoyName(order){
+    return order?.deliveryBoyName || order?.deliveryBoy?.name || "";
+}
+
+function getOrderStatusClassName(status){
+    const value = String(status || "").trim().toLowerCase();
+    if(value === "need confirmation") return "need-confirmation";
+    if(value === "pending") return "pending";
+    if(value === "out for delivery") return "out-for-delivery";
+    if(value === "delivered") return "delivered";
+    return "pending";
+}
+
+function getOrderTimelineSteps(order){
+    const status = String(order?.status || "").trim().toLowerCase();
+    const deliveryBoyName = getDeliveryBoyName(order);
+    const deliveryBoyNumber = getDeliveryBoyNumber(order);
+
+    const steps = [
+        {
+            key: "need confirmation",
+            title: "Need Confirmation",
+            sub: order?.date ? `Order placed on ${order.date}` : "Order received"
+        },
+        {
+            key: "pending",
+            title: "Pending",
+            sub: "Order accepted and preparing for dispatch"
+        },
+        {
+            key: "out for delivery",
+            title: "Out for Delivery",
+            sub: deliveryBoyNumber
+                ? `Assigned delivery boy${deliveryBoyName ? `: ${deliveryBoyName}` : ""} · ${deliveryBoyNumber}`
+                : deliveryBoyName
+                    ? `Assigned delivery boy: ${deliveryBoyName}`
+                    : "Assigned delivery boy details will appear here"
+        },
+        {
+            key: "delivered",
+            title: "Delivered",
+            sub: order?.deliveredAt ? `Completed on ${order.deliveredAt}` : "Order completed successfully"
+        }
+    ];
+
+    const statusOrder = ["need confirmation","pending","out for delivery","delivered"];
+    let currentIndex = statusOrder.indexOf(status);
+    if(currentIndex === -1) currentIndex = 0;
+
+    return steps.map((step, index) => ({
+        ...step,
+        state: index < currentIndex ? "done" : index === currentIndex ? "active" : ""
+    }));
+}
+
+
+function openOrderDetails(id){
+    currentOpenOrderId = String(id);
+    const order = latestOrders.find(o => String(o.id) === String(id));
+    if(!order) return;
+
+    const detailBody = document.getElementById("orderDetailBody");
+    if(!detailBody) return;
+
+    const itemsHtml = (order.items || []).map(item => `
+        <div class="order-detail-item">
+            <img src="${getSmallProductImageSrc(item.image)}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=IMG'">
+            <div class="order-detail-item-text">
+                <div class="order-detail-item-name">${item.name || "Item"}</div>
+                <div class="order-detail-item-sub">Qty: ${item.qty || 1}${item.price ? ` · ₹${item.price}` : ""}</div>
+            </div>
+            <div class="order-detail-value">${item.price && item.qty ? `₹${item.price * item.qty}` : ""}</div>
+        </div>
+    `).join("");
+
+    const deliveryBoyNumber = getDeliveryBoyNumber(order);
+    const deliveryBoyName = getDeliveryBoyName(order);
+    const hasAssignedDeliveryBoy = Boolean(String(deliveryBoyNumber || '').trim() || String(deliveryBoyName || '').trim());
+    const callHref = deliveryBoyNumber ? `tel:${String(deliveryBoyNumber).replace(/[^0-9+]/g, '')}` : "";
+    const timelineHtml = getOrderTimelineSteps(order).map(step => `
+        <div class="route-step ${step.state}">
+            <div class="route-step-title">${step.title}</div>
+            <div class="route-step-sub">${step.sub}</div>
+        </div>
+    `).join("");
+
+    detailBody.innerHTML = `
+        <div class="order-detail-card">
+            <div class="order-detail-row">
+                <div class="order-detail-label">Order ID</div>
+                <div class="order-detail-value">${order.id || "N/A"}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Date</div>
+                <div class="order-detail-value">${order.date || "N/A"}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Status</div>
+                <div class="order-detail-value">${getOrderStatusText(order)}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Payment Mode</div>
+                <div class="order-detail-value">${order.paymentMethod || "COD"}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Payment Status</div>
+                <div class="order-detail-value">${order.paymentStatus || "N/A"}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Address</div>
+                <div class="order-detail-value">${getOrderAddressText(order)}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label">Total</div>
+                <div class="order-detail-value">₹${order.total || 0}</div>
+            </div>
+        </div>
+
+        <div class="order-detail-card timeline-card order-summary-card">
+            <div class="order-route-title">🛵 Order Summary</div>
+            <div class="order-route">${timelineHtml}</div>
+            ${hasAssignedDeliveryBoy ? `
+                <div class="delivery-boy-box">
+                    <div class="delivery-boy-head">
+                        <div class="delivery-boy-copy">
+                            <div class="delivery-boy-label">Delivery Boy</div>
+                            <div class="delivery-boy-name">${deliveryBoyName || "Assigned Delivery Boy"}</div>
+                            <div class="delivery-boy-number">Phone: ${deliveryBoyNumber || "Not available"}</div>
+                            <div class="delivery-boy-note">Call option will open your mobile dialer directly.</div>
+                        </div>
+                        ${deliveryBoyNumber ? `<a class="delivery-boy-call" href="${callHref}" aria-label="Call Delivery Boy">☎</a>` : ""}
+                    </div>
+                </div>
+            ` : ""}
+        </div>
+
+        <div class="order-detail-card">
+            <div class="order-detail-items-title">Ordered Items</div>
+            ${itemsHtml || '<div style="color:#6b7280;">No items found</div>'}
+        </div>
+    `;
+
+    closeAllPanels();
+    document.getElementById("orderDetailPanel").classList.add("open");
+    pushPanelState("orderDetails");
+}
+
+function closeOrderDetails(){
+    closeAllPanels(true);
+}
+
 function renderOrdersList(orders){
     const orderList = document.getElementById("orderList");
     if(!orderList) return;
-    orderList.innerHTML = orders.length === 0 ? `<div class="orders-empty">${t('noOrders')}</div>` : orders.map(o => `
-        <div class="order-card" onclick="openOrderDetail('${'${o.id}'}')" style="cursor:pointer;">
-            <div class="order-thumb-box">
-                <img src="${'${getOrderPrimaryImage(o)}'}" alt="${'${getOrderPrimaryName(o)}'}" class="order-item-thumb" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
-            </div>
-            <div class="order-content">
-                <div class="order-status-line">${'${formatOrderStatusLine(o)}'}</div>
-                <div class="order-product-name">${'${getOrderPrimaryName(o)}'}</div>
-                <div class="order-meta-line">Total: ₹${'${o.total}'} · Payment: ${'${o.paymentMethod || "COD"}'}${'${o.assignedDeliveryBoyName ? ` · Rider: ${o.assignedDeliveryBoyName}` : ""}'}</div>
-            </div>
-            <div class="order-arrow">›</div>
-        </div>
-    `).join("");
+
+    orderList.innerHTML =
+        orders.length === 0
+            ? `<div class="orders-empty">No orders yet</div>`
+            : orders.map(o => `
+                <div class="order-card" onclick="openOrderDetails('${o.id}')">
+                    <div class="order-thumb-box">
+                        <img src="${getOrderPrimaryImage(o)}" alt="${getOrderPrimaryName(o)}" class="order-item-thumb" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
+                    </div>
+                    <div class="order-content">
+                        <div class="order-status-line">${formatOrderStatusLine(o)}</div>
+                        <div class="order-product-name">${getOrderPrimaryName(o)}</div>
+                        <div class="order-status-sub">
+                            <span class="order-status-pill ${getOrderStatusClassName(o.status)}">${o.status || "Pending"}</span>
+                            <span class="order-mini-chip">Total ₹${o.total || 0}</span>
+                            <span class="order-mini-chip">Payment ${(o.paymentMethod || "COD").toUpperCase()}</span>
+                        </div>
+                        ${(getDeliveryBoyName(o) || getDeliveryBoyNumber(o)) ? `
+                            <div class="order-meta-line">Assigned Delivery Boy: ${getDeliveryBoyName(o) ? getDeliveryBoyName(o) : ""}${getDeliveryBoyName(o) && getDeliveryBoyNumber(o) ? " · " : ""}${getDeliveryBoyNumber(o) ? getDeliveryBoyNumber(o) : ""}</div>
+                        ` : String(o.status || "").toLowerCase().includes("delivered") ? `
+                            <div class="order-stars">☆ ☆ ☆ ☆ ☆</div>
+                            <div class="order-rate-line">Rate this product now</div>
+                        ` : `
+                            <div class="order-meta-line">Tap to view full order summary</div>
+                        `}
+                    </div>
+                    <div class="order-arrow">›</div>
+                </div>
+            `).join("");
 }
 
 const ALLOWED_VILLAGES = {
@@ -1407,7 +2911,7 @@ function getSavedProfile(){
 }
 
 function getDefaultProfileImage() {
-    return "https://via.placeholder.com/90?text=User";
+    return "data:image/jpeg;base64,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AAAAAAgQggAgggAAAAAAAAAAAAAAAAAAAAAAAAAAAAiwAAAAAAASwAgAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAACAwAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAABAgAAAAAAAAAAAAAAAAABCwAAAAAAAAAAAAAAAAADQAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAACwAAAAAAAAAwDDBQgAAAAAAAACAAAAAAAAAAABgAAAAAAAARgAAAABAgAAAAAAABQgAAAAAAAAACAAAAAAAACAAAAAAABCgAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAADAAAAAAAACwAAAAAAAAAQAAAAAAABwAAAAAAAABQAAAAAAADwAAAAAAAAAAAAAAAAACgAAAAAAAAACgAAAAAADgAAAAAAAAAAAAAAAAADAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAABQAAAAAAAACgAAAAAAASAAAAAAAABQAAAAAAAABAAAAAAAAABSwgAAAADQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAzzwAAAAAAAAAAgAAAAAAAAADwAAAAAAAQSCAQAQSBAwAAAAAAACAAAAAAAAAABQAAAAAAiwAAAAAAAABAAgAAAAAQAAAAAAAAAAACAAAAAAAAAAAAAAAAAAATwAAADAAAAAAAAAAAAAAgAASAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAAQxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAyAAAAAAAAAAAAAAAAAAAAAACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQgAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/xAAC/9oADAMBAAIAAwAAABDzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzjDDSjjzDTzzzzzzzzzzzzzzzzzzzzzzzzzzzSRzzzzzzzzzBTzzzzzzzzzzzzzzzzzzzzzzziRzzzzzzzzzzzzzjjzzzzzzzzzzzzzzzzzzzzRzzzzzzzzzzzzzzzzzDzzzzzzzzzzzzzzzzzyBTzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzzyzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzzzzwzzzzzzzzzzzzzzzzzzzzzzxjzzzzzzzzzzzzzTzzzzzzzzzzzzzzzzzzzzzzzxzzzzzzzzzzzzjDzzzzzzzziiyzxjjzzzzzzzzwjzzzzzzzzzzzzzzzzzzzzyQAAAABBDzzzzzzzzhzzzzzzzzzzhzzzzzzzzyQAAAAAAADzzzzzzzzzDzzzzzzzzzjzzzzzzzywAAAAAAAACDzzzzzzzwjzzzzzzzzzzzzzzzzzyQAAAAAAAAADzzzzzzzyzzzzzzzzzyDzzzzzzzzwAAAAAAAAABTzzzzzzzzTzzzzzzzzjzzzzzzzwgAAAAAAAABDDzzzzzzzzTzzzzzzzwzzzzzzzzzjQAAAAAAAAzzzzzzzzzjzzzzzzzzyzzzzzzzzzzAAAAAAAAQjzzzzzzzyzzzzzzzzzyjzzzzzzzzzwwgAAAADTzzzzzzzzyzzzzzzzzzyjzzzzzzzzzzzywgAADzzzzzzzzzyTzzzzzzzzzxTzzzzzzzjxDTzzjxQDDzzzzzzzzzzzzzzzzzzxzzzzzzzSwAAABAAAADxDzzzzzyhzzzzzzzzzzzxTzzzyRQAAAAAAAAAAAChTzzzxzzzzzzzzzzzzyjzzzgwAAAAAAAAAAAAADDzzyTzzzzzzzzzzzzzxTzzwAAAAAAAAAAAAAAABDzhzzzzzzzzzzzzzzyzTwAAAAAAAAAAAAAAAADzh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";
 }
 
 function readProfileImageFile(file){
@@ -1419,13 +2923,27 @@ function readProfileImageFile(file){
         reader.readAsDataURL(file);
     });
 }
+function triggerProfileImageInput(){
+    document.getElementById("profileImageInput")?.click();
+}
+
+function isProfileEditing(){
+    return document.getElementById("profilePage")?.classList.contains("open") &&
+           document.getElementById("profileEditPage")?.classList.contains("active");
+}
+
+function isProfileOpen(){
+    return document.getElementById("profilePage")?.classList.contains("open");
+}
 
 function showApp(){
+    document.documentElement.classList.add("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
 }
 
 function showLogin(){
+    document.documentElement.classList.remove("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "flex";
     document.getElementById("app").style.display = "none";
 }
@@ -1435,56 +2953,6 @@ function getCustomerHeaders(includeJson=true){
     if(includeJson) headers["Content-Type"] = "application/json";
     if(customerToken) headers["Authorization"] = `Bearer ${customerToken}`;
     return headers;
-}
-
-let customerLocationInterval = null;
-
-function getCurrentPreciseLocation(){
-    return new Promise((resolve) => {
-        if(!navigator.geolocation){
-            resolve(null);
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy || 0
-                });
-            },
-            () => resolve(null),
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
-    });
-}
-
-async function pushCustomerLiveLocation(){
-    if(!customerToken) return;
-    const location = await getCurrentPreciseLocation();
-    if(!location) return;
-    try{
-        await fetch('/api/customer/location', {
-            method: 'PATCH',
-            headers: getCustomerHeaders(true),
-            body: JSON.stringify(location)
-        });
-    }catch(error){
-        console.error('Live location update failed', error);
-    }
-}
-
-function startCustomerLocationSync(){
-    if(customerLocationInterval) clearInterval(customerLocationInterval);
-    pushCustomerLiveLocation();
-    customerLocationInterval = setInterval(pushCustomerLiveLocation, 20000);
-}
-
-function stopCustomerLocationSync(){
-    if(customerLocationInterval){
-        clearInterval(customerLocationInterval);
-        customerLocationInterval = null;
-    }
 }
 
 function renderTopProfile(){
@@ -1519,7 +2987,13 @@ function renderSavedProfile(){
 
 function loadProfileForm(){
     const profile = getSavedProfile();
+
     if(!profile){
+        document.getElementById("profileName").value = "";
+        document.getElementById("profilePhone").value = "";
+        document.getElementById("profileAddress").value = "";
+        document.getElementById("profileLandmark").value = "";
+        document.getElementById("profileImageInput").value = "";
         document.getElementById("profilePreview").src = getDefaultProfileImage();
         document.getElementById("profileViewImg").src = getDefaultProfileImage();
         document.getElementById("profileViewName").textContent = "User";
@@ -1541,50 +3015,66 @@ function loadProfileForm(){
 async function saveProfile(){
     const oldProfile = getSavedProfile() || {};
     const name = document.getElementById("profileName").value.trim();
-    const phone = normalizePhone(oldProfile.phone || "");
+    const phone = normalizePhone(document.getElementById("profilePhone").value.trim() || oldProfile.phone || "");
     const address = document.getElementById("profileAddress").value.trim();
     const landmark = document.getElementById("profileLandmark").value.trim();
     const imageFile = document.getElementById("profileImageInput").files[0];
 
     if(!name || !phone || !address){
-        alert("Username, mobile number aur full address zaruri hai");
+        showToast("Username, mobile number aur full address zaruri hai", "error");
         return;
     }
 
-    let image = oldProfile.image || "";
+    let image = oldProfile.image || getDefaultProfileImage();
     if(imageFile){
         image = await readProfileImageFile(imageFile);
     }
 
-    const profile = { ...oldProfile, name, phone, address, landmark, image };
-    localStorage.setItem("apnaMartProfile", JSON.stringify(profile));
+    const profile = {
+        ...oldProfile,
+        name: name || oldProfile.name || "",
+        phone: phone || oldProfile.phone || "",
+        address: address || oldProfile.address || "",
+        landmark: landmark || oldProfile.landmark || "",
+        image: image || oldProfile.image || getDefaultProfileImage()
+    };
 
-    alert("Profile saved successfully");
+    localStorage.setItem("apnaMartProfile", JSON.stringify(profile));
+    document.getElementById("profileImageInput").value = "";
+    showToast("Profile saved successfully", "success");
     renderSavedProfile();
     renderTopProfile();
     loadProfileForm();
     showProfileView();
 }
 
-function openProfilePage(){
-    closeAllPanels();
+function openProfilePage(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("profilePage").classList.add("open");
     loadProfileForm();
     showProfileView();
+    if(addToHistory) pushPanelState("profile");
 }
 
 function closeProfilePage(){
-    document.getElementById("profilePage").classList.remove("open");
+    closeAllPanels(true);
 }
 
 function openEditProfile(){
+    loadProfileForm();
     document.getElementById("profileViewPage").classList.add("hidden");
     document.getElementById("profileEditPage").classList.add("active");
 }
 
 function showProfileView(){
+    loadProfileForm();
     document.getElementById("profileViewPage").classList.remove("hidden");
     document.getElementById("profileEditPage").classList.remove("active");
+}
+
+function isProfileEditing(){
+    return document.getElementById("profilePage")?.classList.contains("open") &&
+           document.getElementById("profileEditPage")?.classList.contains("active");
 }
 
 function openOrdersPanelFromProfile(){
@@ -1593,7 +3083,7 @@ function openOrdersPanelFromProfile(){
 }
 
 function clearOrderHistoryMessage(){
-    alert("Order history server se aati hai. Isse clear karne ke liye admin side se order delete karna padega.");
+    showToast("Order history server se aati hai. Isse clear karne ke liye admin side se order delete karna padega.", "info");
 }
 
 async function checkCustomerLogin(){
@@ -1603,38 +3093,47 @@ async function checkCustomerLogin(){
         return false;
     }
 
+    // Token present hai to customer ko logged-in hi rakho
+    showApp();
+
     try{
         const res = await fetch("/api/customer/me", {
             headers: getCustomerHeaders(false)
         });
 
-        if(!res.ok){
-            logoutCustomer(false);
+        // Sirf actual invalid token par logout karo
+        if(res.status === 401 || res.status === 403){
+            localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+            customerToken = "";
+            showLogin();
             return false;
         }
 
-        const data = await res.json();
+        // Temporary network/server problem par login mat hatao
+        if(!res.ok){
+            return true;
+        }
+
+        const data = await res.json().catch(() => ({}));
         const phone = data.customer?.phone || "";
         const village = data.customer?.village || "";
         const oldProfile = getSavedProfile() || {};
         localStorage.setItem("apnaMartProfile", JSON.stringify({ ...oldProfile, phone, village }));
-        showApp();
         loadProfileForm();
         renderSavedProfile();
         renderTopProfile();
-        startCustomerLocationSync();
+        updateCartDeliveryBox();
         return true;
     }catch(error){
         console.error(error);
-        logoutCustomer(false);
-        return false;
+        return true;
     }
 }
 async function requestOtp(){
     const phone = normalizePhone(document.getElementById("loginPhone").value);
 
     if(!phone || phone.length < 10){
-        alert("Valid mobile number dalo");
+        showToast("Valid mobile number dalo", "error");
         return;
     }
 
@@ -1648,16 +3147,21 @@ async function requestOtp(){
         const data = await res.json().catch(() => ({}));
 
         if(!res.ok){
-            alert(data.message || "OTP send failed");
+            showToast(data.message || "OTP send failed", "error");
             return;
         }
+
+        otpSent = true;
+        const otpBtn = document.getElementById("otpActionBtn");
+        if(otpBtn) otpBtn.textContent = "Resend OTP";
+        applyLanguage();
 
         const box = document.getElementById("demoOtpBox");
         box.style.display = "block";
         box.textContent = `Your 6 digit code: ${data.demoOtp}`;
     }catch(error){
         console.error(error);
-        alert("OTP send failed");
+        showToast("OTP send failed", "error");
     }
 }
 async function verifyOtp(){
@@ -1666,7 +3170,7 @@ async function verifyOtp(){
     const village = String(document.getElementById("loginVillage").value || "").trim();
 
     if(!phone || !otp || !village){
-        alert("Phone, OTP aur village tino dalo");
+        showToast("Phone, OTP aur village tino dalo", "error");
         return;
     }
 
@@ -1680,7 +3184,7 @@ async function verifyOtp(){
         const data = await res.json().catch(() => ({}));
 
         if(!res.ok || !data.token){
-            alert(data.message || "OTP verify failed");
+            showToast(data.message || "OTP verify failed", "error");
             return;
         }
 
@@ -1691,7 +3195,7 @@ async function verifyOtp(){
         localStorage.setItem("apnaMartProfile", JSON.stringify({ ...oldProfile, phone, village: normalizeVillage(village) }));
 
         await checkCustomerLogin();
-        alert("OTP login successful");
+        showToast("OTP login successful", "success");
     }catch(error){
         console.error(error);
         alert("OTP verify failed");
@@ -1701,10 +3205,9 @@ async function verifyOtp(){
 function logoutCustomer(showAlert=true){
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
     customerToken = "";
-    stopCustomerLocationSync();
+    closeAllPanels(true);
     showLogin();
-    closeProfilePage();
-    if(showAlert) alert("Logged out");
+    if(showAlert) showToast("Logged out", "info");
 }
 
 function getProductImageSrc(image){
@@ -1763,21 +3266,75 @@ async function fetchProducts() {
     }
 }
 
-function closeAllPanels() {
-    document.getElementById("cartPanel").classList.remove("open");
-    document.getElementById("ordersPanel").classList.remove("open");
+function closeAllPanels(clearHash = false) {
+    document.getElementById("cartPanel")?.classList.remove("open");
+    document.getElementById("ordersPanel")?.classList.remove("open");
+    document.getElementById("orderDetailPanel")?.classList.remove("open");
+    currentOpenOrderId = null;
+    document.getElementById("supportPanel")?.classList.remove("open");
+    document.getElementById("languagePanel")?.classList.remove("open");
+    document.getElementById("profilePage")?.classList.remove("open");
+
+    if (clearHash && location.hash) {
+        history.replaceState({}, "", location.pathname + location.search);
+    }
 }
 
-function openCartPanel(){
-    closeAllPanels();
-    closeProfilePage();
-    document.getElementById("cartPanel").classList.add("open");
+function pushPanelState(panelName){
+    const hash = `#${panelName}`;
+    if(location.hash !== hash){
+        history.pushState({ panel: panelName }, "", hash);
+    }
 }
 
-async function openOrdersPanel(){
-    closeAllPanels();
-    closeProfilePage();
-    document.getElementById("ordersPanel").classList.add("open");
+function syncPanelWithHash(){
+    const hash = location.hash.replace("#", "");
+    closeAllPanels(false);
+
+    if(hash === "cart"){
+        document.getElementById("cartPanel")?.classList.add("open");
+        return;
+    }
+    if(hash === "orders"){
+        document.getElementById("ordersPanel")?.classList.add("open");
+        showOrders();
+        return;
+    }
+    if(hash === "orderDetails"){
+        document.getElementById("orderDetailPanel")?.classList.add("open");
+        if(currentOpenOrderId) openOrderDetails(currentOpenOrderId);
+        return;
+    }
+    if(hash === "support"){
+        document.getElementById("supportPanel")?.classList.add("open");
+        return;
+    }
+    if(hash === "language"){
+        document.getElementById("languagePanel")?.classList.add("open");
+        return;
+    }
+    if(hash === "profile"){
+        document.getElementById("profilePage")?.classList.add("open");
+        loadProfileForm();
+        showProfileView();
+        return;
+    }
+
+    // Home page = koi panel nahi
+    closeAllPanels(true);
+}
+window.addEventListener("popstate", syncPanelWithHash);
+window.addEventListener("hashchange", syncPanelWithHash);
+
+function openCartPanel(addToHistory = true){
+    closeAllPanels(false);
+    document.getElementById("cartPanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("cart");
+}
+async function openOrdersPanel(addToHistory = true){
+    closeAllPanels(false);
+    document.getElementById("ordersPanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("orders");
     await showOrders();
 }
 
@@ -1893,7 +3450,7 @@ function inc(id) {
         cartItem.qty++;
         update();
     } else {
-        alert("No more stock available");
+        showToast("No more stock available", "error");
     }
 }
 
@@ -1931,19 +3488,11 @@ function update() {
     document.getElementById("cartItems").innerHTML =
         cart.length === 0
             ? `<div class="cart-empty">Your cart is empty</div>`
-            : cart.map((i, index) => `
+            : cart.map((i) => `
                 <div class="cart-card">
-                    <div class="cart-badge-row">
-                        <span class="cart-badge">${index % 2 === 0 ? "Hot Deal" : "Best Seller"}</span>
-                        <span class="cart-badge secondary">${i.stock > 20 ? "In Stock" : "Limited"}</span>
-                    </div>
-
                     <div class="cart-main-row">
                         <div class="cart-image-box">
                             <img src="${getProductImageSrc(i.image)}" alt="${i.name}" class="cart-product-image" onerror="this.src='https://via.placeholder.com/120?text=IMG'">
-                            <select class="cart-qty-select" onchange="setCartQty(${i.id}, this.value)">
-                                ${Array.from({length: Math.max(1, Math.min(i.stock || 1, 10))}, (_, n) => n + 1).map(q => `<option value="${q}" ${q === i.qty ? "selected" : ""}>Qty: ${q}</option>`).join("")}
-                            </select>
                         </div>
 
                         <div class="cart-info">
@@ -1955,15 +3504,13 @@ function update() {
                                 <span class="cart-original-price">₹${i.original || Math.round(i.price * 1.4)}</span>
                                 <span class="cart-final-price">₹${i.price}</span>
                             </div>
-
-                            <div class="cart-delivery-date">Delivery by 2 days</div>
                         </div>
                     </div>
 
                     <div class="cart-action-row">
+                        <button class="cart-action-btn" onclick="dec(${i.id})">− Qty</button>
+                        <button class="cart-action-btn" onclick="inc(${i.id})">+ Qty</button>
                         <button class="cart-action-btn" onclick="removeItem(${i.id})">Remove</button>
-                        <button class="cart-action-btn" onclick="openProfilePage()">Save for later</button>
-                        <button class="cart-action-btn" onclick="placeOrder()">Buy this now</button>
                     </div>
                 </div>
             `).join("");
@@ -1975,16 +3522,85 @@ function update() {
 }
 
 
+
+function getCurrentOrderLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+
+        function readLocation(callback) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = Number(position.coords.latitude);
+                    const longitude = Number(position.coords.longitude);
+                    const accuracy = Number(position.coords.accuracy || 0);
+
+                    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                        callback(null);
+                        return;
+                    }
+
+                    callback({
+                        latitude,
+                        longitude,
+                        accuracy
+                    });
+                },
+                (error) => {
+                    console.error("Current location fetch error:", error);
+                    callback(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        readLocation((firstLocation) => {
+            if (!firstLocation) {
+                resolve(null);
+                return;
+            }
+
+            if (firstLocation.accuracy > 0 && firstLocation.accuracy <= 50) {
+                resolve(firstLocation);
+                return;
+            }
+
+            setTimeout(() => {
+                readLocation((secondLocation) => {
+                    if (!secondLocation) {
+                        resolve(firstLocation);
+                        return;
+                    }
+
+                    const bestLocation =
+                        secondLocation.accuracy > 0 &&
+                        (firstLocation.accuracy <= 0 || secondLocation.accuracy < firstLocation.accuracy)
+                            ? secondLocation
+                            : firstLocation;
+
+                    resolve(bestLocation);
+                });
+            }, 2000);
+        });
+    });
+}
+
 async function placeOrder() {
     const isLoggedIn = await checkCustomerLogin();
     if(!isLoggedIn){
-        alert("Pehle OTP login karo");
+        showToast("Pehle OTP login karo", "error");
         return;
     }
 
     const profile = getSavedProfile();
     if(!profile || !profile.name || !profile.address){
-        alert("Pehle profile save karo");
+        showToast("Pehle profile save karo", "error");
         openProfilePage();
         openEditProfile();
         return;
@@ -1992,13 +3608,23 @@ async function placeOrder() {
 
     const payment = document.querySelector('input[name="payment"]:checked').value;
 
-    if (cart.length === 0) return alert("Cart is empty!");
+    if (cart.length === 0) {
+        showToast("Cart is empty!", "error");
+        return;
+    }
 
     const fullAddress = `${profile.address}${profile.landmark ? ", Landmark: " + profile.landmark : ""}`;
 
-    try {
-        const customerLocation = await getCurrentPreciseLocation();
+    showPlaceOrderLoader();
 
+    let currentLocation = null;
+    try {
+        currentLocation = await getCurrentOrderLocation();
+    } catch (error) {
+        currentLocation = null;
+    }
+
+    try {
         const response = await fetch("/api/orders", {
             method: "POST",
             headers: getCustomerHeaders(true),
@@ -2007,134 +3633,88 @@ async function placeOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
-                customerLocation
+                customerLocation: currentLocation
             })
         });
 
         const result = await response.json().catch(() => ({}));
 
-        if (!response.ok) return alert(result.message || "Order failed");
+        if (!response.ok) {
+            hidePlaceOrderLoader();
+            showToast(result.message || "Order failed", "error");
+            return;
+        }
 
         if (payment === "cod") {
-            alert(`✅ Order Placed!\nOrder ID: ${result.order.id}`);
             cart = [];
             update();
-            
-const TRANSLATIONS = {
-  hi: {
-    noOrders: 'No orders yet',
-    pendingSince: 'Pending since',
-    needConfirmation: 'Need Confirmation',
-    deliveredOn: 'Delivered on',
-    cancelledOn: 'Cancelled on',
-    orderDetailTitle: 'Order Details',
-    orderPlaced: 'Order placed successfully',
-    voiceSent: 'Voice order sent successfully',
-    locationGps: 'GPS accuracy',
-    locationWaiting: 'GPS sync ho raha hai...'
-  },
-  en: {
-    noOrders: 'No orders yet',
-    pendingSince: 'Pending since',
-    needConfirmation: 'Need Confirmation',
-    deliveredOn: 'Delivered on',
-    cancelledOn: 'Cancelled on',
-    orderDetailTitle: 'Order Details',
-    orderPlaced: 'Order placed successfully',
-    voiceSent: 'Voice order sent successfully',
-    locationGps: 'GPS accuracy',
-    locationWaiting: 'GPS is syncing...'
-  }
-};
-let currentLanguage = localStorage.getItem('apnaMartLanguage') || 'hi';
-function t(key){ return (TRANSLATIONS[currentLanguage] && TRANSLATIONS[currentLanguage][key]) || key; }
-function setLanguage(lang){ currentLanguage = lang === 'en' ? 'en' : 'hi'; localStorage.setItem('apnaMartLanguage', currentLanguage); document.getElementById('langBtnHi')?.classList.toggle('active', currentLanguage==='hi'); document.getElementById('langBtnEn')?.classList.toggle('active', currentLanguage==='en'); renderOffers(); filterOrdersList(); }
-const offersData = [
-  { emoji:'🔥', hiTitle:'Aaj ka special offer', hiSub:'Best price par daily grocery', enTitle:'Today special offer', enSub:'Daily grocery at best price' },
-  { emoji:'🥛', hiTitle:'Dairy fresh deal', hiSub:'Milk, curd aur paneer fresh', enTitle:'Fresh dairy deal', enSub:'Milk, curd, and paneer fresh' },
-  { emoji:'🚚', hiTitle:'Fast village delivery', hiSub:'Gaon tak quick service', enTitle:'Fast village delivery', enSub:'Quick service to your village' },
-  { emoji:'🍞', hiTitle:'Bakery combo', hiSub:'Bread aur snacks par deal', enTitle:'Bakery combo', enSub:'Deals on bread and snacks' },
-  { emoji:'🥦', hiTitle:'Fresh sabzi', hiSub:'Roz ki zarurat ki vegetables', enTitle:'Fresh vegetables', enSub:'Daily need vegetables' }
-];
-function renderOffers(){ const track=document.getElementById('offersTrack'); if(!track) return; const cards=[...offersData,...offersData].map(item=>`<div class="offer-card"><div class="offer-title">${item.emoji} ${currentLanguage==='hi'?item.hiTitle:item.enTitle}</div><div class="offer-sub">${currentLanguage==='hi'?item.hiSub:item.enSub}</div></div>`).join(''); track.innerHTML=cards; }
-let locationWatchId = null;
-let latestLocation = null;
-function updateLocationAccuracyUI(location){ const el=document.getElementById('locationAccuracyText'); if(!el) return; if(!location){ el.textContent = t('locationWaiting'); return; } const accuracy=Math.round(Number(location.accuracy||0)); el.textContent = `${t('locationGps')}: ${accuracy} m`; }
-function getCurrentPreciseLocation(){
-    return new Promise((resolve) => {
-        if(!navigator.geolocation){ resolve(null); return; }
-        let settled = false;
-        const finish = (value) => { if(settled) return; settled = true; resolve(value); };
-        navigator.geolocation.getCurrentPosition(
-            (position) => finish({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 }),
-            () => {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => finish({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 }),
-                    () => finish(null),
-                    { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
-                );
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-        );
-    });
-}
-async function refreshCustomerLocationNow(){ const location=await getCurrentPreciseLocation(); if(location){ latestLocation=location; updateLocationAccuracyUI(location); if(customerToken){ try{ await fetch('/api/customer/location',{method:'PATCH',headers:getCustomerHeaders(true),body:JSON.stringify(location)}); }catch(e){ console.error(e);} } } else { updateLocationAccuracyUI(null); alert('Location permission on karke GPS open area me try karo'); } }
-function startCustomerLocationSync(){
-    if(customerLocationInterval) clearInterval(customerLocationInterval);
-    if(locationWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(locationWatchId);
-    refreshCustomerLocationNow();
-    if(navigator.geolocation){
-        locationWatchId = navigator.geolocation.watchPosition(async (position) => {
-            latestLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 };
-            updateLocationAccuracyUI(latestLocation);
-            if(customerToken){
-                try{ await fetch('/api/customer/location',{method:'PATCH',headers:getCustomerHeaders(true),body:JSON.stringify(latestLocation)}); }catch(e){ console.error(e); }
-            }
-        }, () => updateLocationAccuracyUI(null), { enableHighAccuracy:true, timeout:25000, maximumAge:0 });
-    }
-    customerLocationInterval = setInterval(pushCustomerLiveLocation, 15000);
-}
-function stopCustomerLocationSync(){ if(customerLocationInterval){ clearInterval(customerLocationInterval); customerLocationInterval=null; } if(locationWatchId!==null && navigator.geolocation){ navigator.geolocation.clearWatch(locationWatchId); locationWatchId=null; } }
-function formatOrderStatusLine(order){ const status=String(order?.status||'').toLowerCase(); const date=order?.date||''; if(status.includes('cancel')) return `${t('cancelledOn')} ${date}`; if(status==='delivered') return `${t('deliveredOn')} ${order.deliveredAt || date}`; if(status==='out for delivery') return `Out for Delivery · ${date}`; if(status==='pending') return `${t('pendingSince')} ${date}`; if(status.includes('need confirmation')) return `${t('needConfirmation')} · ${date}`; return `${order?.status || 'Order'} · ${date}`; }
-function getStatusPill(status){ const s=String(status||'').toLowerCase(); if(s==='delivered') return '<span class="detail-pill" style="background:#dcfce7;color:#15803d;">Delivered</span>'; if(s==='out for delivery') return '<span class="detail-pill" style="background:#dbeafe;color:#1d4ed8;">Out for Delivery</span>'; if(s==='pending') return '<span class="detail-pill" style="background:#fef3c7;color:#b45309;">Pending</span>'; return '<span class="detail-pill">Need Confirmation</span>'; }
-function openOrderDetail(orderId){ const order = latestOrders.find(o => String(o.id)===String(orderId)); if(!order) return; const content=document.getElementById('orderDetailContent'); const items=(order.items||[]).map(item=>`<div class="detail-item"><img src="${getSmallProductImageSrc(item.image)}" onerror="this.src='https://via.placeholder.com/56?text=IMG'"><div style="flex:1;"><div style="font-weight:800;color:#111827;">${item.name}</div><div class="detail-muted">Qty: ${item.qty} · ₹${item.price}</div></div><div style="font-weight:800;">₹${Number(item.price||0)*Number(item.qty||0)}</div></div>`).join(''); content.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><div><div style="font-size:22px;font-weight:800;color:#111827;">#${order.id}</div><div class="detail-muted">${order.date || ''}</div></div>${getStatusPill(order.status)}</div><div class="detail-grid"><div class="detail-box"><div style="font-weight:800;">Delivery Address</div><div class="detail-muted">${order.name || ''}<br>${order.phone || ''}<br>${order.address || ''}<br>${(order.village||'').toUpperCase()}</div></div><div class="detail-box"><div style="font-weight:800;">Payment & Rider</div><div class="detail-muted">Payment: ${order.paymentMethod || 'COD'}<br>Payment Status: ${order.paymentStatus || 'N/A'}<br>Delivery Boy: ${order.assignedDeliveryBoyName || order.deliveryBoyName || 'Not assigned yet'}</div></div></div><div class="detail-items">${items}</div><div class="detail-grid"><div class="detail-box"><div style="font-weight:800;">Bill Summary</div><div class="detail-muted">Subtotal: ₹${order.subtotal || 0}<br>Shipping: ₹${order.shipping || 0}<br>Total: ₹${order.total || 0}</div></div><div class="detail-box"><div style="font-weight:800;">Status Flow</div><div class="detail-muted">1. Need Confirmation<br>2. Pending<br>3. Out for Delivery<br>4. Delivered</div></div></div>`; document.getElementById('orderDetailModal').classList.add('show'); }
-function closeOrderDetailModal(){ document.getElementById('orderDetailModal').classList.remove('show'); }
-let orderPollingTimer = null;
-function startOrdersPolling(){ if(orderPollingTimer) clearInterval(orderPollingTimer); orderPollingTimer = setInterval(async ()=>{ if(customerToken){ try{ const res=await fetch('/api/my-orders',{headers:getCustomerHeaders(false)}); const orders=await res.json().catch(()=>[]); if(res.ok){ latestOrders=Array.isArray(orders)?orders:[]; filterOrdersList(); } }catch(e){ console.error(e);} } }, 8000); }
-let mediaRecorder = null; let voiceChunks = []; let voiceBlob = null; let voiceTimerInterval = null; let voiceSeconds = 0;
-function openVoiceOrderModal(){ const profile=getSavedProfile(); if(!profile || !profile.name || !profile.address){ alert('Pehle profile save karo'); openProfilePage(); openEditProfile(); return; } document.getElementById('voiceOrderModal').classList.add('show'); }
-function closeVoiceOrderModal(){ document.getElementById('voiceOrderModal').classList.remove('show'); }
-function updateVoiceTimer(){ const mm=String(Math.floor(voiceSeconds/60)).padStart(2,'0'); const ss=String(voiceSeconds%60).padStart(2,'0'); document.getElementById('voiceTimer').textContent=`${mm}:${ss}`; }
-async function startVoiceRecording(){ try{ const stream=await navigator.mediaDevices.getUserMedia({audio:true}); voiceChunks=[]; voiceBlob=null; mediaRecorder=new MediaRecorder(stream); mediaRecorder.ondataavailable=(e)=>{ if(e.data && e.data.size>0) voiceChunks.push(e.data); }; mediaRecorder.onstop=()=>{ voiceBlob=new Blob(voiceChunks,{type: mediaRecorder.mimeType || 'audio/webm'}); const url=URL.createObjectURL(voiceBlob); const preview=document.getElementById('voicePreview'); preview.src=url; preview.style.display='block'; stream.getTracks().forEach(t=>t.stop()); }; mediaRecorder.start(); voiceSeconds=0; updateVoiceTimer(); if(voiceTimerInterval) clearInterval(voiceTimerInterval); voiceTimerInterval=setInterval(()=>{ voiceSeconds++; updateVoiceTimer(); },1000); }catch(e){ console.error(e); alert('Microphone permission allow karo'); } }
-function stopVoiceRecording(){ if(mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); } if(voiceTimerInterval){ clearInterval(voiceTimerInterval); voiceTimerInterval=null; } }
-function resetVoiceRecording(){ stopVoiceRecording(); voiceBlob=null; voiceChunks=[]; voiceSeconds=0; updateVoiceTimer(); const preview=document.getElementById('voicePreview'); preview.removeAttribute('src'); preview.style.display='none'; document.getElementById('voiceOrderNote').value=''; }
-async function submitVoiceOrder(){ const isLoggedIn=await checkCustomerLogin(); if(!isLoggedIn){ alert('Pehle OTP login karo'); return; } if(!voiceBlob){ alert('Pehle voice record karo'); return; } const profile=getSavedProfile() || {}; const form=new FormData(); form.append('voiceNote', new File([voiceBlob], 'voice-order.webm', {type: voiceBlob.type || 'audio/webm'})); form.append('name', profile.name || 'Customer'); form.append('address', `${profile.address || ''}${profile.landmark ? ', Landmark: '+profile.landmark : ''}`); form.append('note', document.getElementById('voiceOrderNote').value.trim()); form.append('language', currentLanguage); try{ const res=await fetch('/api/voice-orders',{method:'POST',headers: customerToken ? {Authorization:`Bearer ${customerToken}`} : {}, body: form}); const data=await res.json().catch(()=>({})); if(!res.ok){ alert(data.message || 'Voice order send failed'); return; } alert(t('voiceSent')); resetVoiceRecording(); closeVoiceOrderModal(); }catch(e){ console.error(e); alert('Voice order send failed'); } }
-
-fetchProducts();
-            openOrdersPanel();
+            fetchProducts();
+            hidePlaceOrderLoader();
+            showSuccessScreen("Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.");
             return;
         }
 
         if (payment === "upi") {
-            const upiId = "9236583278-2@ybl";
-            const name = "ApnaMart";
-            const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${result.order.total}&cu=INR&tn=Order-${result.order.id}`;
-            window.location.href = upiLink;
-            alert("Payment complete hone ke baad admin verify karega");
             cart = [];
             update();
             fetchProducts();
-            openOrdersPanel();
+            hidePlaceOrderLoader();
+            showSuccessScreen("Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.");
+
+            const upiId = "9236583278-2@ybl";
+            const name = "ApnaMart";
+            const upiLink = `upi://pay?pa=${upiId}&pn=${name}&am=${result.order.total}&cu=INR&tn=Order-${result.order.id}`;
+            setTimeout(() => {
+                window.location.href = upiLink;
+            }, 350);
+            return;
         }
+
+        hidePlaceOrderLoader();
     } catch (error) {
+        hidePlaceOrderLoader();
         console.error(error);
-        alert("Backend se order place nahi hua");
+        showToast("Backend se order place nahi hua", "error");
     }
+}
+
+function openSupportPanel(addToHistory = true){
+    closeAllPanels(false);
+    document.getElementById("supportPanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("support");
+}
+function closeSupportPanel(){
+    closeAllPanels(true);
+}
+function sendSupportMessage(){
+    const textarea = document.getElementById("supportMessage");
+    const rawMessage = textarea?.value?.trim() || "";
+    if(!rawMessage){
+        showToast("Pehle apna message likho", "error");
+        return;
+    }
+
+    const profile = getSavedProfile() || {};
+    const name = profile.name || "Customer";
+    const phone = profile.phone || "N/A";
+    const village = profile.village || "N/A";
+
+    const message =
+        `💬 *Customer Service Request - Supply Setu Mart*\n\n` +
+        `👤 Name: ${name}\n` +
+        `📞 Phone: ${phone}\n` +
+        `🏘 Village: ${village}\n\n` +
+        `📝 Message: ${rawMessage}`;
+
+    const whatsappNumber = "7518576269";
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
 }
 
 function getOrderStatusClass(status){
     if(status === "Need Confirmation") return "status-confirmation";
     if(status === "Pending") return "status-pending";
+    if(status === "Out for Delivery") return "status-out";
     return "status-delivered";
 }
 
@@ -2161,23 +3741,35 @@ async function showOrders() {
 
         latestOrders = Array.isArray(orders) ? orders : [];
         renderOrdersList(latestOrders);
+
+        if(currentOpenOrderId && document.getElementById("orderDetailPanel")?.classList.contains("open")){
+            const updatedOrder = latestOrders.find(o => String(o.id) === String(currentOpenOrderId));
+            if(updatedOrder){
+                openOrderDetails(currentOpenOrderId);
+            }
+        }
     } catch (error) {
         console.error(error);
-        alert("Orders load nahi hue");
+        showToast("Orders load nahi hue", "error");
     }
 }
+function orderOnCall() {
+    const callNumber = "7518576269";
+    window.open(`tel:${callNumber}`);
+}
+
 function orderOnWhatsApp() {
     const profile = getSavedProfile();
     if(!profile){
-        alert("Pehle profile save karo");
+        showToast("Pehle profile save karo", "error");
         openProfilePage();
         openEditProfile();
         return;
     }
 
-    if (cart.length === 0) return alert("Cart is empty!");
+    if (cart.length === 0) { showToast("Cart is empty!", "error"); return; }
 
-    let message = "🛒 *New Order - Apna Mart* %0A%0A";
+    let message = "🛒 *New Order - Supply Setu Mart* %0A%0A";
 
     cart.forEach(item => {
         message += `${item.name} x ${item.qty} = ₹${item.price * item.qty}%0A`;
@@ -2204,16 +3796,385 @@ document.getElementById("profileImageInput")?.addEventListener("change", async f
     document.getElementById("profilePreview").src = dataUrl;
 });
 
-fetchProducts();
-update();
-loadProfileForm();
-renderSavedProfile();
-renderTopProfile();
-updateCartDeliveryBox();
-setLanguage(currentLanguage);
-renderOffers();
-startOrdersPolling();
-checkCustomerLogin();
+
+const THEME_KEY = "apnaMartThemeMode";
+let currentThemeMode = localStorage.getItem(THEME_KEY) || "system";
+const LANGUAGE_KEY = "apnaMartLanguage";
+let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || "en";
+
+const translations = {
+    hi: {
+        otpLoginTitle: "🔐 OTP Login",
+        otpLoginDesc: "लॉगिन होने के बाद ही पूरा कस्टमर पैनल दिखेगा।",
+        loginPhonePlaceholder: "मोबाइल नंबर",
+        otpActionBtn: "ओटीपी भेजें",
+        otpActionBtnResend: "ओटीपी दोबारा भेजें",
+        loginOtpPlaceholder: "ओटीपी दर्ज करें",
+        loginVillagePlaceholder: "गाँव का नाम",
+        verifyOtpBtn: "ओटीपी सत्यापित करें",
+        brandTitle: "Supply Setu Mart",
+        brandSub: "हर घर की रोज़मर्रा की ज़रूरत",
+        profileBtnText: "प्रोफाइल",
+        ordersBtnText: "📦 ऑर्डर्स",
+        cartBtnText: "🛒 कार्ट",
+        searchPlaceholder: "प्रोडक्ट खोजें...",
+        myCartTitle: "मेरा कार्ट",
+        changeAddressBtn: "बदलें",
+        priceDetailsTitle: "कीमत विवरण",
+        subtotalLabel: "उप-योग",
+        shippingLabel: "डिलीवरी शुल्क",
+        totalItemsLabel: "कुल आइटम",
+        totalPayLabel: "कुल भुगतान",
+        paymentOptionTitle: "भुगतान विकल्प",
+        codLabel: "कैश ऑन डिलीवरी",
+        upiLabel: "यूपीआई भुगतान",
+        orderWhatsappBtn: "व्हाट्सऐप पर ऑर्डर करें",
+        orderCallBtn: "कॉल पर ऑर्डर करें",
+        placeOrderBtn: "ऑर्डर करें",
+        myOrdersTitle: "मेरे ऑर्डर्स",
+        ordersSearchPlaceholder: "अपना ऑर्डर यहाँ खोजें",
+        orderDetailsTitle: "ऑर्डर विवरण",
+        supportTitle: "कस्टमर सर्विस",
+        helpSupportTitle: "मदद और सहायता",
+        helpSupportDesc: "अपनी समस्या यहाँ लिखें। मैसेज वेबसाइट के अंदर टाइप होगा और व्हाट्सऐप पर <strong>7518576269</strong> नंबर पर खुल जाएगा।",
+        supportMessagePlaceholder: "अपनी समस्या या संदेश यहाँ लिखें...",
+        supportSendBtn: "व्हाट्सऐप पर भेजें",
+        myProfileTitle: "मेरी प्रोफाइल",
+        editProfileBtn: "प्रोफाइल संपादित करें",
+        profileOrdersText: "मेरे ऑर्डर्स",
+        clearOrderHistoryText: "ऑर्डर हिस्ट्री साफ करें",
+        customerServiceText: "कस्टमर सर्विस",
+        themeMenuText: "थीम",
+        languageMenuText: "भाषा बदलें",
+        logoutText: "लॉग आउट",
+        themePanelTitle: "थीम बदलें",
+        themePanelDesc: "अपनी पसंद की थीम चुनें।",
+        themeSystemBtn: "सिस्टम",
+        themeLightBtn: "लाइट",
+        themeDarkBtn: "डार्क",
+        profileNamePlaceholder: "यूज़रनेम",
+        profilePhonePlaceholder: "मोबाइल नंबर",
+        profileAddressPlaceholder: "पूरा पता",
+        profileLandmarkPlaceholder: "नज़दीकी पहचान",
+        saveProfileBtn: "प्रोफाइल सेव करें",
+        backProfileBtn: "वापस जाएँ",
+        languagePanelTitle: "भाषा बदलें",
+        languagePanelDesc: "अपनी पसंद की भाषा चुनें।",
+        allCat: "सभी",
+        groceryCat: "ग्रोसरी",
+        dairyCat: "डेयरी",
+        vegetablesCat: "सब्ज़ियाँ",
+        bakeryCat: "बेकरी",
+        fastFoodCat: "फास्ट फूड",
+        drinkCat: "ड्रिंक"
+    },
+    en: {
+        otpLoginTitle: "🔐 OTP Login",
+        otpLoginDesc: "Log in to access the full customer panel.",
+        loginPhonePlaceholder: "Mobile Number",
+        otpActionBtn: "Send OTP",
+        otpActionBtnResend: "Resend OTP",
+        loginOtpPlaceholder: "Enter OTP",
+        loginVillagePlaceholder: "Village Name",
+        verifyOtpBtn: "Verify OTP",
+        brandTitle: "Supply Setu Mart",
+        brandSub: "Daily essentials for every home",
+        profileBtnText: "Profile",
+        ordersBtnText: "📦 Orders",
+        cartBtnText: "🛒 Cart",
+        searchPlaceholder: "Search products...",
+        myCartTitle: "My Cart",
+        changeAddressBtn: "Change",
+        priceDetailsTitle: "Price Details",
+        subtotalLabel: "Subtotal",
+        shippingLabel: "Shipping",
+        totalItemsLabel: "Total Items",
+        totalPayLabel: "Total Pay",
+        paymentOptionTitle: "Payment Option",
+        codLabel: "Cash on Delivery",
+        upiLabel: "UPI Payment",
+        orderWhatsappBtn: "Order on WhatsApp",
+        orderCallBtn: "Order on Call",
+        placeOrderBtn: "Place Order",
+        myOrdersTitle: "My Orders",
+        ordersSearchPlaceholder: "Search your order here",
+        orderDetailsTitle: "Order Details",
+        supportTitle: "Customer Service",
+        helpSupportTitle: "Help & Support",
+        helpSupportDesc: "Type your issue here. The message will be written inside the website and opened on WhatsApp to <strong>7518576269</strong>.",
+        supportMessagePlaceholder: "Write your issue or message here...",
+        supportSendBtn: "Send on WhatsApp",
+        myProfileTitle: "My Profile",
+        editProfileBtn: "Edit Profile",
+        profileOrdersText: "My Orders",
+        clearOrderHistoryText: "Clear Order History",
+        customerServiceText: "Customer Service",
+        themeMenuText: "Theme",
+        languageMenuText: "Change Language",
+        logoutText: "Log Out",
+        themePanelTitle: "Change Theme",
+        themePanelDesc: "Select your preferred theme.",
+        themeSystemBtn: "System",
+        themeLightBtn: "Light",
+        themeDarkBtn: "Dark",
+        profileNamePlaceholder: "Username",
+        profilePhonePlaceholder: "Mobile Number",
+        profileAddressPlaceholder: "Full Address",
+        profileLandmarkPlaceholder: "Nearby Landmark",
+        saveProfileBtn: "Save Profile",
+        backProfileBtn: "Back",
+        languagePanelTitle: "Change Language",
+        languagePanelDesc: "Select your preferred language.",
+        allCat: "All",
+        groceryCat: "Grocery",
+        dairyCat: "Dairy",
+        vegetablesCat: "Vegetables",
+        bakeryCat: "Bakery",
+        fastFoodCat: "Fast Food",
+        drinkCat: "Drink"
+    }
+};
+
+
+function getEffectiveTheme(mode){
+    if(mode === "dark") return "dark";
+    if(mode === "light") return "light";
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function updateThemeButtons(){
+    document.getElementById("themeSystemBtn")?.classList.toggle("active", currentThemeMode === "system");
+    document.getElementById("themeLightBtn")?.classList.toggle("active", currentThemeMode === "light");
+    document.getElementById("themeDarkBtn")?.classList.toggle("active", currentThemeMode === "dark");
+}
+function updateThemeChrome(effective){
+    const dark = effective === "dark";
+    const themeColor = dark ? "#050b16" : "#f7fbff";
+    const bgColor = dark ? "#050b16" : "#f7fbff";
+    const meta = document.getElementById("themeColorMeta") || document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute("content", themeColor);
+    const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if(appleMeta) appleMeta.setAttribute("content", dark ? "black" : "default");
+    document.body.style.background = bgColor;
+    document.documentElement.style.background = bgColor;
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+}
+function applyThemeMode(){
+    const effective = getEffectiveTheme(currentThemeMode);
+    document.documentElement.setAttribute("data-theme", effective);
+    document.documentElement.setAttribute("data-theme-mode", currentThemeMode);
+    updateThemeButtons();
+    updateThemeChrome(effective);
+}
+function openThemePanel(addToHistory = true){
+    closeAllPanels();
+    document.getElementById("themePanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("theme");
+}
+function closeThemePanel(){
+    if(location.hash === "#theme"){
+        history.back();
+        return;
+    }
+    document.getElementById("themePanel")?.classList.remove("open");
+}
+function setThemeMode(mode){
+    currentThemeMode = ["system","light","dark"].includes(mode) ? mode : "system";
+    localStorage.setItem(THEME_KEY, currentThemeMode);
+    applyThemeMode();
+    closeThemePanel();
+}
+if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", function(){
+        if(currentThemeMode === "system") applyThemeMode();
+    });
+}
+
+function setText(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+}
+function setHTML(id, text){
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = text;
+}
+function setPlaceholder(id, text){
+    const el = document.getElementById(id);
+    if(el) el.placeholder = text;
+}
+function updateLanguageButtons(){
+    document.getElementById("langHindiBtn")?.classList.toggle("active", currentLanguage === "hi");
+    document.getElementById("langEnglishBtn")?.classList.toggle("active", currentLanguage === "en");
+}
+function applyLanguage(){
+    const t = translations[currentLanguage] || translations.en;
+    document.documentElement.lang = currentLanguage;
+    setText("otpLoginTitle", t.otpLoginTitle);
+    setText("otpLoginDesc", t.otpLoginDesc);
+    setPlaceholder("loginPhone", t.loginPhonePlaceholder);
+    setText("otpActionBtn", otpSent ? t.otpActionBtnResend : t.otpActionBtn);
+    setPlaceholder("loginOtp", t.loginOtpPlaceholder);
+    setPlaceholder("loginVillage", t.loginVillagePlaceholder);
+    setText("verifyOtpBtn", t.verifyOtpBtn);
+    setText("brandTitle", t.brandTitle);
+    setText("brandSub", t.brandSub);
+    setText("profileBtnText", t.profileBtnText);
+    setText("ordersBtnText", t.ordersBtnText);
+    setText("cartBtnText", t.cartBtnText);
+    setPlaceholder("search", t.searchPlaceholder);
+    setText("myCartTitle", t.myCartTitle);
+    setText("changeAddressBtn", t.changeAddressBtn);
+    setText("priceDetailsTitle", t.priceDetailsTitle);
+    setText("subtotalLabel", t.subtotalLabel);
+    setText("shippingLabel", t.shippingLabel);
+    setText("totalItemsLabel", t.totalItemsLabel);
+    setText("totalPayLabel", t.totalPayLabel);
+    setText("paymentOptionTitle", t.paymentOptionTitle);
+    setText("codLabel", t.codLabel);
+    setText("upiLabel", t.upiLabel);
+    setText("orderWhatsappBtn", t.orderWhatsappBtn);
+    setText("orderCallBtn", t.orderCallBtn);
+    setText("placeOrderBtn", t.placeOrderBtn);
+    setText("myOrdersTitle", t.myOrdersTitle);
+    setPlaceholder("ordersSearch", t.ordersSearchPlaceholder);
+    setText("orderDetailsTitle", t.orderDetailsTitle);
+    setText("supportTitle", t.supportTitle);
+    setText("helpSupportTitle", t.helpSupportTitle);
+    setHTML("helpSupportDesc", t.helpSupportDesc);
+    setPlaceholder("supportMessage", t.supportMessagePlaceholder);
+    setText("supportSendBtn", t.supportSendBtn);
+    setText("myProfileTitle", t.myProfileTitle);
+    setText("editProfileBtn", t.editProfileBtn);
+    setText("profileOrdersText", t.profileOrdersText);
+    setText("clearOrderHistoryText", t.clearOrderHistoryText);
+    setText("customerServiceText", t.customerServiceText);
+    setText("themeMenuText", t.themeMenuText);
+    setText("languageMenuText", t.languageMenuText);
+    setText("logoutText", t.logoutText);
+    setPlaceholder("profileName", t.profileNamePlaceholder);
+    setPlaceholder("profilePhone", t.profilePhonePlaceholder);
+    setPlaceholder("profileAddress", t.profileAddressPlaceholder);
+    setPlaceholder("profileLandmark", t.profileLandmarkPlaceholder);
+    setText("saveProfileBtn", t.saveProfileBtn);
+    setText("backProfileBtn", t.backProfileBtn);
+    setText("languagePanelTitle", t.languagePanelTitle);
+    setText("languagePanelDesc", t.languagePanelDesc);
+    setText("themePanelTitle", t.themePanelTitle);
+    setText("themePanelDesc", t.themePanelDesc);
+    setText("themeSystemBtn", t.themeSystemBtn);
+    setText("themeLightBtn", t.themeLightBtn);
+    setText("themeDarkBtn", t.themeDarkBtn);
+
+    const cats = document.querySelectorAll(".categories .cat");
+    if(cats.length >= 7){
+        cats[0].textContent = t.allCat;
+        cats[1].textContent = t.groceryCat;
+        cats[2].textContent = t.dairyCat;
+        cats[3].textContent = t.vegetablesCat;
+        cats[4].textContent = t.bakeryCat;
+        cats[5].textContent = t.fastFoodCat;
+        cats[6].textContent = t.drinkCat;
+    }
+    updateLanguageButtons();
+    updateThemeButtons();
+}
+function openLanguagePanel(addToHistory = true){
+    closeAllPanels(false);
+    document.getElementById("languagePanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("language");
+}
+function closeLanguagePanel(){
+    closeAllPanels(true);
+}
+
+let autoRefreshTimer = null;
+let autoRefreshRunning = false;
+
+async function autoRefreshPanels(){
+    if(autoRefreshRunning) return;
+    if(!localStorage.getItem(CUSTOMER_TOKEN_KEY)) return;
+    if(document.getElementById("app").style.display !== "block") return;
+    if(isProfileEditing()) return;
+
+    autoRefreshRunning = true;
+    try{
+        await checkCustomerLogin();
+        await fetchProducts();
+        update();
+        renderSavedProfile();
+        renderTopProfile();
+        updateCartDeliveryBox();
+
+        const currentHash = location.hash.replace("#", "");
+        if(currentHash === "orders" || currentHash === "orderDetails"){
+            await showOrders();
+        }
+    }catch(error){
+        console.error(error);
+    }finally{
+        autoRefreshRunning = false;
+    }
+}
+
+function startAutoRefresh(){
+    if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(autoRefreshPanels, 5000);
+}
+
+function stopAutoRefresh(){
+    if(autoRefreshTimer){
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+    }
+}
+
+function setLanguage(lang){
+    currentLanguage = lang === "en" ? "en" : "hi";
+    localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+    applyLanguage();
+    closeLanguagePanel();
+}
+
+async function initApp(){
+    applyThemeMode();
+    applyLanguage();
+    update();
+    loadProfileForm();
+    renderSavedProfile();
+    renderTopProfile();
+    updateCartDeliveryBox();
+    await checkCustomerLogin();
+    syncPanelWithHash();
+    await fetchProducts();
+    startAutoRefresh();
+}
+
+initApp();
+</script>
+
+
+<script>
+(function(){
+  function syncPanelOpenState(){
+    const openPanel = document.querySelector('#cartPanel.open, #ordersPanel.open, #orderDetailPanel.open, #profilePage.open, #languagePanel.open, #supportPanel.open');
+    document.body.classList.toggle('panel-open', !!openPanel);
+  }
+
+  function watchPanels(){
+    const ids = ['cartPanel','ordersPanel','orderDetailPanel','profilePage','languagePanel','supportPanel'];
+    ids.forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      new MutationObserver(syncPanelOpenState).observe(el,{attributes:true,attributeFilter:['class']});
+    });
+    syncPanelOpenState();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', watchPanels);
+  }else{
+    watchPanels();
+  }
+})();
 </script>
 
 </body>
