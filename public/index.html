@@ -1370,6 +1370,56 @@ function getCustomerHeaders(includeJson=true){
     return headers;
 }
 
+let customerLocationInterval = null;
+
+function getCurrentPreciseLocation(){
+    return new Promise((resolve) => {
+        if(!navigator.geolocation){
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy || 0
+                });
+            },
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    });
+}
+
+async function pushCustomerLiveLocation(){
+    if(!customerToken) return;
+    const location = await getCurrentPreciseLocation();
+    if(!location) return;
+    try{
+        await fetch('/api/customer/location', {
+            method: 'PATCH',
+            headers: getCustomerHeaders(true),
+            body: JSON.stringify(location)
+        });
+    }catch(error){
+        console.error('Live location update failed', error);
+    }
+}
+
+function startCustomerLocationSync(){
+    if(customerLocationInterval) clearInterval(customerLocationInterval);
+    pushCustomerLiveLocation();
+    customerLocationInterval = setInterval(pushCustomerLiveLocation, 20000);
+}
+
+function stopCustomerLocationSync(){
+    if(customerLocationInterval){
+        clearInterval(customerLocationInterval);
+        customerLocationInterval = null;
+    }
+}
+
 function renderTopProfile(){
     const profile = getSavedProfile();
     const img = document.getElementById("headerProfileImg");
@@ -1505,6 +1555,7 @@ async function checkCustomerLogin(){
         loadProfileForm();
         renderSavedProfile();
         renderTopProfile();
+        startCustomerLocationSync();
         return true;
     }catch(error){
         console.error(error);
@@ -1583,6 +1634,7 @@ async function verifyOtp(){
 function logoutCustomer(showAlert=true){
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
     customerToken = "";
+    stopCustomerLocationSync();
     showLogin();
     closeProfilePage();
     if(showAlert) alert("Logged out");
@@ -1878,6 +1930,8 @@ async function placeOrder() {
     const fullAddress = `${profile.address}${profile.landmark ? ", Landmark: " + profile.landmark : ""}`;
 
     try {
+        const customerLocation = await getCurrentPreciseLocation();
+
         const response = await fetch("/api/orders", {
             method: "POST",
             headers: getCustomerHeaders(true),
@@ -1885,7 +1939,8 @@ async function placeOrder() {
                 name: profile.name,
                 address: fullAddress,
                 paymentMethod: payment,
-                items: cart.map(i => ({ id: i.id, qty: i.qty }))
+                items: cart.map(i => ({ id: i.id, qty: i.qty })),
+                customerLocation
             })
         });
 
