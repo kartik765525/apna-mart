@@ -9,12 +9,25 @@ const admin = require('firebase-admin');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+/* =========================
+   TOKENS / LOGIN SETTINGS
+   ========================= */
 const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'apna_mart_admin_secret_2026';
 const CUSTOMER_JWT_SECRET = process.env.CUSTOMER_JWT_SECRET || 'apna_mart_customer_secret_2026';
 const DELIVERY_JWT_SECRET = process.env.DELIVERY_JWT_SECRET || 'apna_mart_delivery_secret_2026';
 
+/* Long session so login baar-baar na maange */
+const ADMIN_TOKEN_EXPIRES = process.env.ADMIN_TOKEN_EXPIRES || '365d';
+const CUSTOMER_TOKEN_EXPIRES = process.env.CUSTOMER_TOKEN_EXPIRES || '365d';
+const DELIVERY_TOKEN_EXPIRES = process.env.DELIVERY_TOKEN_EXPIRES || '365d';
+
 const ADMIN_USERNAME = String(process.env.ADMIN_USERNAME || 'kartikey parihar').trim();
 const ADMIN_PASSWORD = String(process.env.ADMIN_PASSWORD || '7518576269').trim();
+
+/* old delivery panel compatibility */
+const DELIVERY_DEMO_USERNAME = String(process.env.DELIVERY_DEMO_USERNAME || 'delivery').trim();
+const DELIVERY_DEMO_PASSWORD = String(process.env.DELIVERY_DEMO_PASSWORD || '1234').trim();
+
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
 
 const appDir = __dirname;
@@ -46,6 +59,9 @@ app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
+/* =========================
+   FILE HELPERS
+   ========================= */
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
 }
@@ -84,6 +100,9 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/voice-uploads', express.static(voiceUploadsDir));
 app.use(express.static(publicDir));
 
+/* =========================
+   BASIC HELPERS
+   ========================= */
 function normalizePhone(phone) {
   return String(phone || '').replace(/\D/g, '').trim();
 }
@@ -194,6 +213,9 @@ function deleteVoiceByUrl(audioUrl) {
   }
 }
 
+/* =========================
+   FIREBASE OPTIONAL
+   ========================= */
 let serviceAccount = null;
 let db = null;
 
@@ -215,6 +237,9 @@ try {
   db = null;
 }
 
+/* =========================
+   DATA READ/WRITE
+   ========================= */
 async function readProducts() {
   if (db) {
     try {
@@ -291,11 +316,22 @@ function writeVoiceOrders(voiceOrders) {
   writeJson(voiceOrdersFile, voiceOrders);
 }
 
+function readDeliveryUsers() {
+  return readJson(deliveryUsersFile, []);
+}
+
+function writeDeliveryUsers(users) {
+  writeJson(deliveryUsersFile, users);
+}
+
+/* =========================
+   TOKENS / AUTH
+   ========================= */
 function createAdminToken() {
   return jwt.sign(
     { username: ADMIN_USERNAME, role: 'admin' },
     ADMIN_JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: ADMIN_TOKEN_EXPIRES }
   );
 }
 
@@ -303,7 +339,7 @@ function createCustomerToken(phone, village) {
   return jwt.sign(
     { phone, village, role: 'customer' },
     CUSTOMER_JWT_SECRET,
-    { expiresIn: '30d' }
+    { expiresIn: CUSTOMER_TOKEN_EXPIRES }
   );
 }
 
@@ -316,7 +352,7 @@ function createDeliveryToken(deliveryUser) {
       role: 'delivery'
     },
     DELIVERY_JWT_SECRET,
-    { expiresIn: '30d' }
+    { expiresIn: DELIVERY_TOKEN_EXPIRES }
   );
 }
 
@@ -361,15 +397,14 @@ function requireDelivery(req, res, next) {
   }
 }
 
+/* =========================
+   UPLOADS
+   ========================= */
 const imageStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
-    const base = path
-      .basename(file.originalname || 'image', ext)
-      .replace(/[^a-zA-Z0-9-_]/g, '-')
-      .slice(0, 40) || 'image';
-
+    const base = path.basename(file.originalname || 'image', ext).replace(/[^a-zA-Z0-9-_]/g, '-').slice(0, 40) || 'image';
     cb(null, `${Date.now()}-${base}${ext}`);
   }
 });
@@ -387,11 +422,7 @@ const voiceStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, voiceUploadsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || '').toLowerCase() || '.webm';
-    const base = path
-      .basename(file.originalname || 'voice', ext)
-      .replace(/[^a-zA-Z0-9-_]/g, '-')
-      .slice(0, 40) || 'voice';
-
+    const base = path.basename(file.originalname || 'voice', ext).replace(/[^a-zA-Z0-9-_]/g, '-').slice(0, 40) || 'voice';
     cb(null, `${Date.now()}-${base}${ext}`);
   }
 });
@@ -401,10 +432,16 @@ const voiceUpload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }
 });
 
+/* =========================
+   HTML ROUTES
+   ========================= */
 app.get('/', (req, res) => res.sendFile(path.join(publicDir, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(publicDir, 'admin.html')));
 app.get('/delivery', (req, res) => res.sendFile(path.join(publicDir, 'delivery.html')));
 
+/* =========================
+   CUSTOMER AUTH
+   ========================= */
 app.post('/api/customer/request-otp', (req, res) => {
   const phone = normalizePhone(req.body.phone);
 
@@ -467,33 +504,9 @@ app.get('/api/customer/me', requireCustomer, (req, res) => {
   });
 });
 
-app.patch('/api/customer/location', requireCustomer, async (req, res) => {
-  const phone = normalizePhone(req.customer.phone);
-  const nextLocation = sanitizeLocation(req.body);
-
-  if (!nextLocation) {
-    return res.status(400).json({ message: 'Valid customer location required' });
-  }
-
-  const orders = await readOrders();
-  let updatedCount = 0;
-
-  for (const order of orders) {
-    if (normalizePhone(order.phone) !== phone) continue;
-    if (!isOrderLiveTrackable(order)) continue;
-
-    order.customerLocation = { ...nextLocation };
-    updatedCount += 1;
-  }
-
-  await writeOrders(orders);
-
-  res.json({
-    message: 'Customer live location updated',
-    updatedCount
-  });
-});
-
+/* =========================
+   ADMIN AUTH
+   ========================= */
 app.post('/api/admin/login', (req, res) => {
   const username = String(req.body.username || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
@@ -513,6 +526,10 @@ app.get('/api/admin/me', requireAdmin, (req, res) => {
   res.json({ admin: { username: ADMIN_USERNAME } });
 });
 
+/* =========================
+   DELIVERY AUTH
+   Supports BOTH old + new panel
+   ========================= */
 app.post('/api/delivery/request-access', (req, res) => {
   const name = String(req.body.name || '').trim();
   const phone = normalizePhone(req.body.phone);
@@ -521,7 +538,7 @@ app.post('/api/delivery/request-access', (req, res) => {
     return res.status(400).json({ message: 'Valid name and phone required' });
   }
 
-  const deliveryUsers = readJson(deliveryUsersFile, []);
+  const deliveryUsers = readDeliveryUsers();
   const existing = deliveryUsers.find((user) => normalizePhone(user.phone) === phone);
 
   if (existing) {
@@ -538,16 +555,19 @@ app.post('/api/delivery/request-access', (req, res) => {
     id: generateDeliveryId(),
     name,
     phone,
+    username: '',
+    password: '',
     status: 'Pending Approval',
     deviceId: '',
     createdAt: getISTDateTime(),
     approvedAt: '',
     updatedAt: getISTDateTime(),
-    lastLoginAt: ''
+    lastLoginAt: '',
+    image: ''
   };
 
   deliveryUsers.unshift(newUser);
-  writeJson(deliveryUsersFile, deliveryUsers);
+  writeDeliveryUsers(deliveryUsers);
 
   res.status(201).json({
     message: 'Request sent to admin for approval',
@@ -556,19 +576,68 @@ app.post('/api/delivery/request-access', (req, res) => {
 });
 
 app.post('/api/delivery/login', (req, res) => {
-  const phone = normalizePhone(req.body.phone);
+  const rawPhone = normalizePhone(req.body.phone);
   const deviceId = String(req.body.deviceId || '').trim();
 
-  if (!phone || phone.length < 10) {
+  const username = String(req.body.username || '').trim();
+  const password = String(req.body.password || '').trim();
+
+  const deliveryUsers = readDeliveryUsers();
+
+  /* old demo delivery panel support */
+  if (username || password) {
+    if (username === DELIVERY_DEMO_USERNAME && password === DELIVERY_DEMO_PASSWORD) {
+      let demoUser = deliveryUsers.find((u) => String(u.id) === 'DB-DEMO-DELIVERY');
+
+      if (!demoUser) {
+        demoUser = {
+          id: 'DB-DEMO-DELIVERY',
+          name: 'Delivery Boy',
+          phone: '0000000000',
+          username: DELIVERY_DEMO_USERNAME,
+          password: DELIVERY_DEMO_PASSWORD,
+          status: 'Approved',
+          deviceId: '',
+          createdAt: getISTDateTime(),
+          approvedAt: getISTDateTime(),
+          updatedAt: getISTDateTime(),
+          lastLoginAt: '',
+          image: ''
+        };
+        deliveryUsers.unshift(demoUser);
+        writeDeliveryUsers(deliveryUsers);
+      }
+
+      demoUser.lastLoginAt = getISTDateTime();
+      demoUser.updatedAt = getISTDateTime();
+
+      const idx = deliveryUsers.findIndex((u) => String(u.id) === demoUser.id);
+      if (idx !== -1) {
+        deliveryUsers[idx] = demoUser;
+        writeDeliveryUsers(deliveryUsers);
+      }
+
+      return res.json({
+        message: 'Delivery login successful',
+        token: createDeliveryToken(demoUser),
+        delivery: {
+          id: demoUser.id,
+          name: demoUser.name,
+          phone: demoUser.phone,
+          status: demoUser.status
+        }
+      });
+    }
+
+    return res.status(401).json({ message: 'Invalid username or password' });
+  }
+
+  /* new phone + device flow */
+  if (!rawPhone || rawPhone.length < 10) {
     return res.status(400).json({ message: 'Valid phone required' });
   }
 
-  if (!deviceId) {
-    return res.status(400).json({ message: 'Device not recognized. Please reopen panel.' });
-  }
-
-  const deliveryUsers = readJson(deliveryUsersFile, []);
-  const index = deliveryUsers.findIndex((user) => normalizePhone(user.phone) === phone);
+  const index = deliveryUsers.findIndex((user) => normalizePhone(user.phone) === rawPhone);
 
   if (index === -1) {
     return res.status(404).json({ message: 'No delivery ID found for this number. First request approval.' });
@@ -584,16 +653,19 @@ app.post('/api/delivery/login', (req, res) => {
     return res.status(403).json({ message: 'This delivery ID is not active.' });
   }
 
-  if (deliveryUser.deviceId && deliveryUser.deviceId !== deviceId) {
-    return res.status(403).json({ message: 'This ID is already active on another device. Contact admin.' });
+  if (deviceId) {
+    if (deliveryUser.deviceId && deliveryUser.deviceId !== deviceId) {
+      return res.status(403).json({ message: 'This ID is already active on another device. Contact admin.' });
+    }
+    if (!deliveryUser.deviceId) {
+      deliveryUsers[index].deviceId = deviceId;
+    }
   }
-
-  if (!deliveryUser.deviceId) deliveryUsers[index].deviceId = deviceId;
 
   deliveryUsers[index].lastLoginAt = getISTDateTime();
   deliveryUsers[index].updatedAt = getISTDateTime();
 
-  writeJson(deliveryUsersFile, deliveryUsers);
+  writeDeliveryUsers(deliveryUsers);
 
   const approvedUser = deliveryUsers[index];
 
@@ -603,14 +675,29 @@ app.post('/api/delivery/login', (req, res) => {
     delivery: {
       id: approvedUser.id,
       name: approvedUser.name,
-      phone: approvedUser.phone
+      phone: approvedUser.phone,
+      status: approvedUser.status,
+      image: approvedUser.image || ''
     }
   });
 });
 
 app.get('/api/delivery/me', requireDelivery, (req, res) => {
-  const deliveryUsers = readJson(deliveryUsersFile, []);
+  const deliveryUsers = readDeliveryUsers();
   const deliveryUser = deliveryUsers.find((user) => String(user.id) === String(req.delivery.id));
+
+  /* demo old panel token */
+  if (!deliveryUser && String(req.delivery.id) === 'DB-DEMO-DELIVERY') {
+    return res.json({
+      delivery: {
+        id: 'DB-DEMO-DELIVERY',
+        name: req.delivery.name || 'Delivery Boy',
+        phone: req.delivery.phone || '0000000000',
+        status: 'Approved',
+        image: ''
+      }
+    });
+  }
 
   if (!deliveryUser || deliveryUser.status !== 'Approved') {
     return res.status(401).json({ message: 'Delivery ID not active' });
@@ -621,23 +708,27 @@ app.get('/api/delivery/me', requireDelivery, (req, res) => {
       id: deliveryUser.id,
       name: deliveryUser.name,
       phone: deliveryUser.phone,
-      status: deliveryUser.status
+      status: deliveryUser.status,
+      image: deliveryUser.image || ''
     }
   });
 });
 
+/* =========================
+   DELIVERY ADMIN MANAGEMENT
+   ========================= */
 app.get('/api/admin/delivery-users', requireAdmin, (req, res) => {
-  res.json(readJson(deliveryUsersFile, []));
+  res.json(readDeliveryUsers());
 });
 
 app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
-  const deliveryUsers = readJson(deliveryUsersFile, []);
+  const deliveryUsers = readDeliveryUsers();
   const userId = String(req.params.id);
   const index = deliveryUsers.findIndex((user) => String(user.id) === userId);
 
   if (index === -1) return res.status(404).json({ message: 'Delivery ID not found' });
 
-  const { action, name, phone, resetDevice } = req.body;
+  const { action, name, phone, resetDevice, image } = req.body;
 
   if (name !== undefined) {
     const cleanName = String(name || '').trim();
@@ -655,6 +746,10 @@ app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
     deliveryUsers[index].phone = cleanPhone;
   }
 
+  if (image !== undefined) {
+    deliveryUsers[index].image = String(image || '').trim();
+  }
+
   if (action === 'approve') {
     deliveryUsers[index].status = 'Approved';
     deliveryUsers[index].approvedAt = getISTDateTime();
@@ -669,7 +764,7 @@ app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
   if (resetDevice) deliveryUsers[index].deviceId = '';
   deliveryUsers[index].updatedAt = getISTDateTime();
 
-  writeJson(deliveryUsersFile, deliveryUsers);
+  writeDeliveryUsers(deliveryUsers);
 
   res.json({
     message: 'Delivery ID updated successfully',
@@ -678,7 +773,7 @@ app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
-  const deliveryUsers = readJson(deliveryUsersFile, []);
+  const deliveryUsers = readDeliveryUsers();
   const userId = String(req.params.id);
   const filtered = deliveryUsers.filter((user) => String(user.id) !== userId);
 
@@ -686,10 +781,13 @@ app.delete('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
     return res.status(404).json({ message: 'Delivery ID not found' });
   }
 
-  writeJson(deliveryUsersFile, filtered);
+  writeDeliveryUsers(filtered);
   res.json({ message: 'Delivery ID deleted successfully' });
 });
 
+/* =========================
+   UPLOAD IMAGE
+   ========================= */
 app.post('/upload', requireAdmin, (req, res) => {
   upload.single('image')(req, res, (error) => {
     if (error) return res.status(400).json({ message: error.message || 'Image upload failed' });
@@ -702,6 +800,9 @@ app.post('/upload', requireAdmin, (req, res) => {
   });
 });
 
+/* =========================
+   PRODUCTS
+   ========================= */
 app.get('/api/products', async (req, res) => {
   const products = await readProducts();
   res.json(Array.isArray(products) ? products : []);
@@ -790,6 +891,9 @@ app.delete('/api/products/:id', requireAdmin, async (req, res) => {
   res.json({ message: 'Product deleted successfully' });
 });
 
+/* =========================
+   CUSTOMER ORDERS
+   ========================= */
 app.post('/api/orders', requireCustomer, async (req, res) => {
   const phone = normalizePhone(req.customer.phone);
   const village = normalizeVillage(req.customer.village);
@@ -830,9 +934,7 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
     const stock = Number(product.stock || 0);
 
     if (qty > stock) {
-      return res.status(400).json({
-        message: `${product.name || 'Product'} is out of stock or insufficient quantity`
-      });
+      return res.status(400).json({ message: `${product.name || 'Product'} is out of stock or insufficient quantity` });
     }
 
     const price = Number(product.price || 0);
@@ -910,6 +1012,35 @@ app.get('/api/my-orders', requireCustomer, async (req, res) => {
   res.json(customerOrders);
 });
 
+app.patch('/api/customer/location', requireCustomer, async (req, res) => {
+  const phone = normalizePhone(req.customer.phone);
+  const nextLocation = sanitizeLocation(req.body);
+
+  if (!nextLocation) {
+    return res.status(400).json({ message: 'Valid customer location required' });
+  }
+
+  const orders = await readOrders();
+  let updatedCount = 0;
+
+  for (const order of orders) {
+    if (normalizePhone(order.phone) !== phone) continue;
+    if (!isOrderLiveTrackable(order)) continue;
+    order.customerLocation = { ...nextLocation };
+    updatedCount += 1;
+  }
+
+  await writeOrders(orders);
+
+  res.json({
+    message: 'Customer live location updated',
+    updatedCount
+  });
+});
+
+/* =========================
+   ADMIN ORDERS
+   ========================= */
 app.get('/api/orders', requireAdmin, async (req, res) => {
   const orders = (await readOrders()).map(normalizeOrderForResponse);
   res.json(orders);
@@ -930,9 +1061,7 @@ app.patch('/api/admin/orders/:id/status', requireAdmin, async (req, res) => {
 
   if (status) {
     const validStatuses = ['Need Confirmation', 'Pending', 'Out for Delivery', 'Delivered'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
+    if (!validStatuses.includes(status)) return res.status(400).json({ message: 'Invalid status' });
 
     orders[index].status = status;
 
@@ -976,13 +1105,11 @@ app.patch('/api/admin/orders/:id/confirm', requireAdmin, async (req, res) => {
 
 app.patch('/api/admin/orders/:id/assign-delivery', requireAdmin, async (req, res) => {
   const orders = await readOrders();
-  const deliveryUsers = readJson(deliveryUsersFile, []);
+  const deliveryUsers = readDeliveryUsers();
   const orderId = String(req.params.id || '').trim();
   const deliveryBoyId = String(req.body.deliveryBoyId || '').trim();
 
-  if (!deliveryBoyId) {
-    return res.status(400).json({ message: 'Delivery boy ID required' });
-  }
+  if (!deliveryBoyId) return res.status(400).json({ message: 'Delivery boy ID required' });
 
   const orderIndex = orders.findIndex((o) => String(o.id || '').trim() === orderId);
   if (orderIndex === -1) return res.status(404).json({ message: 'Order not found' });
@@ -991,9 +1118,7 @@ app.patch('/api/admin/orders/:id/assign-delivery', requireAdmin, async (req, res
   if (!deliveryBoy) return res.status(400).json({ message: 'Delivery boy ID not found' });
 
   if (String(deliveryBoy.status || '').trim().toLowerCase() !== 'approved') {
-    return res.status(400).json({
-      message: `Delivery boy not approved. Current status: ${deliveryBoy.status || 'Unknown'}`
-    });
+    return res.status(400).json({ message: `Delivery boy not approved. Current status: ${deliveryBoy.status || 'Unknown'}` });
   }
 
   orders[orderIndex].assignedDeliveryBoyId = deliveryBoy.id;
@@ -1015,64 +1140,6 @@ app.patch('/api/admin/orders/:id/assign-delivery', requireAdmin, async (req, res
   });
 });
 
-app.get('/api/delivery/orders', requireDelivery, async (req, res) => {
-  const orders = await readOrders();
-
-  const deliveryOrders = orders
-    .filter((order) => String(order.assignedDeliveryBoyId || order.deliveryBoyId || '').trim() === String(req.delivery.id || '').trim())
-    .map(normalizeOrderForResponse);
-
-  res.json(deliveryOrders);
-});
-
-async function handleDeliveryStatusUpdate(req, res) {
-  const orderId = String(req.params.id || '').trim();
-  const status = String(req.body.status || '').trim();
-  const allowedStatuses = ['Pending', 'Out for Delivery', 'Delivered'];
-
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({ message: 'Invalid order status' });
-  }
-
-  const orders = await readOrders();
-  const index = orders.findIndex((order) => String(order.id) === orderId);
-
-  if (index === -1) return res.status(404).json({ message: 'Order not found' });
-
-  const assignedId = String(orders[index].assignedDeliveryBoyId || orders[index].deliveryBoyId || '').trim();
-  if (assignedId !== String(req.delivery.id || '').trim()) {
-    return res.status(403).json({ message: 'This order is not assigned to you' });
-  }
-
-  orders[index].status = status;
-  orders[index].deliveryBoyId = req.delivery.id || orders[index].deliveryBoyId || '';
-  orders[index].deliveryBoyName = req.delivery.name || orders[index].deliveryBoyName || '';
-  orders[index].deliveryBoyPhone = req.delivery.phone || orders[index].deliveryBoyPhone || '';
-
-  if (status === 'Out for Delivery') {
-    orders[index].deliveryStartedAt = getISTDateTime();
-    if (orders[index].customerLocation && orders[index].customerLocation.latitude !== '') {
-      orders[index].customerLocation.live = true;
-      orders[index].customerLocation.updatedAt = getISTDateTime();
-    }
-  }
-
-  if (status === 'Delivered') {
-    orders[index].deliveredAt = getISTDateTime();
-    orders[index].customerLocation = clearLiveLocation();
-  }
-
-  await writeOrders(orders);
-
-  res.json({
-    message: 'Order status updated successfully',
-    order: normalizeOrderForResponse(orders[index])
-  });
-}
-
-app.patch('/api/delivery/orders/:id/status', requireDelivery, handleDeliveryStatusUpdate);
-app.put('/api/delivery/orders/:id/status', requireDelivery, handleDeliveryStatusUpdate);
-
 app.put('/api/orders/:id/payment-status', requireAdmin, async (req, res) => {
   const orders = await readOrders();
   const orderId = String(req.params.id || '').trim();
@@ -1081,7 +1148,6 @@ app.put('/api/orders/:id/payment-status', requireAdmin, async (req, res) => {
   const index = orders.findIndex((o) => String(o.id) === orderId);
 
   if (index === -1) return res.status(404).json({ message: 'Order not found' });
-
   if (!paymentStatus || !validPaymentStatuses.includes(paymentStatus)) {
     return res.status(400).json({ message: 'Invalid payment status' });
   }
@@ -1109,14 +1175,86 @@ app.delete('/api/admin/orders/:id', requireAdmin, async (req, res) => {
 });
 
 /* =========================
-   VOICE ORDER ROUTES
-========================= */
+   DELIVERY ORDERS
+   ========================= */
+app.get('/api/delivery/orders', requireDelivery, async (req, res) => {
+  const orders = await readOrders();
+  const deliveryId = String(req.delivery.id || '').trim();
 
-app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
-  voiceUpload.single('audio')(req, res, async (error) => {
-    if (error) {
-      return res.status(400).json({ message: error.message || 'Voice upload failed' });
+  let deliveryOrders = [];
+
+  /* old demo panel -> show all active orders */
+  if (deliveryId === 'DB-DEMO-DELIVERY') {
+    deliveryOrders = orders.filter((order) => ['Pending', 'Out for Delivery', 'Delivered'].includes(String(order.status || '')));
+  } else {
+    deliveryOrders = orders.filter((order) => {
+      return String(order.assignedDeliveryBoyId || order.deliveryBoyId || '').trim() === deliveryId;
+    });
+  }
+
+  res.json(deliveryOrders.map(normalizeOrderForResponse));
+});
+
+async function handleDeliveryStatusUpdate(req, res) {
+  const orderId = String(req.params.id || '').trim();
+  const status = String(req.body.status || '').trim();
+  const allowedStatuses = ['Pending', 'Out for Delivery', 'Delivered'];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: 'Invalid order status' });
+  }
+
+  const orders = await readOrders();
+  const index = orders.findIndex((order) => String(order.id) === orderId);
+
+  if (index === -1) return res.status(404).json({ message: 'Order not found' });
+
+  const deliveryId = String(req.delivery.id || '').trim();
+  const assignedId = String(orders[index].assignedDeliveryBoyId || orders[index].deliveryBoyId || '').trim();
+
+  /* old demo delivery panel ko allow karo */
+  if (deliveryId !== 'DB-DEMO-DELIVERY' && assignedId !== deliveryId) {
+    return res.status(403).json({ message: 'This order is not assigned to you' });
+  }
+
+  orders[index].status = status;
+
+  if (deliveryId !== 'DB-DEMO-DELIVERY') {
+    orders[index].deliveryBoyId = req.delivery.id || orders[index].deliveryBoyId || '';
+    orders[index].deliveryBoyName = req.delivery.name || orders[index].deliveryBoyName || '';
+    orders[index].deliveryBoyPhone = req.delivery.phone || orders[index].deliveryBoyPhone || '';
+  }
+
+  if (status === 'Out for Delivery') {
+    orders[index].deliveryStartedAt = getISTDateTime();
+    if (orders[index].customerLocation && orders[index].customerLocation.latitude !== '') {
+      orders[index].customerLocation.live = true;
+      orders[index].customerLocation.updatedAt = getISTDateTime();
     }
+  }
+
+  if (status === 'Delivered') {
+    orders[index].deliveredAt = getISTDateTime();
+    orders[index].customerLocation = clearLiveLocation();
+  }
+
+  await writeOrders(orders);
+
+  res.json({
+    message: 'Order status updated successfully',
+    order: normalizeOrderForResponse(orders[index])
+  });
+}
+
+app.patch('/api/delivery/orders/:id/status', requireDelivery, handleDeliveryStatusUpdate);
+app.put('/api/delivery/orders/:id/status', requireDelivery, handleDeliveryStatusUpdate);
+
+/* =========================
+   VOICE ORDERS
+   ========================= */
+app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
+  voiceUpload.single('audio')(req, res, (error) => {
+    if (error) return res.status(400).json({ message: error.message || 'Voice upload failed' });
 
     const phone = normalizePhone(req.customer.phone);
     const village = normalizeVillage(req.customer.village);
@@ -1241,8 +1379,7 @@ app.post('/api/customer/voice-order-base64', requireCustomer, (req, res) => {
 });
 
 app.get('/api/admin/voice-orders', requireAdmin, (req, res) => {
-  const voiceOrders = readVoiceOrders();
-  res.json(voiceOrders);
+  res.json(readVoiceOrders());
 });
 
 app.patch('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
