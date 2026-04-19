@@ -713,4 +713,3 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${db ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
 });
-EOF
