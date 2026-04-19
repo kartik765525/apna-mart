@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>APNAMART</title>
+<title>SUPPLY SETU ADMIN</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -63,7 +63,7 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
 <body>
 <div class="lock-screen" id="lockScreen">
     <div class="lock-box">
-        <h2>🔒 Admin Login</h2>
+        <h2>🔒 Supply Setu Admin Login</h2>
         <p>Admin username aur password dalo</p>
         <input type="text" id="adminUsername" placeholder="Enter username">
         <input type="password" id="adminPassword" placeholder="Enter password">
@@ -72,7 +72,7 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
 </div>
 
 <div class="header">
-    <div>🛠 Apna Mart Admin Panel</div>
+    <div>🛠 Supply Setu Admin</div>
     <button onclick="logoutAdmin()" style="background:red;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;">
         Logout
     </button>
@@ -83,6 +83,8 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
     <button class="tab-btn" id="tabDashboardBtn" onclick="showSection('dashboard')">Dashboard</button>
     <button class="tab-btn" id="tabOrdersBtn" onclick="showSection('orders')">Orders</button>
     <button class="tab-btn" id="tabDeliveryBtn" onclick="showSection('delivery')">Delivery Boys</button>
+    <button class="tab-btn" id="tabOffersBtn" onclick="showSection('offers')">Offers</button>
+    <button class="tab-btn" id="tabCouponsBtn" onclick="showSection('coupons')">Coupons</button>
 </div>
 
 <div class="page-section active" id="sectionAdd">
@@ -143,6 +145,37 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
     </div>
 </div>
 
+
+
+<div class="page-section" id="sectionOffers">
+    <div class="section-card">
+        <div class="section-title">🎁 Customer Offers Upload</div>
+        <input type="text" id="offerTitle" placeholder="Offer Title" class="admin-input">
+        <input type="text" id="offerSubtitle" placeholder="Offer Subtitle" class="admin-input">
+        <div class="grid-two">
+            <input type="file" id="offerImage" accept="image/*" class="admin-input">
+            <input type="number" id="offerDiscount" placeholder="Discount %" class="admin-input">
+        </div>
+        <div id="offerImageStatus" style="margin-top:8px;color:#666;font-size:14px;">No offer image selected</div>
+        <button onclick="addOfferItem()" class="action-btn orange">Add Offer</button>
+        <div id="offersManager" style="margin-top:16px;"></div>
+    </div>
+</div>
+
+<div class="page-section" id="sectionCoupons">
+    <div class="section-card">
+        <div class="section-title">🏷 Coupon Code Manage</div>
+        <input type="text" id="couponCode" placeholder="Coupon Code" class="admin-input">
+        <div class="grid-two">
+            <input type="number" id="couponDiscount" placeholder="Discount Amount / %" class="admin-input">
+            <input type="number" id="couponMaxUsers" placeholder="Max Users" class="admin-input">
+        </div>
+        <input type="text" id="couponType" placeholder="Type (flat / percent)" class="admin-input">
+        <button onclick="addCouponItem()" class="action-btn orange">Add Coupon</button>
+        <div id="couponsManager" style="margin-top:16px;"></div>
+    </div>
+</div>
+
 <div class="modal" id="invoiceModal">
     <div class="modal-card">
         <div class="modal-header">
@@ -165,6 +198,8 @@ let currentStockCategory = "All";
 let activeSection = "add";
 let currentInvoiceOrder = null;
 let deliveryUsers = [];
+let offers = JSON.parse(localStorage.getItem("apnaMartOffers") || "[]");
+let coupons = JSON.parse(localStorage.getItem("apnaMartCoupons") || "[]");
 let lastKnownOrderIds = [];
 let hasInitializedOrderWatcher = false;
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
@@ -246,6 +281,11 @@ document.addEventListener("change", function(e){
         const file = e.target.files[0];
         document.getElementById("imageUploadStatus").textContent = file ? `Selected: ${file.name}` : "No image selected";
     }
+    if(e.target && e.target.id === "offerImage"){
+        const file = e.target.files[0];
+        const el = document.getElementById("offerImageStatus");
+        if(el) el.textContent = file ? `Selected: ${file.name}` : "No offer image selected";
+    }
 });
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -265,12 +305,16 @@ function showSection(name){
     document.getElementById("sectionOrders").classList.remove("active");
     document.getElementById("sectionDashboard").classList.remove("active");
     document.getElementById("sectionDelivery").classList.remove("active");
+    document.getElementById("sectionOffers").classList.remove("active");
+    document.getElementById("sectionCoupons").classList.remove("active");
 
     document.getElementById("tabAddBtn").classList.remove("active");
     document.getElementById("tabStockBtn").classList.remove("active");
     document.getElementById("tabOrdersBtn").classList.remove("active");
     document.getElementById("tabDashboardBtn").classList.remove("active");
     document.getElementById("tabDeliveryBtn").classList.remove("active");
+    document.getElementById("tabOffersBtn").classList.remove("active");
+    document.getElementById("tabCouponsBtn").classList.remove("active");
 
     if(name === "add"){
         document.getElementById("sectionAdd").classList.add("active");
@@ -284,6 +328,12 @@ function showSection(name){
     }else if(name === "delivery"){
         document.getElementById("sectionDelivery").classList.add("active");
         document.getElementById("tabDeliveryBtn").classList.add("active");
+    }else if(name === "offers"){
+        document.getElementById("sectionOffers").classList.add("active");
+        document.getElementById("tabOffersBtn").classList.add("active");
+    }else if(name === "coupons"){
+        document.getElementById("sectionCoupons").classList.add("active");
+        document.getElementById("tabCouponsBtn").classList.add("active");
     }else{
         document.getElementById("sectionOrders").classList.add("active");
         document.getElementById("tabOrdersBtn").classList.add("active");
@@ -522,6 +572,129 @@ function renderDeliveryUsers(){
                 </div>
             </div>
         `).join("");
+}
+
+function saveOffersStorage(){
+    localStorage.setItem("apnaMartOffers", JSON.stringify(offers));
+}
+function saveCouponsStorage(){
+    localStorage.setItem("apnaMartCoupons", JSON.stringify(coupons));
+}
+function readFileAsDataURL(file){
+    return new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onload = ()=>resolve(reader.result || "");
+        reader.onerror = ()=>reject(new Error("file read failed"));
+        reader.readAsDataURL(file);
+    });
+}
+async function addOfferItem(){
+    const title = document.getElementById("offerTitle").value.trim();
+    const subtitle = document.getElementById("offerSubtitle").value.trim();
+    const discount = Number(document.getElementById("offerDiscount").value || 0);
+    const file = document.getElementById("offerImage").files[0];
+
+    if(!title){ alert("Offer title required"); return; }
+    if(!file){ alert("Offer image required"); return; }
+
+    let image = "";
+    try{
+        image = await readFileAsDataURL(file);
+    }catch(error){
+        alert("Offer image load failed");
+        return;
+    }
+
+    offers.unshift({
+        id: "OFF" + Date.now(),
+        title,
+        subtitle,
+        discount,
+        image,
+        createdAt: new Date().toLocaleString("en-IN")
+    });
+    saveOffersStorage();
+    document.getElementById("offerTitle").value = "";
+    document.getElementById("offerSubtitle").value = "";
+    document.getElementById("offerDiscount").value = "";
+    document.getElementById("offerImage").value = "";
+    document.getElementById("offerImageStatus").textContent = "No offer image selected";
+    renderOffers();
+}
+function deleteOfferItem(id){
+    if(!confirm("Delete this offer?")) return;
+    offers = offers.filter(item => String(item.id) !== String(id));
+    saveOffersStorage();
+    renderOffers();
+}
+function renderOffers(){
+    const box = document.getElementById("offersManager");
+    if(!box) return;
+    box.innerHTML = offers.length ? offers.map(item => `
+        <div class="order-card">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <img src="${item.image}" style="width:120px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-weight:700;">${item.title}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">${item.subtitle || ""}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discount || 0}%</div>
+                </div>
+                <button onclick="deleteOfferItem('${item.id}')" class="action-btn red">Delete</button>
+            </div>
+        </div>
+    `).join("") : "<p>No offers added</p>";
+}
+function addCouponItem(){
+    const code = document.getElementById("couponCode").value.trim().toUpperCase();
+    const discount = Number(document.getElementById("couponDiscount").value || 0);
+    const maxUsers = Number(document.getElementById("couponMaxUsers").value || 0);
+    const type = document.getElementById("couponType").value.trim().toLowerCase() || "flat";
+
+    if(!code){ alert("Coupon code required"); return; }
+    if(!discount){ alert("Discount required"); return; }
+    if(!maxUsers){ alert("Max users required"); return; }
+
+    const existingIndex = coupons.findIndex(item => String(item.code) === code);
+    const payload = {
+        id: existingIndex !== -1 ? coupons[existingIndex].id : ("CPN" + Date.now()),
+        code,
+        discount,
+        maxUsers,
+        usedUsers: existingIndex !== -1 ? Number(coupons[existingIndex].usedUsers || 0) : 0,
+        type,
+        createdAt: existingIndex !== -1 ? coupons[existingIndex].createdAt : new Date().toLocaleString("en-IN")
+    };
+
+    if(existingIndex !== -1) coupons[existingIndex] = payload;
+    else coupons.unshift(payload);
+
+    saveCouponsStorage();
+    document.getElementById("couponCode").value = "";
+    document.getElementById("couponDiscount").value = "";
+    document.getElementById("couponMaxUsers").value = "";
+    document.getElementById("couponType").value = "";
+    renderCoupons();
+}
+function deleteCouponItem(id){
+    if(!confirm("Delete this coupon?")) return;
+    coupons = coupons.filter(item => String(item.id) !== String(id));
+    saveCouponsStorage();
+    renderCoupons();
+}
+function renderCoupons(){
+    const box = document.getElementById("couponsManager");
+    if(!box) return;
+    box.innerHTML = coupons.length ? coupons.map(item => `
+        <div class="order-card">
+            <div><b>Code:</b> ${item.code}</div>
+            <div style="margin-top:6px;"><b>Type:</b> ${item.type}</div>
+            <div style="margin-top:6px;"><b>Discount:</b> ${item.discount}</div>
+            <div style="margin-top:6px;"><b>Users:</b> ${Number(item.usedUsers || 0)} / ${Number(item.maxUsers || 0)}</div>
+            <div style="margin-top:12px;">
+                <button onclick="deleteCouponItem('${item.id}')" class="action-btn red">Delete</button>
+            </div>
+        </div>
+    `).join("") : "<p>No coupons added</p>";
 }
 
 function buildInvoiceHtml(order){
@@ -909,6 +1082,8 @@ async function loadAdmin(){
     renderDashboard();
     renderOrders();
     renderDeliveryUsers();
+    renderOffers();
+    renderCoupons();
     showSection(getActiveSection());
 }
 
