@@ -1,4 +1,3 @@
-bash -lc cat > /mnt/data/apnamart_fixed/server.js <<'EOF'
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
