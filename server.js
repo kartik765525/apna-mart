@@ -6,10 +6,17 @@ const multer = require("multer");
 const jwt = require("jsonwebtoken");
 const admin = require("firebase-admin");
 
+const app = express();
+const PORT = process.env.PORT || 5000;
+
 let serviceAccount = null;
 
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } catch (error) {
+    console.error("Invalid FIREBASE_SERVICE_ACCOUNT JSON:", error.message);
+  }
 } else {
   try {
     serviceAccount = require("./firebase-service-account.json");
@@ -25,7 +32,6 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 const db = serviceAccount ? admin.firestore() : null;
-const db = admin.firestore();
 
 const ADMIN_JWT_SECRET = "apna_mart_admin_secret_2026";
 const CUSTOMER_JWT_SECRET = "apna_mart_customer_secret_2026";
@@ -308,6 +314,7 @@ const upload = multer({
 
 /* FIREBASE HELPERS */
 async function readProducts() {
+  if (!db) return [];
   try {
     const snapshot = await db.collection("products").get();
     return snapshot.docs.map((doc) => {
@@ -324,6 +331,7 @@ async function readProducts() {
 }
 
 async function writeProducts(products) {
+  if (!db) return;
   try {
     const batch = db.batch();
     const collectionRef = db.collection("products");
@@ -343,6 +351,7 @@ async function writeProducts(products) {
 }
 
 async function readOrders() {
+  if (!db) return [];
   try {
     const snapshot = await db.collection("orders").get();
     return snapshot.docs.map((doc) => {
@@ -359,6 +368,7 @@ async function readOrders() {
 }
 
 async function writeOrders(orders) {
+  if (!db) return;
   try {
     const batch = db.batch();
     const collectionRef = db.collection("orders");
