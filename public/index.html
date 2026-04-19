@@ -1352,6 +1352,17 @@ html[data-theme="dark"] .delivery-boy-call{
     border-top:1px solid #eceff3;
     border-bottom:1px solid #eceff3;
 }
+
+.coupon-box{margin-top:12px;padding:12px;border:1px solid #d7e7f8;border-radius:14px;background:#f8fbff;}
+.coupon-row{display:flex;gap:10px;align-items:center;}
+.coupon-input{flex:1;padding:11px 12px;border:1px solid #d9e2eb;border-radius:12px;outline:none;background:#fff;}
+.coupon-apply-btn{border:none;padding:11px 14px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;}
+.coupon-status{margin-top:8px;font-size:13px;font-weight:700;color:#1f8f45;}
+.coupon-status.error{color:#dc2626;}
+.offer-image-card{min-width:132px;max-width:132px;height:58px;}
+.offer-image-card img{object-fit:cover;}
+.discount-apply-btn{margin-top:12px;border:none;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;font-weight:800;cursor:pointer;}
+
 .cart-payment-box label{
     display:flex;
     align-items:center;
@@ -2363,64 +2374,21 @@ html[data-theme="dark"] .place-order-loader-sub{
             <div class="welcome-subtitle">Order now and enjoy great offers</div>
         </div>
         <div class="offers-heading">✦ OFFERS FOR YOU ✦</div>
-        <div class="offers-strip auto-scroll-active" id="offersStrip">
-            <div class="offer-card" onclick="openOfferDiscount('flat50')">
-                <div class="offer-top">
-                    <div class="offer-icon">💸</div>
-                    <div class="offer-title">Get FLAT ₹50 OFF</div>
-                </div>
-                <div class="offer-desc">On your first order above ₹199</div>
-                <div class="offer-pill">New Customer Offer</div>
-            </div>
-            <div class="offer-card" onclick="openOfferDiscount('freeDelivery')">
-                <div class="offer-top">
-                    <div class="offer-icon">🛵</div>
-                    <div class="offer-title">Enjoy FREE delivery</div>
-                </div>
-                <div class="offer-desc">On all your orders above ₹499</div>
-                <div class="offer-pill">Fast Delivery</div>
-            </div>
-            <div class="offer-card" onclick="openOfferDiscount('dairyDeals')">
-                <div class="offer-top">
-                    <div class="offer-icon">🥛</div>
-                    <div class="offer-title">Fresh dairy deals</div>
-                </div>
-                <div class="offer-desc">Milk, paneer and dahi par daily savings</div>
-                <div class="offer-pill">Daily Savings</div>
-            </div>
-            <div class="offer-card" onclick="openOfferDiscount('comboOffer')">
-                <div class="offer-top">
-                    <div class="offer-icon">🧺</div>
-                    <div class="offer-title">Kitchen essentials combo</div>
-                </div>
-                <div class="offer-desc">Atta, oil and masala par special combo price</div>
-                <div class="offer-pill">Combo Offer</div>
-            </div>
-        </div>
-        <div class="offer-image-strip" id="offerImageStrip">
-            <div class="offer-image-card" onclick="openOfferDiscount('flat50')">
-                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80" alt="Flat 50 off">
-                <div class="offer-image-overlay">₹50 OFF</div>
-            </div>
-            <div class="offer-image-card" onclick="openOfferDiscount('freeDelivery')">
-                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Free delivery">
-                <div class="offer-image-overlay">FREE DELIVERY</div>
-            </div>
-            <div class="offer-image-card" onclick="openOfferDiscount('dairyDeals')">
-                <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80" alt="Dairy deals">
-                <div class="offer-image-overlay">DAIRY DEALS</div>
-            </div>
-            <div class="offer-image-card" onclick="openOfferDiscount('comboOffer')">
-                <img src="https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=800&q=80" alt="Combo offer">
-                <div class="offer-image-overlay">COMBO PRICE</div>
-            </div>
-        </div>
+        <div class="offers-strip auto-scroll-active" id="offersStrip"></div>
+        <div class="offer-image-strip" id="offerImageStrip"></div>
     </div>
 
     <div class="offer-discount-section" id="offerDiscountSection">
         <div class="offer-discount-head">
             <div>
                 <div class="offer-discount-title" id="offerDiscountTitle">Special Discount</div>
+                <div class="offer-discount-desc" id="offerDiscountDesc">Best deal details yahan dikhenge.</div>
+                <div class="offer-discount-code" id="offerDiscountCode">CODE: SAVE</div>
+                <button class="discount-apply-btn" type="button" onclick="applySelectedOfferCoupon()">Apply This Coupon</button>
+            </div>
+            <button class="offer-discount-close" onclick="closeOfferDiscount()">Close</button>
+        </div>
+    </div>
                 <div class="offer-discount-desc" id="offerDiscountDesc">Best deal details yahan dikhenge.</div>
                 <div class="offer-discount-code" id="offerDiscountCode">CODE: SAVE</div>
             </div>
@@ -2456,6 +2424,7 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <h4 id="priceDetailsTitle">Price Details</h4>
                 <div class="cart-summary-row"><span id="subtotalLabel">Subtotal</span><strong>₹<span id="subtotal">0</span></strong></div>
                 <div class="cart-summary-row"><span id="shippingLabel">Shipping</span><strong>₹<span id="shipping">0</span></strong></div>
+                <div class="cart-summary-row" id="couponDiscountRow" style="display:none;"><span>Coupon Discount</span><strong>-₹<span id="couponDiscountValue">0</span></strong></div>
                 <div class="cart-summary-row"><span id="totalItemsLabel">Total Items</span><strong><span id="countSummary">0</span></strong></div>
                 <div class="cart-summary-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #eceff3;font-size:16px;">
                     <span><strong id="totalPayLabel">Total Pay</strong></span>
@@ -2469,6 +2438,13 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <h4 id="paymentOptionTitle" style="margin-bottom:8px;color:#111827;">Payment Option</h4>
                 <label><input type="radio" name="payment" value="cod" checked> <span id="codLabel">Cash on Delivery</span></label>
                 <label><input type="radio" name="payment" value="upi"> <span id="upiLabel">UPI Payment</span></label>
+                <div class="coupon-box">
+                    <div class="coupon-row">
+                        <input type="text" id="couponCodeInput" class="coupon-input" placeholder="Enter coupon code">
+                        <button type="button" class="coupon-apply-btn" onclick="applyCouponFromInput()">Apply</button>
+                    </div>
+                    <div id="couponStatus" class="coupon-status" style="display:none;"></div>
+                </div>
                 <button onclick="orderOnWhatsApp()" id="orderWhatsappBtn" class="main-btn whatsapp-btn" style="margin-top:12px;">Order on WhatsApp</button>
                 <button onclick="orderOnCall()" id="orderCallBtn" class="main-btn call-btn">Order on Call</button>
             </div>
@@ -2743,6 +2719,9 @@ const CUSTOMER_TOKEN_KEY = "apnaMartCustomerToken";
 let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 
 let latestOrders = [];
+let serverOffers = [];
+let appliedCoupon = null;
+let selectedOfferKey = "";
 let currentOpenOrderId = null;
 let otpSent = false;
 
@@ -3337,6 +3316,7 @@ async function verifyOtp(){
         localStorage.setItem("apnaMartProfile", JSON.stringify({ ...oldProfile, phone, village: normalizeVillage(village) }));
 
         await checkCustomerLogin();
+fetchLiveOffers();
         showToast("OTP login successful", "success");
     }catch(error){
         console.error(error);
@@ -3484,8 +3464,22 @@ async function openOrdersPanel(addToHistory = true){
 function calculateTotal() {
     const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
     const profile = getSavedProfile();
-    const shipping = profile ? (getVillageDeliveryCharge(profile.village) ?? 0) : 0;
-    const grandTotal = subtotal + shipping;
+    let shipping = profile ? (getVillageDeliveryCharge(profile.village) ?? 0) : 0;
+    let couponDiscount = 0;
+
+    if(appliedCoupon){
+        if(String(appliedCoupon.type || '').toLowerCase() === 'percent'){
+            couponDiscount = Math.round((subtotal * Number(appliedCoupon.discount || 0)) / 100);
+        }else if(String(appliedCoupon.type || '').toLowerCase() === 'free_delivery'){
+            couponDiscount = shipping;
+        }else{
+            couponDiscount = Number(appliedCoupon.discount || 0);
+        }
+        if(couponDiscount > subtotal + shipping) couponDiscount = subtotal + shipping;
+        if(String(appliedCoupon.type || '').toLowerCase() === 'free_delivery') shipping = 0;
+    }
+
+    const grandTotal = Math.max(0, subtotal + shipping - couponDiscount);
     const countSummary = cart.reduce((a, b) => a + b.qty, 0);
     const originalEstimate = estimateOriginalTotal(subtotal, shipping);
 
@@ -3495,6 +3489,24 @@ function calculateTotal() {
     document.getElementById("bottomGrandTotal").innerText = grandTotal;
     document.getElementById("total").innerText = originalEstimate;
     document.getElementById("countSummary").innerText = countSummary;
+
+    const row = document.getElementById('couponDiscountRow');
+    const val = document.getElementById('couponDiscountValue');
+    const status = document.getElementById('couponStatus');
+    if(row && val){
+        if(appliedCoupon && couponDiscount > 0){
+            row.style.display = 'flex';
+            val.textContent = couponDiscount;
+        }else{
+            row.style.display = 'none';
+            val.textContent = '0';
+        }
+    }
+    if(status && appliedCoupon){
+        status.style.display = 'block';
+        status.classList.remove('error');
+        status.textContent = `Applied: ${appliedCoupon.code}`;
+    }
     updateCartDeliveryBox();
 }
 
@@ -3948,6 +3960,93 @@ document.getElementById("profileImageInput")?.addEventListener("change", async f
 
 
 let offerAutoScrollTimer = null;
+
+function renderOffersFromServer(){
+    const strip = document.getElementById('offersStrip');
+    const imageStrip = document.getElementById('offerImageStrip');
+    if(!strip || !imageStrip) return;
+    const active = (serverOffers || []).filter(item => !item.hidden);
+    if(!active.length){
+        strip.innerHTML = `<div class="offer-card"><div class="offer-top"><div class="offer-icon">🎁</div><div class="offer-title">No live offers</div></div><div class="offer-desc">Admin se naya offer aane par yahan dikhega</div><div class="offer-pill">Stay tuned</div></div>`;
+        imageStrip.innerHTML = '';
+        return;
+    }
+    strip.innerHTML = active.map(item => `
+        <div class="offer-card" onclick="openOfferDiscount('${item.id}')">
+            <div class="offer-top">
+                <div class="offer-icon">🏷️</div>
+                <div class="offer-title">${item.title || 'Special Offer'}</div>
+            </div>
+            <div class="offer-desc">${item.subtitle || ''}</div>
+            <div class="offer-pill">${item.code || 'COUPON'}</div>
+        </div>
+    `).join('');
+    imageStrip.innerHTML = active.map(item => `
+        <div class="offer-image-card" onclick="openOfferDiscount('${item.id}')">
+            <img src="${item.image || 'https://via.placeholder.com/300x120?text=Offer'}" alt="${item.title || 'Offer'}">
+            <div class="offer-image-overlay">${item.code || 'OFFER'}</div>
+        </div>
+    `).join('');
+}
+
+async function fetchLiveOffers(){
+    try{
+        const res = await fetch('/api/offers');
+        const data = await res.json().catch(()=>[]);
+        serverOffers = Array.isArray(data) ? data : [];
+        renderOffersFromServer();
+        startOfferAutoScroll();
+    }catch(error){
+        console.error('Offers fetch failed', error);
+    }
+}
+
+async function applyCouponCode(code, showMessage=true){
+    code = String(code || '').trim().toUpperCase();
+    const status = document.getElementById('couponStatus');
+    if(!code){
+        appliedCoupon = null;
+        if(status){ status.style.display='block'; status.classList.add('error'); status.textContent='Enter coupon code'; }
+        calculateTotal();
+        return false;
+    }
+    const subtotal = cart.reduce((a,b)=>a + (b.price*b.qty), 0);
+    const shipping = Number(document.getElementById('shipping')?.textContent || 0);
+    try{
+        const res = await fetch('/api/coupons/validate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code, subtotal, shipping})});
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok || !data.valid){
+            appliedCoupon = null;
+            if(status){ status.style.display='block'; status.classList.add('error'); status.textContent=data.message || 'Invalid coupon'; }
+            calculateTotal();
+            return false;
+        }
+        appliedCoupon = data.coupon;
+        const input = document.getElementById('couponCodeInput');
+        if(input) input.value = code;
+        if(status){ status.style.display='block'; status.classList.remove('error'); status.textContent=`Applied: ${code}`; }
+        calculateTotal();
+        return true;
+    }catch(error){
+        console.error(error);
+        if(status){ status.style.display='block'; status.classList.add('error'); status.textContent='Coupon apply failed'; }
+        return false;
+    }
+}
+
+function applyCouponFromInput(){
+    const input = document.getElementById('couponCodeInput');
+    applyCouponCode(input ? input.value : '');
+}
+
+function applySelectedOfferCoupon(){
+    if(!selectedOfferKey) return;
+    const offer = (serverOffers || []).find(item => String(item.id) === String(selectedOfferKey));
+    if(!offer) return;
+    applyCouponCode(offer.code || '');
+    closeOfferDiscount();
+}
+
 const offerDiscountData = {
     flat50: {
         title: "Get FLAT ₹50 OFF",
@@ -3998,14 +4097,22 @@ function startOffersAutoScroll(){
 }
 
 function openOfferDiscount(key){
-    const data = offerDiscountData[key];
+    selectedOfferKey = String(key || '');
     const section = document.getElementById('offerDiscountSection');
-    if(!data || !section) return;
+    const serverOffer = (serverOffers || []).find(item => String(item.id) === String(key));
+    if(serverOffer){
+        document.getElementById('offerDiscountTitle').textContent = serverOffer.title || 'Special Discount';
+        document.getElementById('offerDiscountDesc').textContent = `${serverOffer.subtitle || ''}${serverOffer.validTill ? ' · Valid till: ' + new Date(serverOffer.validTill).toLocaleString('en-IN') : ''}`.trim();
+        document.getElementById('offerDiscountCode').textContent = `CODE: ${serverOffer.code || 'SAVE'}`;
+        section?.classList.add('open');
+        return;
+    }
+    const data = offerDiscountData[key];
+    if(!data) return;
     document.getElementById('offerDiscountTitle').textContent = data.title;
     document.getElementById('offerDiscountDesc').textContent = data.desc;
     document.getElementById('offerDiscountCode').textContent = data.code;
-    section.classList.add('open');
-    section.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    section?.classList.add('open');
 }
 
 function closeOfferDiscount(){
