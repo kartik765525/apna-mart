@@ -1,80 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Apna Mart Delivery Panel</title>
 <style>
-:root{
-  --blue:#dbeafe;
-  --blue-text:#1d4ed8;
-  --green:#dcfce7;
-  --green-text:#15803d;
-  --amber:#fef3c7;
-  --amber-text:#b45309;
-  --bg:#f8fbff;
-  --card:#ffffff;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --border:#dbe7f3;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Segoe UI,sans-serif;background:linear-gradient(180deg,#f8fbff 0%,#eef8f2 100%);color:var(--text)}
+:root{--blue:#dbeafe;--blue-text:#1d4ed8;--green:#dcfce7;--green-text:#15803d;--amber:#fef3c7;--amber-text:#b45309;--bg:#f8fbff;--card:#ffffff;--text:#1f2937;--muted:#6b7280;--border:#dbe7f3}
+*{box-sizing:border-box;margin:0;padding:0} body{font-family:Segoe UI,sans-serif;background:linear-gradient(180deg,#f8fbff 0%,#eef8f2 100%);color:var(--text)}
 .header{padding:18px 20px;background:#fff;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 8px 24px rgba(15,23,42,.05)}
-.brand{font-size:24px;font-weight:800;color:#2563eb}
-.sub{font-size:12px;color:var(--muted);margin-top:4px}
-.logout-btn,.login-btn,.action-btn{border:none;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700}
-.logout-btn{background:#ef4444;color:#fff}
-.login-screen{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000}
-.login-card{width:min(420px,100%);background:#fff;border-radius:22px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.login-card h2{color:#2563eb;margin-bottom:8px}
-.login-card p{color:var(--muted);margin-bottom:14px}
-.input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:14px;margin-top:10px;outline:none}
-.login-btn{width:100%;margin-top:12px;background:linear-gradient(135deg,#60a5fa,#34d399);color:#fff}
-.container{max-width:1100px;margin:18px auto;padding:0 14px}
-.hero{background:#fff;border:1px solid var(--border);border-radius:24px;padding:18px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px;box-shadow:0 12px 32px rgba(15,23,42,.05)}
-.hero h1{font-size:30px;color:#1d4ed8;margin-bottom:8px}
-.hero p{color:var(--muted);line-height:1.6}
-.hero-card{background:linear-gradient(135deg,#eff6ff,#ecfdf5);border-radius:20px;padding:18px;border:1px solid var(--border)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
-.stat{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
-.stat .label{font-size:13px;color:var(--muted);margin-bottom:8px}
-.stat .value{font-size:28px;font-weight:800}
-.section{background:#fff;border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 10px 26px rgba(15,23,42,.04)}
-.section h3{margin-bottom:12px;color:#1e40af}
-.order-list{display:flex;flex-direction:column;gap:12px}
-.order-card{border:1px solid var(--border);border-radius:18px;padding:16px;background:#fbfdff}
-.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.badge{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800}
-.badge.pending{background:var(--amber);color:var(--amber-text)}
-.badge.out{background:var(--blue);color:var(--blue-text)}
-.badge.done{background:var(--green);color:var(--green-text)}
-.meta{color:var(--muted);font-size:14px;line-height:1.7;margin-top:8px}
-.items{margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px dashed var(--border)}
-.items b{display:block;margin-bottom:8px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.action-btn.start{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff}
-.action-btn.done{background:linear-gradient(135deg,#34d399,#10b981);color:#fff}
-.empty{padding:30px 16px;text-align:center;color:var(--muted)}
-.helper{font-size:13px;color:var(--muted);margin-top:6px}
+.brand{font-size:24px;font-weight:800;color:#2563eb}.sub{font-size:12px;color:var(--muted);margin-top:4px}.logout-btn,.login-btn,.action-btn,.secondary-btn{border:none;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700}
+.logout-btn{background:#ef4444;color:#fff}.secondary-btn{background:#e5e7eb;color:#111827}.login-screen{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000}
+.login-card{width:min(460px,100%);background:#fff;border-radius:22px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)}.login-card h2{color:#2563eb;margin-bottom:8px}.login-card p{color:var(--muted);margin-bottom:14px}
+.input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:14px;margin-top:10px;outline:none}.login-btn{width:100%;margin-top:12px;background:linear-gradient(135deg,#60a5fa,#34d399);color:#fff}
+.container{max-width:1100px;margin:18px auto;padding:0 14px}.hero{background:#fff;border:1px solid var(--border);border-radius:24px;padding:18px;display:grid;grid-template-columns:1.1fr .9fr;gap:16px;box-shadow:0 12px 32px rgba(15,23,42,.05)}
+.hero h1{font-size:30px;color:#1d4ed8;margin-bottom:8px}.hero p{color:var(--muted);line-height:1.6}.hero-card{background:linear-gradient(135deg,#eff6ff,#ecfdf5);border-radius:20px;padding:18px;border:1px solid var(--border)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}.stat{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.stat .label{font-size:13px;color:var(--muted);margin-bottom:8px}.stat .value{font-size:28px;font-weight:800}
+.section{background:#fff;border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 10px 26px rgba(15,23,42,.04)}.section h3{margin-bottom:12px;color:#1e40af}.order-list{display:flex;flex-direction:column;gap:12px}
+.order-card{border:1px solid var(--border);border-radius:18px;padding:16px;background:#fbfdff}.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800}.badge.pending{background:var(--amber);color:var(--amber-text)}.badge.out{background:var(--blue);color:var(--blue-text)}.badge.done{background:var(--green);color:var(--green-text)}
+.meta{color:var(--muted);font-size:14px;line-height:1.7;margin-top:8px}.items{margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px dashed var(--border)}.items b{display:block;margin-bottom:8px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.action-btn.start{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff}.action-btn.done{background:linear-gradient(135deg,#34d399,#10b981);color:#fff}
+.empty{padding:30px 16px;text-align:center;color:var(--muted)}.helper{font-size:13px;color:var(--muted);margin-top:6px}.request-box{margin-top:14px;padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:14px}.link-btn{border:none;background:none;color:#2563eb;font-weight:700;cursor:pointer;padding:0}.status-box{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}.location-box{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a}
 @media (max-width:800px){.hero{grid-template-columns:1fr}.header{align-items:flex-start;gap:12px;flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <h2>🚚 Delivery Login</h2>
-    <p>Confirmed orders yahan aayenge. Yahin se Out for Delivery aur Delivered update karo.</p>
-    <input class="input" id="deliveryUsername" placeholder="Username" value="delivery">
-    <input class="input" id="deliveryPassword" type="password" placeholder="Password">
-    <button class="login-btn" onclick="loginDelivery()">Login Delivery Panel</button>
-    <div class="helper">Default demo login: <b>delivery</b> / <b>1234</b></div>
+    <h2>🚚 Delivery Panel</h2>
+    <p>Pehle jaisa flow wapas hai: naam + mobile se request bhejo, admin approve karega, phir usi number se login hoga.</p>
+    <div id="loginMode">
+      <input class="input" id="deliveryPhone" placeholder="Mobile number">
+      <button class="login-btn" onclick="loginDelivery()">Login Delivery ID</button>
+      <div class="helper">Agar ID approved nahi hai to neeche request bhejo.</div>
+      <div class="request-box">
+        <div style="font-weight:800;color:#111827">Nayi Delivery ID Request</div>
+        <input class="input" id="requestName" placeholder="Full name">
+        <input class="input" id="requestPhone" placeholder="Mobile number">
+        <button class="secondary-btn" style="width:100%;margin-top:12px" onclick="requestAccess()">Send Request to Admin</button>
+      </div>
+      <div id="loginStatusBox"></div>
+    </div>
   </div>
 </div>
 <div class="header">
   <div>
     <div class="brand">🚚 Apna Mart Delivery Panel</div>
-    <div class="sub">Lightweight panel for delivery boy updates</div>
+    <div class="sub">Approved delivery ID wale orders hi yahan dikhte hain</div>
   </div>
   <button class="logout-btn" onclick="logoutDelivery()">Logout</button>
 </div>
@@ -82,11 +53,12 @@ body{font-family:Segoe UI,sans-serif;background:linear-gradient(180deg,#f8fbff 0
   <div class="hero">
     <div>
       <h1>Delivery updates made easy</h1>
-      <p>Admin bas order confirm karega. Uske baad delivery boy yahan se order ko <b>Out for Delivery</b> aur <b>Delivered</b> mark karega. Customer panel me status automatically update ho jayega.</p>
+      <p>Admin order confirm karega, delivery ID assign karega, aur uske baad yahin se order ko <b>Out for Delivery</b> aur <b>Delivered</b> mark karna hai. Customer panel me status automatically update ho jayega.</p>
     </div>
     <div class="hero-card">
       <div style="font-weight:800;font-size:20px;margin-bottom:8px;color:#1e40af">Live workflow</div>
       <div class="helper">Need Confirmation → Pending → Out for Delivery → Delivered</div>
+      <div id="deliveryUserInfo" class="status-box" style="margin-top:12px"></div>
     </div>
   </div>
   <div class="stats" id="stats"></div>
@@ -96,46 +68,55 @@ body{font-family:Segoe UI,sans-serif;background:linear-gradient(180deg,#f8fbff 0
   </div>
 </div>
 <script>
-const DELIVERY_TOKEN_KEY = 'apnaMartDeliveryToken';
-let deliveryToken = localStorage.getItem(DELIVERY_TOKEN_KEY) || '';
-let deliveryOrders = [];
+const DELIVERY_TOKEN_KEY='apnaMartDeliveryToken';
+const DELIVERY_DEVICE_KEY='apnaMartDeliveryDeviceId';
+let deliveryToken=localStorage.getItem(DELIVERY_TOKEN_KEY)||'';
+let deliveryOrders=[];
+let deliveryMe=null;
+function ensureDeviceId(){ let id=localStorage.getItem(DELIVERY_DEVICE_KEY)||''; if(!id){ id='device-'+Date.now()+'-'+Math.random().toString(36).slice(2,10); localStorage.setItem(DELIVERY_DEVICE_KEY,id); } return id; }
 function headers(includeJson=true){ const h={}; if(includeJson) h['Content-Type']='application/json'; if(deliveryToken) h['Authorization']=`Bearer ${deliveryToken}`; return h; }
 function showApp(){ document.getElementById('loginScreen').style.display='none'; document.getElementById('app').style.display='block'; }
 function showLogin(){ document.getElementById('loginScreen').style.display='flex'; document.getElementById('app').style.display='none'; }
+function setStatusBox(message,isError=false){ const box=document.getElementById('loginStatusBox'); box.innerHTML=message?`<div class="status-box" style="background:${isError?'#fef2f2':'#eff6ff'};border-color:${isError?'#fecaca':'#bfdbfe'};color:${isError?'#b91c1c':'#1d4ed8'}">${message}</div>`:''; }
+
+async function requestAccess(){
+  const name=document.getElementById('requestName').value.trim();
+  const phone=document.getElementById('requestPhone').value.trim();
+  if(!name||!phone){ setStatusBox('Name aur phone dono dalo',true); return; }
+  const res=await fetch('/api/delivery/request-access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok){ setStatusBox(data.message||'Request failed',true); return; }
+  document.getElementById('deliveryPhone').value=phone;
+  document.getElementById('requestName').value=''; document.getElementById('requestPhone').value='';
+  setStatusBox('Request admin ko bhej di gayi hai. Approval ke baad isi number se login karo.');
+}
+
 async function loginDelivery(){
- const username=document.getElementById('deliveryUsername').value.trim();
- const password=document.getElementById('deliveryPassword').value.trim();
- if(!username || !password){ alert('Username aur password dalo'); return; }
- const res=await fetch('/api/delivery/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
- const data=await res.json().catch(()=>({}));
- if(!res.ok || !data.token){ alert(data.message || 'Login failed'); return; }
- deliveryToken=data.token; localStorage.setItem(DELIVERY_TOKEN_KEY,data.token); showApp(); await loadDelivery();
+  const phone=document.getElementById('deliveryPhone').value.trim();
+  if(!phone){ setStatusBox('Phone number dalo',true); return; }
+  const res=await fetch('/api/delivery/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,deviceId:ensureDeviceId()})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok || !data.token){ setStatusBox(data.message||'Login failed',true); return; }
+  deliveryToken=data.token; localStorage.setItem(DELIVERY_TOKEN_KEY,data.token); setStatusBox(''); showApp(); await loadDelivery();
 }
+
 async function checkDelivery(){
- deliveryToken=localStorage.getItem(DELIVERY_TOKEN_KEY)||'';
- if(!deliveryToken){ showLogin(); return false; }
- const res=await fetch('/api/delivery/me',{headers:headers(false)}).catch(()=>null);
- if(!res || !res.ok){ localStorage.removeItem(DELIVERY_TOKEN_KEY); deliveryToken=''; showLogin(); return false; }
- showApp(); return true;
+  deliveryToken=localStorage.getItem(DELIVERY_TOKEN_KEY)||'';
+  if(!deliveryToken){ showLogin(); return false; }
+  const res=await fetch('/api/delivery/me',{headers:headers(false)}).catch(()=>null);
+  if(!res||!res.ok){ localStorage.removeItem(DELIVERY_TOKEN_KEY); deliveryToken=''; showLogin(); return false; }
+  const data=await res.json().catch(()=>({})); deliveryMe=data.delivery||null; showApp(); renderDeliveryInfo(); return true;
 }
-function logoutDelivery(){ localStorage.removeItem(DELIVERY_TOKEN_KEY); deliveryToken=''; showLogin(); }
+
+function logoutDelivery(){ localStorage.removeItem(DELIVERY_TOKEN_KEY); deliveryToken=''; deliveryOrders=[]; deliveryMe=null; showLogin(); }
 function badgeClass(status){ if(status==='Out for Delivery') return 'out'; if(status==='Delivered') return 'done'; return 'pending'; }
-function renderStats(){
- const pending=deliveryOrders.filter(o=>o.status==='Pending').length;
- const out=deliveryOrders.filter(o=>o.status==='Out for Delivery').length;
- const delivered=deliveryOrders.filter(o=>o.status==='Delivered').length;
- document.getElementById('stats').innerHTML=`<div class="stat"><div class="label">Pending Pickup</div><div class="value">${pending}</div></div><div class="stat"><div class="label">Out for Delivery</div><div class="value">${out}</div></div><div class="stat"><div class="label">Delivered Today View</div><div class="value">${delivered}</div></div>`;
-}
-function renderOrders(){
- const list=document.getElementById('orderList');
- if(!deliveryOrders.length){ list.innerHTML='<div class="empty">No delivery orders right now</div>'; renderStats(); return; }
- const sorted=[...deliveryOrders].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
- list.innerHTML=sorted.map(order=>`<div class="order-card"><div class="top"><div><div style="font-weight:800;font-size:18px">Order ID: ${order.id}</div><div class="meta">${order.name||'N/A'} · ${order.phone||'N/A'}</div></div><span class="badge ${badgeClass(order.status)}">${order.status}</span></div><div class="meta">Address: ${order.address||'N/A'}<br>Total: ₹${order.total||0} · Payment: ${order.paymentMethod||'COD'} · Payment Status: ${order.paymentStatus||'N/A'}<br>Order Time: ${order.date||'N/A'}</div><div class="items"><b>Items</b>${(Array.isArray(order.items)?order.items:[]).map(item=>`<div>${item.name} x ${item.qty}</div>`).join('')}</div><div class="actions">${order.status==='Pending'?`<button class="action-btn start" onclick="updateStatus('${order.id}','Out for Delivery')">Mark Out for Delivery</button>`:''}${order.status==='Out for Delivery'?`<button class="action-btn done" onclick="updateStatus('${order.id}','Delivered')">Mark Delivered</button>`:''}</div></div>`).join('');
- renderStats();
-}
-async function fetchOrders(){ const res=await fetch('/api/delivery/orders',{headers:headers(false)}); const data=await res.json().catch(()=>[]); if(!res.ok){ alert('Orders load nahi hue'); return; } deliveryOrders=Array.isArray(data)?data:[]; renderOrders(); }
-async function updateStatus(orderId,status){ const res=await fetch(`/api/delivery/orders/${orderId}/status`,{method:'PUT',headers:headers(true),body:JSON.stringify({status})}); const data=await res.json().catch(()=>({})); if(!res.ok){ alert(data.message||'Status update failed'); return; } await fetchOrders(); }
-async function loadDelivery(){ await fetchOrders(); }
+function renderDeliveryInfo(){ document.getElementById('deliveryUserInfo').innerHTML=deliveryMe?`Logged in as <b>${deliveryMe.name||'Delivery User'}</b><br>${deliveryMe.phone||''}<br>Status: ${deliveryMe.status||''}`:'Login required'; }
+function renderStats(){ const pending=deliveryOrders.filter(o=>o.status==='Pending').length; const out=deliveryOrders.filter(o=>o.status==='Out for Delivery').length; const delivered=deliveryOrders.filter(o=>o.status==='Delivered').length; document.getElementById('stats').innerHTML=`<div class="stat"><div class="label">Pending Pickup</div><div class="value">${pending}</div></div><div class="stat"><div class="label">Out for Delivery</div><div class="value">${out}</div></div><div class="stat"><div class="label">Delivered View</div><div class="value">${delivered}</div></div>`; }
+function locationHtml(order){ const loc=order?.customerLocation||{}; if(loc.latitude===''||loc.longitude==='') return '<div class="location-box">Customer live location abhi available nahi hai.</div>'; const mapUrl=`https://maps.google.com/?q=${loc.latitude},${loc.longitude}`; return `<div class="location-box"><b>Customer Location:</b> ${Number(loc.latitude).toFixed(6)}, ${Number(loc.longitude).toFixed(6)}<br><b>Accuracy:</b> ${Number(loc.accuracy||0).toFixed(0)} m<br><b>Updated:</b> ${loc.updatedAt||''}<br><a href="${mapUrl}" target="_blank" rel="noopener">Open in Maps</a></div>`; }
+function renderOrders(){ const list=document.getElementById('orderList'); if(!deliveryOrders.length){ list.innerHTML='<div class="empty">No delivery orders right now</div>'; renderStats(); return; } const sorted=[...deliveryOrders].sort((a,b)=>new Date(b.createdAtISO||b.date||0)-new Date(a.createdAtISO||a.date||0)); list.innerHTML=sorted.map(order=>`<div class="order-card"><div class="top"><div><div style="font-weight:800;font-size:18px">Order ID: ${order.id}</div><div class="meta">${order.name||'N/A'} · ${order.phone||'N/A'}</div></div><span class="badge ${badgeClass(order.status)}">${order.status}</span></div><div class="meta">Address: ${order.address||'N/A'}<br>Total: ₹${order.total||0} · Payment: ${order.paymentMethod||'COD'} · Payment Status: ${order.paymentStatus||'N/A'}<br>Order Time: ${order.date||'N/A'}</div>${locationHtml(order)}<div class="items"><b>Items</b>${(Array.isArray(order.items)?order.items:[]).map(item=>`<div>${item.name} x ${item.qty}</div>`).join('')}</div><div class="actions">${order.status==='Pending'?`<button class="action-btn start" onclick="updateStatus('${order.id}','Out for Delivery')">Mark Out for Delivery</button>`:''}${order.status==='Out for Delivery'?`<button class="action-btn done" onclick="updateStatus('${order.id}','Delivered')">Mark Delivered</button>`:''}</div></div>`).join(''); renderStats(); }
+async function fetchOrders(){ const res=await fetch('/api/delivery/orders',{headers:headers(false)}); const data=await res.json().catch(()=>[]); if(!res.ok){ console.error(data); return; } deliveryOrders=Array.isArray(data)?data:[]; renderOrders(); }
+async function updateStatus(orderId,status){ const res=await fetch(`/api/delivery/orders/${orderId}/status`,{method:'PATCH',headers:headers(true),body:JSON.stringify({status})}); const data=await res.json().catch(()=>({})); if(!res.ok){ alert(data.message||'Status update failed'); return; } await fetchOrders(); }
+async function loadDelivery(){ const res=await fetch('/api/delivery/me',{headers:headers(false)}); const data=await res.json().catch(()=>({})); deliveryMe=data.delivery||deliveryMe; renderDeliveryInfo(); await fetchOrders(); }
 (async function(){ const ok=await checkDelivery(); if(ok){ await loadDelivery(); setInterval(fetchOrders,10000); } })();
 </script>
 </body>
