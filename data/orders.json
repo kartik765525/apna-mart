@@ -1,0 +1,46 @@
+[
+  {
+    "id": "ORD1776259589210",
+    "name": "kartik",
+    "phone": "7518576269",
+    "address": "bihar, Landmark: ssd childrens acadmy",
+    "paymentMethod": "COD",
+    "paymentStatus": "COD",
+    "items": [
+      {
+        "id": 1776237793523,
+        "name": "atta",
+        "qty": 1,
+        "price": 50,
+        "image": "http://localhost:5000/uploads/1776237793466-Screenshot_15-4-2026_125240_www-bing-com.jpeg"
+      }
+    ],
+    "subtotal": 50,
+    "shipping": 50,
+    "total": 100,
+    "status": "Pending",
+    "date": "15/4/2026, 6:56:29 pm"
+  },
+  {
+    "id": "ORD1776261895641",
+    "name": "kartik",
+    "phone": "7518576269",
+    "address": "bihar, Landmark: ssd childrens acadmy",
+    "paymentMethod": "COD",
+    "paymentStatus": "COD",
+    "items": [
+      {
+        "id": 1776236859924,
+        "name": "hg",
+        "qty": 1,
+        "price": 65,
+        "image": "http://localhost:5000/uploads/1776236859862-Screenshot_4-12-2025_203029_www-flipkart.jpg"
+      }
+    ],
+    "subtotal": 65,
+    "shipping": 50,
+    "total": 115,
+    "status": "Need Confirmation",
+    "date": "15/4/2026, 7:34:55 pm"
+  }
+]
