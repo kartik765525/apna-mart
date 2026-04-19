@@ -1890,6 +1890,107 @@ html[data-theme="dark"] .delivery-boy-call{
     background:#fff;
     color:#9a6300;
 }
+
+.offer-card{cursor:pointer;}
+.offers-strip.auto-scroll-active{scroll-behavior:smooth;}
+.offer-image-strip{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:8px 2px 2px;
+    margin-top:10px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+}
+.offer-image-strip::-webkit-scrollbar{display:none;}
+.offer-image-card{
+    min-width:150px;
+    max-width:150px;
+    height:72px;
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    cursor:pointer;
+    border:1px solid #dbe5ee;
+    box-shadow:0 8px 18px rgba(13,51,84,.08);
+    flex:0 0 auto;
+    background:#fff;
+}
+.offer-image-card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+.offer-image-overlay{
+    position:absolute;
+    inset:auto 0 0 0;
+    padding:8px 10px;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.68) 100%);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+}
+.offer-discount-section{
+    display:none;
+    margin:12px 14px 4px 14px;
+    background:linear-gradient(135deg,#fff7cf 0%, #fff1b8 100%);
+    border:1px solid #f6d97c;
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 12px 26px rgba(191,145,0,.12);
+}
+.offer-discount-section.open{display:block; animation:offersSlide .3s ease both;}
+.offer-discount-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+}
+.offer-discount-title{font-size:18px;font-weight:900;color:#1f2937;line-height:1.2;}
+.offer-discount-close{
+    border:none;
+    background:#fff;
+    color:#9a6300;
+    border-radius:10px;
+    padding:8px 12px;
+    font-weight:800;
+    cursor:pointer;
+}
+.offer-discount-desc{margin-top:8px;font-size:14px;color:#5b6470;line-height:1.55;font-weight:700;}
+.offer-discount-code{
+    display:inline-flex;
+    margin-top:12px;
+    border-radius:999px;
+    padding:8px 12px;
+    background:#fff;
+    color:#9a6300;
+    font-size:12px;
+    font-weight:900;
+}
+html[data-theme="dark"] .offer-image-card{
+    background:linear-gradient(180deg,#1d2432 0%, #162033 100%);
+    border-color:#3e4d68;
+    box-shadow:0 12px 28px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .offer-discount-section{
+    background:linear-gradient(180deg,#1d2432 0%, #162033 100%);
+    border-color:#3e4d68;
+    box-shadow:0 12px 28px rgba(0,0,0,.28);
+}
+html[data-theme="dark"] .offer-discount-title{color:#f8fafc;}
+html[data-theme="dark"] .offer-discount-desc{color:#cbd5e1;}
+html[data-theme="dark"] .offer-discount-code,
+html[data-theme="dark"] .offer-discount-close{
+    background:#0f172a;
+    color:#fde68a;
+    border:1px solid #475569;
+}
+@media (max-width:600px){
+    .offer-image-card{min-width:128px;max-width:128px;height:64px;border-radius:14px;}
+}
+
 @keyframes welcomeFloat{
     0%{opacity:0;transform:translateY(18px) scale(.98)}
     100%{opacity:1;transform:translateY(0) scale(1)}
@@ -2262,8 +2363,8 @@ html[data-theme="dark"] .place-order-loader-sub{
             <div class="welcome-subtitle">Order now and enjoy great offers</div>
         </div>
         <div class="offers-heading">✦ OFFERS FOR YOU ✦</div>
-        <div class="offers-strip">
-            <div class="offer-card">
+        <div class="offers-strip auto-scroll-active" id="offersStrip">
+            <div class="offer-card" onclick="openOfferDiscount('flat50')">
                 <div class="offer-top">
                     <div class="offer-icon">💸</div>
                     <div class="offer-title">Get FLAT ₹50 OFF</div>
@@ -2271,7 +2372,7 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <div class="offer-desc">On your first order above ₹199</div>
                 <div class="offer-pill">New Customer Offer</div>
             </div>
-            <div class="offer-card">
+            <div class="offer-card" onclick="openOfferDiscount('freeDelivery')">
                 <div class="offer-top">
                     <div class="offer-icon">🛵</div>
                     <div class="offer-title">Enjoy FREE delivery</div>
@@ -2279,7 +2380,7 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <div class="offer-desc">On all your orders above ₹499</div>
                 <div class="offer-pill">Fast Delivery</div>
             </div>
-            <div class="offer-card">
+            <div class="offer-card" onclick="openOfferDiscount('dairyDeals')">
                 <div class="offer-top">
                     <div class="offer-icon">🥛</div>
                     <div class="offer-title">Fresh dairy deals</div>
@@ -2287,7 +2388,7 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <div class="offer-desc">Milk, paneer and dahi par daily savings</div>
                 <div class="offer-pill">Daily Savings</div>
             </div>
-            <div class="offer-card">
+            <div class="offer-card" onclick="openOfferDiscount('comboOffer')">
                 <div class="offer-top">
                     <div class="offer-icon">🧺</div>
                     <div class="offer-title">Kitchen essentials combo</div>
@@ -2295,6 +2396,35 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <div class="offer-desc">Atta, oil and masala par special combo price</div>
                 <div class="offer-pill">Combo Offer</div>
             </div>
+        </div>
+        <div class="offer-image-strip" id="offerImageStrip">
+            <div class="offer-image-card" onclick="openOfferDiscount('flat50')">
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80" alt="Flat 50 off">
+                <div class="offer-image-overlay">₹50 OFF</div>
+            </div>
+            <div class="offer-image-card" onclick="openOfferDiscount('freeDelivery')">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Free delivery">
+                <div class="offer-image-overlay">FREE DELIVERY</div>
+            </div>
+            <div class="offer-image-card" onclick="openOfferDiscount('dairyDeals')">
+                <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80" alt="Dairy deals">
+                <div class="offer-image-overlay">DAIRY DEALS</div>
+            </div>
+            <div class="offer-image-card" onclick="openOfferDiscount('comboOffer')">
+                <img src="https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=800&q=80" alt="Combo offer">
+                <div class="offer-image-overlay">COMBO PRICE</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offer-discount-section" id="offerDiscountSection">
+        <div class="offer-discount-head">
+            <div>
+                <div class="offer-discount-title" id="offerDiscountTitle">Special Discount</div>
+                <div class="offer-discount-desc" id="offerDiscountDesc">Best deal details yahan dikhenge.</div>
+                <div class="offer-discount-code" id="offerDiscountCode">CODE: SAVE</div>
+            </div>
+            <button class="offer-discount-close" onclick="closeOfferDiscount()">Close</button>
         </div>
     </div>
 
@@ -3026,8 +3156,17 @@ async function saveProfile(){
     }
 
     let image = oldProfile.image || getDefaultProfileImage();
-    if(imageFile){
-        image = await readProfileImageFile(imageFile);
+    try{
+        if(imageFile){
+            image = await readProfileImageFile(imageFile);
+        } else {
+            const previewSrc = document.getElementById("profilePreview")?.src || "";
+            if(previewSrc) image = previewSrc;
+        }
+    }catch(error){
+        console.error(error);
+        showToast("Photo save nahi hui", "error");
+        return;
     }
 
     const profile = {
@@ -3041,6 +3180,9 @@ async function saveProfile(){
 
     localStorage.setItem("apnaMartProfile", JSON.stringify(profile));
     document.getElementById("profileImageInput").value = "";
+    document.getElementById("profilePreview").src = profile.image;
+    document.getElementById("profileViewImg").src = profile.image;
+    document.getElementById("headerProfileImg").src = profile.image;
     showToast("Profile saved successfully", "success");
     renderSavedProfile();
     renderTopProfile();
@@ -3792,10 +3934,83 @@ function orderOnWhatsApp() {
 document.getElementById("profileImageInput")?.addEventListener("change", async function(e){
     const file = e.target.files[0];
     if(!file) return;
-    const dataUrl = await readProfileImageFile(file);
-    document.getElementById("profilePreview").src = dataUrl;
+    try{
+        const dataUrl = await readProfileImageFile(file);
+        document.getElementById("profilePreview").src = dataUrl;
+        const viewImg = document.getElementById("profileViewImg");
+        if(viewImg) viewImg.src = dataUrl;
+    }catch(error){
+        console.error(error);
+        showToast("Photo load nahi hui", "error");
+    }
 });
 
+
+
+let offerAutoScrollTimer = null;
+const offerDiscountData = {
+    flat50: {
+        title: "Get FLAT ₹50 OFF",
+        desc: "Apne first order par ₹199 ya usse upar shopping karo aur flat ₹50 discount pao.",
+        code: "CODE: FIRST50"
+    },
+    freeDelivery: {
+        title: "Enjoy FREE delivery",
+        desc: "₹499 ya usse upar ke order par delivery charge zero rahega.",
+        code: "CODE: FREEDEL"
+    },
+    dairyDeals: {
+        title: "Fresh dairy deals",
+        desc: "Milk, paneer aur dahi category me daily savings aur combo benefit milega.",
+        code: "CODE: DAIRY10"
+    },
+    comboOffer: {
+        title: "Kitchen essentials combo",
+        desc: "Atta, oil aur masala combo lene par special combo price unlock hoga.",
+        code: "CODE: COMBO20"
+    }
+};
+
+function startOffersAutoScroll(){
+    const strip = document.getElementById("offersStrip");
+    if(!strip) return;
+    if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer);
+
+    const moveOffers = () => {
+        const cards = strip.querySelectorAll('.offer-card');
+        if(!cards.length) return;
+        const cardWidth = cards[0].offsetWidth + 12;
+        const maxLeft = strip.scrollWidth - strip.clientWidth;
+        if(maxLeft <= 0) return;
+        if(strip.scrollLeft + cardWidth >= maxLeft - 5){
+            strip.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            strip.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        }
+    };
+
+    offerAutoScrollTimer = setInterval(moveOffers, 2000);
+
+    strip.onmouseenter = () => { if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer); };
+    strip.onmouseleave = () => startOffersAutoScroll();
+    strip.ontouchstart = () => { if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer); };
+    strip.ontouchend = () => startOffersAutoScroll();
+}
+
+function openOfferDiscount(key){
+    const data = offerDiscountData[key];
+    const section = document.getElementById('offerDiscountSection');
+    if(!data || !section) return;
+    document.getElementById('offerDiscountTitle').textContent = data.title;
+    document.getElementById('offerDiscountDesc').textContent = data.desc;
+    document.getElementById('offerDiscountCode').textContent = data.code;
+    section.classList.add('open');
+    section.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function closeOfferDiscount(){
+    document.getElementById('offerDiscountSection')?.classList.remove('open');
+}
 
 const THEME_KEY = "apnaMartThemeMode";
 let currentThemeMode = localStorage.getItem(THEME_KEY) || "system";
