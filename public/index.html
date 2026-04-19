@@ -1019,6 +1019,23 @@ body{
     }
 }
 
+
+.offers-wrap{padding:0 14px 16px 14px;overflow:hidden}
+.offers-track{display:flex;gap:12px;width:max-content;animation:offerScroll 22s linear infinite}
+.offer-card{min-width:220px;background:linear-gradient(135deg,#fff7ed,#eff6ff);border:1px solid #e2eaf2;border-radius:18px;padding:14px;box-shadow:0 8px 18px rgba(13,51,84,.06)}
+.offer-title{font-size:15px;font-weight:800;color:var(--blue-dark)}
+.offer-sub{font-size:13px;color:var(--muted);margin-top:6px}
+@keyframes offerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.order-detail-modal,.voice-modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:flex-end;justify-content:center;z-index:1200;padding:16px}.order-detail-modal.show,.voice-modal.show{display:flex}
+.order-detail-card,.voice-card{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.24)}
+.detail-header,.voice-header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eceff3;padding:16px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.detail-body,.voice-body{padding:16px}
+.detail-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px;background:#eef2ff;color:#1d4ed8}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.detail-box{border:1px solid #e5e7eb;border-radius:16px;padding:14px;background:#fafcff}.detail-items{margin-top:14px;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden}.detail-item{display:flex;gap:12px;padding:12px;border-bottom:1px solid #eef2f7;background:#fff}.detail-item:last-child{border-bottom:none}.detail-item img{width:56px;height:56px;border-radius:10px;object-fit:contain;border:1px solid #e5e7eb;background:#fff}.detail-muted{color:#6b7280;font-size:14px;margin-top:4px}
+.lang-row{display:flex;justify-content:space-between;align-items:center;padding:16px 4px;border-bottom:1px solid #eceff3}.lang-switch{display:flex;gap:8px}.lang-btn{border:none;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;background:#eef2ff;color:#1d4ed8}.lang-btn.active{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff}
+.location-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:12px;border:1px solid #dbe5ee;border-radius:14px;background:#f8fbff}.location-badge{font-size:13px;font-weight:700}.voice-recorder-box{border:1px dashed #cbd5e1;border-radius:18px;padding:16px;text-align:center;background:#f8fbff}.voice-time{font-size:28px;font-weight:800;color:var(--blue);margin:10px 0}.voice-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.secondary-btn{border:none;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:700;background:#e5e7eb}.danger-btn{background:#ef4444;color:#fff}
+@media (max-width:600px){.detail-grid{grid-template-columns:1fr}.offer-card{min-width:180px}}
+
 </style>
 </head>
 <body>
@@ -1070,6 +1087,10 @@ body{
         <input type="text" id="search" placeholder="Search products...">
     </div>
 
+    <div class="offers-wrap">
+        <div class="offers-track" id="offersTrack"></div>
+    </div>
+
     <div class="products" id="products"></div>
 
     
@@ -1112,6 +1133,7 @@ body{
                 <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery</label>
                 <label><input type="radio" name="payment" value="upi"> UPI Payment</label>
                 <button onclick="orderOnWhatsApp()" class="main-btn whatsapp-btn" style="margin-top:12px;">Order on WhatsApp</button>
+                <button onclick="openVoiceOrderModal()" class="main-btn blue-btn">Order on Voice</button>
             </div>
         </div>
 
@@ -1165,6 +1187,25 @@ body{
             </div>
 
             <div class="profile-menu">
+                <div class="lang-row">
+                    <div>
+                        <div style="font-weight:700;">Language / भाषा</div>
+                        <div class="detail-muted">Choose app language</div>
+                    </div>
+                    <div class="lang-switch">
+                        <button class="lang-btn" id="langBtnHi" onclick="setLanguage('hi')">हिंदी</button>
+                        <button class="lang-btn" id="langBtnEn" onclick="setLanguage('en')">English</button>
+                    </div>
+                </div>
+
+                <div class="location-row">
+                    <div>
+                        <div style="font-weight:700;">Live Location</div>
+                        <div class="detail-muted" id="locationAccuracyText">GPS not synced yet</div>
+                    </div>
+                    <button class="profile-edit-btn" style="margin-top:0;" onclick="refreshCustomerLocationNow()">Refresh</button>
+                </div>
+
                 <div class="profile-menu-item" onclick="openOrdersPanelFromProfile()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">📦</div>
@@ -1206,6 +1247,41 @@ body{
             <button onclick="showProfileView()" class="main-btn blue-btn">Back</button>
         </div>
     </div>
+</div>
+
+
+<div class="order-detail-modal" id="orderDetailModal">
+  <div class="order-detail-card">
+    <div class="detail-header">
+      <div style="font-size:20px;font-weight:800;color:#111827;">Order Details</div>
+      <button class="close-btn" onclick="closeOrderDetailModal()">✕</button>
+    </div>
+    <div class="detail-body" id="orderDetailContent"></div>
+  </div>
+</div>
+
+<div class="voice-modal" id="voiceOrderModal">
+  <div class="voice-card">
+    <div class="voice-header">
+      <div style="font-size:20px;font-weight:800;color:#111827;">Voice Order</div>
+      <button class="close-btn" onclick="closeVoiceOrderModal()">✕</button>
+    </div>
+    <div class="voice-body">
+      <div class="voice-recorder-box">
+        <div style="font-weight:800;font-size:18px;">Record what you need</div>
+        <div class="detail-muted">Speak product names, quantity, and address note. This recording will go to admin panel.</div>
+        <div class="voice-time" id="voiceTimer">00:00</div>
+        <audio id="voicePreview" controls style="width:100%;display:none;margin-top:10px;"></audio>
+        <textarea id="voiceOrderNote" class="form-input" placeholder="Optional note"></textarea>
+        <div class="voice-actions">
+          <button class="main-btn green-btn" style="width:auto;margin-top:0;" id="voiceStartBtn" onclick="startVoiceRecording()">Start Recording</button>
+          <button class="secondary-btn" id="voiceStopBtn" onclick="stopVoiceRecording()">Stop</button>
+          <button class="secondary-btn danger-btn" onclick="resetVoiceRecording()">Reset</button>
+          <button class="main-btn blue-btn" style="width:auto;margin-top:0;" onclick="submitVoiceOrder()">Send Voice Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1284,28 +1360,19 @@ function filterOrdersList(){
 function renderOrdersList(orders){
     const orderList = document.getElementById("orderList");
     if(!orderList) return;
-
-    orderList.innerHTML =
-        orders.length === 0
-            ? `<div class="orders-empty">No orders yet</div>`
-            : orders.map(o => `
-                <div class="order-card">
-                    <div class="order-thumb-box">
-                        <img src="${getOrderPrimaryImage(o)}" alt="${getOrderPrimaryName(o)}" class="order-item-thumb" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
-                    </div>
-                    <div class="order-content">
-                        <div class="order-status-line">${formatOrderStatusLine(o)}</div>
-                        <div class="order-product-name">${getOrderPrimaryName(o)}</div>
-                        ${String(o.status || "").toLowerCase().includes("delivered") ? `
-                            <div class="order-stars">☆ ☆ ☆ ☆ ☆</div>
-                            <div class="order-rate-line">Rate this product now</div>
-                        ` : `
-                            <div class="order-meta-line">Total: ₹${o.total} · Payment: ${o.paymentMethod || "COD"}</div>
-                        `}
-                    </div>
-                    <div class="order-arrow">›</div>
-                </div>
-            `).join("");
+    orderList.innerHTML = orders.length === 0 ? `<div class="orders-empty">${t('noOrders')}</div>` : orders.map(o => `
+        <div class="order-card" onclick="openOrderDetail('${'${o.id}'}')" style="cursor:pointer;">
+            <div class="order-thumb-box">
+                <img src="${'${getOrderPrimaryImage(o)}'}" alt="${'${getOrderPrimaryName(o)}'}" class="order-item-thumb" onerror="this.src='https://via.placeholder.com/80?text=IMG'">
+            </div>
+            <div class="order-content">
+                <div class="order-status-line">${'${formatOrderStatusLine(o)}'}</div>
+                <div class="order-product-name">${'${getOrderPrimaryName(o)}'}</div>
+                <div class="order-meta-line">Total: ₹${'${o.total}'} · Payment: ${'${o.paymentMethod || "COD"}'}${'${o.assignedDeliveryBoyName ? ` · Rider: ${o.assignedDeliveryBoyName}` : ""}'}</div>
+            </div>
+            <div class="order-arrow">›</div>
+        </div>
+    `).join("");
 }
 
 const ALLOWED_VILLAGES = {
@@ -1952,7 +2019,98 @@ async function placeOrder() {
             alert(`✅ Order Placed!\nOrder ID: ${result.order.id}`);
             cart = [];
             update();
-            fetchProducts();
+            
+const TRANSLATIONS = {
+  hi: {
+    noOrders: 'No orders yet',
+    pendingSince: 'Pending since',
+    needConfirmation: 'Need Confirmation',
+    deliveredOn: 'Delivered on',
+    cancelledOn: 'Cancelled on',
+    orderDetailTitle: 'Order Details',
+    orderPlaced: 'Order placed successfully',
+    voiceSent: 'Voice order sent successfully',
+    locationGps: 'GPS accuracy',
+    locationWaiting: 'GPS sync ho raha hai...'
+  },
+  en: {
+    noOrders: 'No orders yet',
+    pendingSince: 'Pending since',
+    needConfirmation: 'Need Confirmation',
+    deliveredOn: 'Delivered on',
+    cancelledOn: 'Cancelled on',
+    orderDetailTitle: 'Order Details',
+    orderPlaced: 'Order placed successfully',
+    voiceSent: 'Voice order sent successfully',
+    locationGps: 'GPS accuracy',
+    locationWaiting: 'GPS is syncing...'
+  }
+};
+let currentLanguage = localStorage.getItem('apnaMartLanguage') || 'hi';
+function t(key){ return (TRANSLATIONS[currentLanguage] && TRANSLATIONS[currentLanguage][key]) || key; }
+function setLanguage(lang){ currentLanguage = lang === 'en' ? 'en' : 'hi'; localStorage.setItem('apnaMartLanguage', currentLanguage); document.getElementById('langBtnHi')?.classList.toggle('active', currentLanguage==='hi'); document.getElementById('langBtnEn')?.classList.toggle('active', currentLanguage==='en'); renderOffers(); filterOrdersList(); }
+const offersData = [
+  { emoji:'🔥', hiTitle:'Aaj ka special offer', hiSub:'Best price par daily grocery', enTitle:'Today special offer', enSub:'Daily grocery at best price' },
+  { emoji:'🥛', hiTitle:'Dairy fresh deal', hiSub:'Milk, curd aur paneer fresh', enTitle:'Fresh dairy deal', enSub:'Milk, curd, and paneer fresh' },
+  { emoji:'🚚', hiTitle:'Fast village delivery', hiSub:'Gaon tak quick service', enTitle:'Fast village delivery', enSub:'Quick service to your village' },
+  { emoji:'🍞', hiTitle:'Bakery combo', hiSub:'Bread aur snacks par deal', enTitle:'Bakery combo', enSub:'Deals on bread and snacks' },
+  { emoji:'🥦', hiTitle:'Fresh sabzi', hiSub:'Roz ki zarurat ki vegetables', enTitle:'Fresh vegetables', enSub:'Daily need vegetables' }
+];
+function renderOffers(){ const track=document.getElementById('offersTrack'); if(!track) return; const cards=[...offersData,...offersData].map(item=>`<div class="offer-card"><div class="offer-title">${item.emoji} ${currentLanguage==='hi'?item.hiTitle:item.enTitle}</div><div class="offer-sub">${currentLanguage==='hi'?item.hiSub:item.enSub}</div></div>`).join(''); track.innerHTML=cards; }
+let locationWatchId = null;
+let latestLocation = null;
+function updateLocationAccuracyUI(location){ const el=document.getElementById('locationAccuracyText'); if(!el) return; if(!location){ el.textContent = t('locationWaiting'); return; } const accuracy=Math.round(Number(location.accuracy||0)); el.textContent = `${t('locationGps')}: ${accuracy} m`; }
+function getCurrentPreciseLocation(){
+    return new Promise((resolve) => {
+        if(!navigator.geolocation){ resolve(null); return; }
+        let settled = false;
+        const finish = (value) => { if(settled) return; settled = true; resolve(value); };
+        navigator.geolocation.getCurrentPosition(
+            (position) => finish({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 }),
+            () => {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => finish({ latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 }),
+                    () => finish(null),
+                    { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
+                );
+            },
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        );
+    });
+}
+async function refreshCustomerLocationNow(){ const location=await getCurrentPreciseLocation(); if(location){ latestLocation=location; updateLocationAccuracyUI(location); if(customerToken){ try{ await fetch('/api/customer/location',{method:'PATCH',headers:getCustomerHeaders(true),body:JSON.stringify(location)}); }catch(e){ console.error(e);} } } else { updateLocationAccuracyUI(null); alert('Location permission on karke GPS open area me try karo'); } }
+function startCustomerLocationSync(){
+    if(customerLocationInterval) clearInterval(customerLocationInterval);
+    if(locationWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(locationWatchId);
+    refreshCustomerLocationNow();
+    if(navigator.geolocation){
+        locationWatchId = navigator.geolocation.watchPosition(async (position) => {
+            latestLocation = { latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy || 0 };
+            updateLocationAccuracyUI(latestLocation);
+            if(customerToken){
+                try{ await fetch('/api/customer/location',{method:'PATCH',headers:getCustomerHeaders(true),body:JSON.stringify(latestLocation)}); }catch(e){ console.error(e); }
+            }
+        }, () => updateLocationAccuracyUI(null), { enableHighAccuracy:true, timeout:25000, maximumAge:0 });
+    }
+    customerLocationInterval = setInterval(pushCustomerLiveLocation, 15000);
+}
+function stopCustomerLocationSync(){ if(customerLocationInterval){ clearInterval(customerLocationInterval); customerLocationInterval=null; } if(locationWatchId!==null && navigator.geolocation){ navigator.geolocation.clearWatch(locationWatchId); locationWatchId=null; } }
+function formatOrderStatusLine(order){ const status=String(order?.status||'').toLowerCase(); const date=order?.date||''; if(status.includes('cancel')) return `${t('cancelledOn')} ${date}`; if(status==='delivered') return `${t('deliveredOn')} ${order.deliveredAt || date}`; if(status==='out for delivery') return `Out for Delivery · ${date}`; if(status==='pending') return `${t('pendingSince')} ${date}`; if(status.includes('need confirmation')) return `${t('needConfirmation')} · ${date}`; return `${order?.status || 'Order'} · ${date}`; }
+function getStatusPill(status){ const s=String(status||'').toLowerCase(); if(s==='delivered') return '<span class="detail-pill" style="background:#dcfce7;color:#15803d;">Delivered</span>'; if(s==='out for delivery') return '<span class="detail-pill" style="background:#dbeafe;color:#1d4ed8;">Out for Delivery</span>'; if(s==='pending') return '<span class="detail-pill" style="background:#fef3c7;color:#b45309;">Pending</span>'; return '<span class="detail-pill">Need Confirmation</span>'; }
+function openOrderDetail(orderId){ const order = latestOrders.find(o => String(o.id)===String(orderId)); if(!order) return; const content=document.getElementById('orderDetailContent'); const items=(order.items||[]).map(item=>`<div class="detail-item"><img src="${getSmallProductImageSrc(item.image)}" onerror="this.src='https://via.placeholder.com/56?text=IMG'"><div style="flex:1;"><div style="font-weight:800;color:#111827;">${item.name}</div><div class="detail-muted">Qty: ${item.qty} · ₹${item.price}</div></div><div style="font-weight:800;">₹${Number(item.price||0)*Number(item.qty||0)}</div></div>`).join(''); content.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><div><div style="font-size:22px;font-weight:800;color:#111827;">#${order.id}</div><div class="detail-muted">${order.date || ''}</div></div>${getStatusPill(order.status)}</div><div class="detail-grid"><div class="detail-box"><div style="font-weight:800;">Delivery Address</div><div class="detail-muted">${order.name || ''}<br>${order.phone || ''}<br>${order.address || ''}<br>${(order.village||'').toUpperCase()}</div></div><div class="detail-box"><div style="font-weight:800;">Payment & Rider</div><div class="detail-muted">Payment: ${order.paymentMethod || 'COD'}<br>Payment Status: ${order.paymentStatus || 'N/A'}<br>Delivery Boy: ${order.assignedDeliveryBoyName || order.deliveryBoyName || 'Not assigned yet'}</div></div></div><div class="detail-items">${items}</div><div class="detail-grid"><div class="detail-box"><div style="font-weight:800;">Bill Summary</div><div class="detail-muted">Subtotal: ₹${order.subtotal || 0}<br>Shipping: ₹${order.shipping || 0}<br>Total: ₹${order.total || 0}</div></div><div class="detail-box"><div style="font-weight:800;">Status Flow</div><div class="detail-muted">1. Need Confirmation<br>2. Pending<br>3. Out for Delivery<br>4. Delivered</div></div></div>`; document.getElementById('orderDetailModal').classList.add('show'); }
+function closeOrderDetailModal(){ document.getElementById('orderDetailModal').classList.remove('show'); }
+let orderPollingTimer = null;
+function startOrdersPolling(){ if(orderPollingTimer) clearInterval(orderPollingTimer); orderPollingTimer = setInterval(async ()=>{ if(customerToken){ try{ const res=await fetch('/api/my-orders',{headers:getCustomerHeaders(false)}); const orders=await res.json().catch(()=>[]); if(res.ok){ latestOrders=Array.isArray(orders)?orders:[]; filterOrdersList(); } }catch(e){ console.error(e);} } }, 8000); }
+let mediaRecorder = null; let voiceChunks = []; let voiceBlob = null; let voiceTimerInterval = null; let voiceSeconds = 0;
+function openVoiceOrderModal(){ const profile=getSavedProfile(); if(!profile || !profile.name || !profile.address){ alert('Pehle profile save karo'); openProfilePage(); openEditProfile(); return; } document.getElementById('voiceOrderModal').classList.add('show'); }
+function closeVoiceOrderModal(){ document.getElementById('voiceOrderModal').classList.remove('show'); }
+function updateVoiceTimer(){ const mm=String(Math.floor(voiceSeconds/60)).padStart(2,'0'); const ss=String(voiceSeconds%60).padStart(2,'0'); document.getElementById('voiceTimer').textContent=`${mm}:${ss}`; }
+async function startVoiceRecording(){ try{ const stream=await navigator.mediaDevices.getUserMedia({audio:true}); voiceChunks=[]; voiceBlob=null; mediaRecorder=new MediaRecorder(stream); mediaRecorder.ondataavailable=(e)=>{ if(e.data && e.data.size>0) voiceChunks.push(e.data); }; mediaRecorder.onstop=()=>{ voiceBlob=new Blob(voiceChunks,{type: mediaRecorder.mimeType || 'audio/webm'}); const url=URL.createObjectURL(voiceBlob); const preview=document.getElementById('voicePreview'); preview.src=url; preview.style.display='block'; stream.getTracks().forEach(t=>t.stop()); }; mediaRecorder.start(); voiceSeconds=0; updateVoiceTimer(); if(voiceTimerInterval) clearInterval(voiceTimerInterval); voiceTimerInterval=setInterval(()=>{ voiceSeconds++; updateVoiceTimer(); },1000); }catch(e){ console.error(e); alert('Microphone permission allow karo'); } }
+function stopVoiceRecording(){ if(mediaRecorder && mediaRecorder.state!=='inactive'){ mediaRecorder.stop(); } if(voiceTimerInterval){ clearInterval(voiceTimerInterval); voiceTimerInterval=null; } }
+function resetVoiceRecording(){ stopVoiceRecording(); voiceBlob=null; voiceChunks=[]; voiceSeconds=0; updateVoiceTimer(); const preview=document.getElementById('voicePreview'); preview.removeAttribute('src'); preview.style.display='none'; document.getElementById('voiceOrderNote').value=''; }
+async function submitVoiceOrder(){ const isLoggedIn=await checkCustomerLogin(); if(!isLoggedIn){ alert('Pehle OTP login karo'); return; } if(!voiceBlob){ alert('Pehle voice record karo'); return; } const profile=getSavedProfile() || {}; const form=new FormData(); form.append('voiceNote', new File([voiceBlob], 'voice-order.webm', {type: voiceBlob.type || 'audio/webm'})); form.append('name', profile.name || 'Customer'); form.append('address', `${profile.address || ''}${profile.landmark ? ', Landmark: '+profile.landmark : ''}`); form.append('note', document.getElementById('voiceOrderNote').value.trim()); form.append('language', currentLanguage); try{ const res=await fetch('/api/voice-orders',{method:'POST',headers: customerToken ? {Authorization:`Bearer ${customerToken}`} : {}, body: form}); const data=await res.json().catch(()=>({})); if(!res.ok){ alert(data.message || 'Voice order send failed'); return; } alert(t('voiceSent')); resetVoiceRecording(); closeVoiceOrderModal(); }catch(e){ console.error(e); alert('Voice order send failed'); } }
+
+fetchProducts();
             openOrdersPanel();
             return;
         }
@@ -2052,6 +2210,9 @@ loadProfileForm();
 renderSavedProfile();
 renderTopProfile();
 updateCartDeliveryBox();
+setLanguage(currentLanguage);
+renderOffers();
+startOrdersPolling();
 checkCustomerLogin();
 </script>
 
