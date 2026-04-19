@@ -64,6 +64,7 @@ select.admin-input{background:#fff}
   <button class="tab-btn" id="tabStockBtn" onclick="showSection('stock')">Stock Manage</button>
   <button class="tab-btn" id="tabOrdersBtn" onclick="showSection('orders')">Orders</button>
   <button class="tab-btn" id="tabDeliveryBtn" onclick="showSection('delivery')">Delivery IDs</button>
+  <button class="tab-btn" id="tabVoiceBtn" onclick="showSection('voice')">Voice Orders</button>
   <button class="tab-btn" id="tabDashboardBtn" onclick="showSection('dashboard')">Dashboard</button>
 </div>
 
@@ -118,6 +119,13 @@ select.admin-input{background:#fff}
   </div>
 </div>
 
+<div class="page-section" id="sectionVoice">
+  <div class="section-card">
+    <div class="section-title">🎙 Voice Orders</div>
+    <div id="voiceOrdersManager"></div>
+  </div>
+</div>
+
 <div class="page-section" id="sectionDashboard">
   <div class="section-card">
     <div class="section-title">📊 Dashboard / Analytics</div>
@@ -152,7 +160,7 @@ function escapeHtml(value){return String(value??'').replace(/&/g,'&amp;').replac
 function formatCurrency(value){return `₹${Number(value||0).toFixed(2)}`;}
 function getOrderLocationMapLink(order){const loc=order?.customerLocation||{}; if(loc.latitude===''||loc.longitude==='') return ''; return `https://maps.google.com/?q=${loc.latitude},${loc.longitude}`;}
 function getProductImageSrc(image){const fallback='https://via.placeholder.com/50?text=IMG'; if(!image||typeof image!=='string') return fallback; const clean=image.trim(); if(!clean) return fallback; if(clean.startsWith('http://')||clean.startsWith('https://')||clean.startsWith('data:image/')) return clean; if(clean.startsWith('/uploads/')) return clean; if(clean.startsWith('uploads/')) return `/${clean}`; return fallback;}
-function logoutAdmin(){ if(!confirm('you want to logout')) return; localStorage.removeItem(ADMIN_STORAGE_KEY); adminToken=''; document.getElementById('lockScreen').style.display='flex'; products=[]; orders=[]; deliveryUsers=[]; document.getElementById('productManager').innerHTML=''; document.getElementById('ordersManager').innerHTML=''; document.getElementById('dashboardStats').innerHTML=''; document.getElementById('deliveryUsersManager').innerHTML=''; showSection('add'); }
+function logoutAdmin(){ if(!confirm('you want to logout')) return; localStorage.removeItem(ADMIN_STORAGE_KEY); adminToken=''; document.getElementById('lockScreen').style.display='flex'; products=[]; orders=[]; deliveryUsers=[]; document.getElementById('productManager').innerHTML=''; document.getElementById('ordersManager').innerHTML=''; document.getElementById('dashboardStats').innerHTML=''; document.getElementById('deliveryUsersManager').innerHTML=''; const v=document.getElementById('voiceOrdersManager'); if(v) v.innerHTML=''; showSection('add'); }
 
 async function unlockAdmin(){
   const username=document.getElementById('adminUsername').value.trim();
@@ -180,14 +188,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function showSection(name){
   setActiveSection(name);
-  ['Add','Stock','Orders','Delivery','Dashboard'].forEach(key=>{document.getElementById(`section${key}`).classList.remove('active'); document.getElementById(`tab${key}Btn`).classList.remove('active');});
-  const map={add:'Add',stock:'Stock',orders:'Orders',delivery:'Delivery',dashboard:'Dashboard'};
+  ['Add','Stock','Orders','Delivery','Voice','Dashboard'].forEach(key=>{document.getElementById(`section${key}`).classList.remove('active'); document.getElementById(`tab${key}Btn`).classList.remove('active');});
+  const map={add:'Add',stock:'Stock',orders:'Orders',delivery:'Delivery',voice:'Voice',dashboard:'Dashboard'};
   document.getElementById(`section${map[name]}`).classList.add('active'); document.getElementById(`tab${map[name]}Btn`).classList.add('active');
 }
 
 async function fetchProducts(){ try{ const res=await fetch('/api/products',{headers:getAuthHeaders(false)}); products=await res.json(); if(!Array.isArray(products)) products=[]; }catch(error){console.error(error); products=[];} }
 async function fetchOrders(){ try{ const res=await fetch('/api/admin/orders',{headers:getAuthHeaders(false)}); if(!res.ok) throw new Error('Orders auth failed'); orders=await res.json(); if(!Array.isArray(orders)) orders=[]; checkNewOrders(); }catch(error){console.error(error); orders=[];} }
 async function fetchDeliveryUsers(){ try{ const res=await fetch('/api/admin/delivery-users',{headers:getAuthHeaders(false)}); if(!res.ok) throw new Error('delivery users auth failed'); deliveryUsers=await res.json(); if(!Array.isArray(deliveryUsers)) deliveryUsers=[]; }catch(error){console.error(error); deliveryUsers=[];} }
+async function fetchVoiceOrders(){ try{ const res=await fetch('/api/admin/voice-orders',{headers:getAuthHeaders(false)}); if(!res.ok) throw new Error('voice orders auth failed'); voiceOrders=await res.json(); if(!Array.isArray(voiceOrders)) voiceOrders=[]; }catch(error){ console.error(error); voiceOrders=[]; } }
 
 async function addNewProduct(){
   const name=document.getElementById('newName').value.trim(); const price=parseInt(document.getElementById('newPrice').value)||0; const original=parseInt(document.getElementById('newOriginal').value)||price;
@@ -225,7 +234,7 @@ function renderProducts(){
 }
 
 function isToday(input){ if(!input) return false; const date=new Date(input); const now=new Date(); return date.toDateString()===now.toDateString(); }
-function renderDashboard(){ const totalOrders=orders.length; const todaySales=orders.filter(order=>isToday(order.createdAtISO||order.date)).reduce((sum,order)=>sum+Number(order.total||0),0); const pendingOrders=orders.filter(order=>['Need Confirmation','Pending','Out for Delivery'].includes(order.status)).length; const totalProducts=products.length; const outOfStock=products.filter(product=>Number(product.stock||0)<=0||product.active===false).length; const approvedDelivery=deliveryUsers.filter(u=>u.status==='Approved').length; document.getElementById('dashboardStats').innerHTML=`<div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">${totalOrders}</div></div><div class="stat-card"><div class="stat-label">Today's Sales</div><div class="stat-value">₹${todaySales.toFixed(0)}</div></div><div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">${pendingOrders}</div></div><div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-value">${totalProducts}</div></div><div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value">${outOfStock}</div></div><div class="stat-card"><div class="stat-label">Approved Delivery IDs</div><div class="stat-value">${approvedDelivery}</div></div>`; }
+function renderDashboard(){ const totalOrders=orders.length; const todaySales=orders.filter(order=>isToday(order.createdAtISO||order.date)).reduce((sum,order)=>sum+Number(order.total||0),0); const pendingOrders=orders.filter(order=>['Need Confirmation','Pending','Out for Delivery'].includes(order.status)).length; const totalProducts=products.length; const outOfStock=products.filter(product=>Number(product.stock||0)<=0||product.active===false).length; const approvedDelivery=deliveryUsers.filter(u=>u.status==='Approved').length; const newVoice=voiceOrders.filter(v=>v.status==='New').length; document.getElementById('dashboardStats').innerHTML=`<div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">${totalOrders}</div></div><div class="stat-card"><div class="stat-label">Today's Sales</div><div class="stat-value">₹${todaySales.toFixed(0)}</div></div><div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">${pendingOrders}</div></div><div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-value">${totalProducts}</div></div><div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value">${outOfStock}</div></div><div class="stat-card"><div class="stat-label">Approved Delivery IDs</div><div class="stat-value">${approvedDelivery}</div></div><div class="stat-card"><div class="stat-label">New Voice Orders</div><div class="stat-value">${newVoice}</div></div>`; }
 
 function getStatusBadge(order){ if(order.status==='Need Confirmation') return '<span class="badge badge-confirm">Need Confirmation</span>'; if(order.status==='Pending') return '<span class="badge badge-pending">Pending</span>'; if(order.status==='Out for Delivery') return '<span class="badge badge-out">Out for Delivery</span>'; return '<span class="badge badge-delivered">Delivered</span>'; }
 function getLocationHtml(order){ const loc=order.customerLocation||{}; if(loc.latitude===''||loc.longitude==='') return '<div class="location-box">Customer live location abhi available nahi hai.</div>'; const link=getOrderLocationMapLink(order); return `<div class="location-box"><b>Customer Location:</b> ${Number(loc.latitude).toFixed(6)}, ${Number(loc.longitude).toFixed(6)}<br><b>Accuracy:</b> ${Number(loc.accuracy||0).toFixed(0)} m<br><b>Updated:</b> ${escapeHtml(loc.updatedAt||'')}<br><a href="${link}" target="_blank" rel="noopener">Open in Maps</a></div>`; }
@@ -279,9 +288,38 @@ function renderDeliveryUsers(){ const sorted=[...deliveryUsers].sort((a,b)=>new 
 
 function checkNewOrders(){ const currentIds=orders.map(order=>String(order.id)); if(!hasInitializedOrderWatcher){ lastKnownOrderIds=currentIds; hasInitializedOrderWatcher=true; return; } const hasNew=currentIds.some(id=>!lastKnownOrderIds.includes(id)); lastKnownOrderIds=currentIds; if(hasNew){ const popup=document.getElementById('newOrderPopup'); popup.style.display='block'; setTimeout(()=>popup.style.display='none',3000); } }
 
-async function loadAdmin(){ await Promise.all([fetchProducts(), fetchOrders(), fetchDeliveryUsers()]); renderProducts(); renderOrders(); renderDeliveryUsers(); renderDashboard(); showSection(getActiveSection()); }
 
-(async function initAdmin(){ const isLoggedIn=await checkAdminLogin(); if(isLoggedIn){ await loadAdmin(); setInterval(async()=>{ await Promise.all([fetchOrders(), fetchDeliveryUsers()]); renderOrders(); renderDeliveryUsers(); renderDashboard(); },10000); }})();
+function renderVoiceOrders(){
+  const el=document.getElementById('voiceOrdersManager'); if(!el) return;
+  if(!voiceOrders.length){ el.innerHTML='<div class="invoice-note">No voice orders yet</div>'; return; }
+  el.innerHTML = voiceOrders.map(v => `
+    <div class="order-card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:800;font-size:18px;">${v.name || 'Customer'} · ${v.phone || ''}</div>
+          <div style="margin-top:6px;color:#666;">${v.address || ''}</div>
+          <div style="margin-top:6px;color:#666;">Village: ${(v.village || '').toUpperCase()} · ${v.createdAt || ''}</div>
+        </div>
+        <div><span class="badge ${v.status==='Completed'?'badge-delivered':(v.status==='Seen'?'badge-out':'badge-pending')}">${v.status || 'New'}</span></div>
+      </div>
+      <div style="margin-top:12px;">
+        <audio controls style="width:100%;"><source src="${v.audioUrl}" type="${v.mimeType || 'audio/webm'}"></audio>
+      </div>
+      ${'${v.note ? `<div class="invoice-note">Customer note: ${escapeHtml(v.note)}</div>` : ""}'}
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="action-btn blue" onclick="updateVoiceOrderStatus('${'${v.id}'}','Seen')">Mark Seen</button>
+        <button class="action-btn green" onclick="updateVoiceOrderStatus('${'${v.id}'}','Completed')">Mark Completed</button>
+        <button class="action-btn red" onclick="deleteVoiceOrder('${'${v.id}'}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+async function updateVoiceOrderStatus(id,status){ const res=await fetch(`/api/admin/voice-orders/${id}`,{method:'PATCH',headers:getAuthHeaders(true),body:JSON.stringify({status})}); const data=await res.json().catch(()=>({})); if(!res.ok){alert(data.message||'Update failed'); return;} await fetchVoiceOrders(); renderVoiceOrders(); renderDashboard(); showSection('voice'); }
+async function deleteVoiceOrder(id){ if(!confirm('Delete this voice order?')) return; const res=await fetch(`/api/admin/voice-orders/${id}`,{method:'DELETE',headers:getAuthHeaders(false)}); const data=await res.json().catch(()=>({})); if(!res.ok){alert(data.message||'Delete failed'); return;} await fetchVoiceOrders(); renderVoiceOrders(); renderDashboard(); showSection('voice'); }
+
+async function loadAdmin(){ await Promise.all([fetchProducts(), fetchOrders(), fetchDeliveryUsers(), fetchVoiceOrders()]); renderProducts(); renderOrders(); renderDeliveryUsers(); renderVoiceOrders(); renderDashboard(); showSection(getActiveSection()); }
+
+(async function initAdmin(){ const isLoggedIn=await checkAdminLogin(); if(isLoggedIn){ await loadAdmin(); setInterval(async()=>{ await Promise.all([fetchOrders(), fetchDeliveryUsers(), fetchVoiceOrders()]); renderOrders(); renderDeliveryUsers(); renderVoiceOrders(); renderDashboard(); },10000); }})();
 </script>
 </body>
 </html>
