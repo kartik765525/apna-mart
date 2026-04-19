@@ -153,6 +153,10 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
         <input type="text" id="offerTitle" placeholder="Offer Title" class="admin-input">
         <input type="text" id="offerSubtitle" placeholder="Offer Subtitle" class="admin-input">
         <div class="grid-two">
+            <input type="text" id="offerCode" placeholder="Coupon Code" class="admin-input">
+            <input type="datetime-local" id="offerValidTill" class="admin-input">
+        </div>
+        <div class="grid-two">
             <input type="file" id="offerImage" accept="image/*" class="admin-input">
             <input type="number" id="offerDiscount" placeholder="Discount %" class="admin-input">
         </div>
@@ -169,6 +173,7 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
         <div class="grid-two">
             <input type="number" id="couponDiscount" placeholder="Discount Amount / %" class="admin-input">
             <input type="number" id="couponMaxUsers" placeholder="Max Users" class="admin-input">
+            <input type="datetime-local" id="couponValidTill" class="admin-input">
         </div>
         <input type="text" id="couponType" placeholder="Type (flat / percent)" class="admin-input">
         <button onclick="addCouponItem()" class="action-btn orange">Add Coupon</button>
@@ -198,8 +203,8 @@ let currentStockCategory = "All";
 let activeSection = "add";
 let currentInvoiceOrder = null;
 let deliveryUsers = [];
-let offers = JSON.parse(localStorage.getItem("apnaMartOffers") || "[]");
-let coupons = JSON.parse(localStorage.getItem("apnaMartCoupons") || "[]");
+let offers = [];
+let coupons = [];
 let lastKnownOrderIds = [];
 let hasInitializedOrderWatcher = false;
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
@@ -368,6 +373,26 @@ async function fetchDeliveryUsers(){
     }catch(error){
         console.error("Delivery users fetch error:", error);
         deliveryUsers = [];
+    }
+}
+async function fetchOffers(){
+    try{
+        const res = await fetch('/api/admin/offers', { headers: getAuthHeaders(false) });
+        if(!res.ok) throw new Error('Offers fetch failed');
+        offers = await res.json();
+    }catch(error){
+        console.error('Offers fetch error:', error);
+        offers = [];
+    }
+}
+async function fetchCoupons(){
+    try{
+        const res = await fetch('/api/admin/coupons', { headers: getAuthHeaders(false) });
+        if(!res.ok) throw new Error('Coupons fetch failed');
+        coupons = await res.json();
+    }catch(error){
+        console.error('Coupons fetch error:', error);
+        coupons = [];
     }
 }
 
@@ -574,12 +599,8 @@ function renderDeliveryUsers(){
         `).join("");
 }
 
-function saveOffersStorage(){
-    localStorage.setItem("apnaMartOffers", JSON.stringify(offers));
-}
-function saveCouponsStorage(){
-    localStorage.setItem("apnaMartCoupons", JSON.stringify(coupons));
-}
+function saveOffersStorage(){}
+function saveCouponsStorage(){}
 function readFileAsDataURL(file){
     return new Promise((resolve,reject)=>{
         const reader = new FileReader();
@@ -592,40 +613,48 @@ async function addOfferItem(){
     const title = document.getElementById("offerTitle").value.trim();
     const subtitle = document.getElementById("offerSubtitle").value.trim();
     const discount = Number(document.getElementById("offerDiscount").value || 0);
+    const code = document.getElementById("offerCode").value.trim().toUpperCase();
+    const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
-
     if(!title){ alert("Offer title required"); return; }
+    if(!code){ alert("Coupon code required"); return; }
+    if(!validTill){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
-
-    let image = "";
     try{
-        image = await readFileAsDataURL(file);
+        const formData = new FormData();
+        formData.append('image', file);
+        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
+        const uploadData = await uploadRes.json().catch(()=>({}));
+        if(!uploadRes.ok || !uploadData.imageUrl) throw new Error(uploadData.message || 'Upload failed');
+        const res = await fetch('/api/admin/offers', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ title, subtitle, discount, code, validTill, image: uploadData.imageUrl }) });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
+        document.getElementById("offerTitle").value = "";
+        document.getElementById("offerSubtitle").value = "";
+        document.getElementById("offerDiscount").value = "";
+        document.getElementById("offerCode").value = "";
+        document.getElementById("offerValidTill").value = "";
+        document.getElementById("offerImage").value = "";
+        document.getElementById("offerImageStatus").textContent = "No offer image selected";
+        await fetchOffers();
+        renderOffers();
     }catch(error){
-        alert("Offer image load failed");
-        return;
+        console.error(error);
+        alert('Offer add failed');
     }
-
-    offers.unshift({
-        id: "OFF" + Date.now(),
-        title,
-        subtitle,
-        discount,
-        image,
-        createdAt: new Date().toLocaleString("en-IN")
-    });
-    saveOffersStorage();
-    document.getElementById("offerTitle").value = "";
-    document.getElementById("offerSubtitle").value = "";
-    document.getElementById("offerDiscount").value = "";
-    document.getElementById("offerImage").value = "";
-    document.getElementById("offerImageStatus").textContent = "No offer image selected";
-    renderOffers();
 }
-function deleteOfferItem(id){
+async async function deleteOfferItem(id){
     if(!confirm("Delete this offer?")) return;
-    offers = offers.filter(item => String(item.id) !== String(id));
-    saveOffersStorage();
-    renderOffers();
+    try{
+        const res = await fetch(`/api/admin/offers/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ alert(data.message || 'Delete failed'); return; }
+        await fetchOffers();
+        renderOffers();
+    }catch(error){
+        console.error(error);
+        alert('Delete failed');
+    }
 }
 function renderOffers(){
     const box = document.getElementById("offersManager");
@@ -637,49 +666,53 @@ function renderOffers(){
                 <div style="flex:1;min-width:180px;">
                     <div style="font-weight:700;">${item.title}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">${item.subtitle || ""}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">Code: ${item.code || ''}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discount || 0}%</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">Valid till: ${item.validTill ? new Date(item.validTill).toLocaleString('en-IN') : ''}</div>
                 </div>
                 <button onclick="deleteOfferItem('${item.id}')" class="action-btn red">Delete</button>
             </div>
         </div>
     `).join("") : "<p>No offers added</p>";
 }
-function addCouponItem(){
+async function addCouponItem(){
     const code = document.getElementById("couponCode").value.trim().toUpperCase();
     const discount = Number(document.getElementById("couponDiscount").value || 0);
     const maxUsers = Number(document.getElementById("couponMaxUsers").value || 0);
     const type = document.getElementById("couponType").value.trim().toLowerCase() || "flat";
-
+    const validTill = document.getElementById("couponValidTill").value;
     if(!code){ alert("Coupon code required"); return; }
     if(!discount){ alert("Discount required"); return; }
     if(!maxUsers){ alert("Max users required"); return; }
-
-    const existingIndex = coupons.findIndex(item => String(item.code) === code);
-    const payload = {
-        id: existingIndex !== -1 ? coupons[existingIndex].id : ("CPN" + Date.now()),
-        code,
-        discount,
-        maxUsers,
-        usedUsers: existingIndex !== -1 ? Number(coupons[existingIndex].usedUsers || 0) : 0,
-        type,
-        createdAt: existingIndex !== -1 ? coupons[existingIndex].createdAt : new Date().toLocaleString("en-IN")
-    };
-
-    if(existingIndex !== -1) coupons[existingIndex] = payload;
-    else coupons.unshift(payload);
-
-    saveCouponsStorage();
-    document.getElementById("couponCode").value = "";
-    document.getElementById("couponDiscount").value = "";
-    document.getElementById("couponMaxUsers").value = "";
-    document.getElementById("couponType").value = "";
-    renderCoupons();
+    if(!validTill){ alert("Valid till required"); return; }
+    try{
+        const res = await fetch('/api/admin/coupons', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ code, discount, maxUsers, type, validTill }) });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ alert(data.message || 'Coupon save failed'); return; }
+        document.getElementById("couponCode").value = "";
+        document.getElementById("couponDiscount").value = "";
+        document.getElementById("couponMaxUsers").value = "";
+        document.getElementById("couponType").value = "";
+        document.getElementById("couponValidTill").value = "";
+        await fetchCoupons();
+        renderCoupons();
+    }catch(error){
+        console.error(error);
+        alert('Coupon save failed');
+    }
 }
-function deleteCouponItem(id){
+async async function deleteCouponItem(id){
     if(!confirm("Delete this coupon?")) return;
-    coupons = coupons.filter(item => String(item.id) !== String(id));
-    saveCouponsStorage();
-    renderCoupons();
+    try{
+        const res = await fetch(`/api/admin/coupons/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ alert(data.message || 'Delete failed'); return; }
+        await fetchCoupons();
+        renderCoupons();
+    }catch(error){
+        console.error(error);
+        alert('Delete failed');
+    }
 }
 function renderCoupons(){
     const box = document.getElementById("couponsManager");
@@ -690,6 +723,7 @@ function renderCoupons(){
             <div style="margin-top:6px;"><b>Type:</b> ${item.type}</div>
             <div style="margin-top:6px;"><b>Discount:</b> ${item.discount}</div>
             <div style="margin-top:6px;"><b>Users:</b> ${Number(item.usedUsers || 0)} / ${Number(item.maxUsers || 0)}</div>
+            <div style="margin-top:6px;"><b>Valid till:</b> ${item.validTill ? new Date(item.validTill).toLocaleString('en-IN') : ''}</div>
             <div style="margin-top:12px;">
                 <button onclick="deleteCouponItem('${item.id}')" class="action-btn red">Delete</button>
             </div>
