@@ -618,37 +618,73 @@ async function addOfferItem(){
     const subtitle = document.getElementById("offerSubtitle").value.trim();
     const discount = Number(document.getElementById("offerDiscount").value || 0);
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
-    const validTillRaw = document.getElementById("offerValidTill").value;
+    const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
+
     if(!title){ alert("Offer title required"); return; }
     if(!code){ alert("Coupon code required"); return; }
-    if(!validTillRaw){ alert("Valid till required"); return; }
+    if(!validTill){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
     if(!discount || discount <= 0){ alert("Valid discount required"); return; }
+
     try{
+        // 1. Upload image
         const formData = new FormData();
-        formData.append('image', file);
-        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
-        const uploadData = await uploadRes.json().catch(()=>({}));
-        if(!uploadRes.ok || !uploadData.imageUrl){
-            alert(uploadData.message || 'Image upload failed');
+        formData.append("image", file);
+
+        const uploadRes = await fetch("/upload", {
+            method: "POST",
+            headers: getAuthHeaders(false),
+            body: formData
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if(!uploadRes.ok){
+            alert(uploadData.message || "Image upload failed");
             return;
         }
-        const res = await fetch('/api/admin/offers', {
-            method:'POST',
-            headers:getAuthHeaders(true),
-            body:JSON.stringify({
-                title,
-                description: subtitle,
-                code,
-                discountType: 'percentage',
-                discountValue: discount,
-                minOrderAmount: 0,
-                maxDiscount: 0,
-                validTill: new Date(validTillRaw).toISOString(),
+
+        // 2. Save offer (IMPORTANT FIX)
+        const res = await fetch("/api/admin/offers", {
+            method: "POST",
+            headers: getAuthHeaders(true),
+            body: JSON.stringify({
+                title: title,
+                description: subtitle,   // 👈 IMPORTANT FIX
+                code: code,
+                discountType: "percentage", // 👈 REQUIRED
+                discountValue: discount,    // 👈 IMPORTANT FIX
+                validTill: new Date(validTill).toISOString(),
                 image: uploadData.imageUrl
             })
         });
+
+        const data = await res.json();
+
+        if(!res.ok){
+            alert(data.message || "Offer add failed");
+            return;
+        }
+
+        // reset form
+        document.getElementById("offerTitle").value = "";
+        document.getElementById("offerSubtitle").value = "";
+        document.getElementById("offerDiscount").value = "";
+        document.getElementById("offerCode").value = "";
+        document.getElementById("offerValidTill").value = "";
+        document.getElementById("offerImage").value = "";
+
+        await fetchOffers();
+        renderOffers();
+
+        alert("Offer added successfully");
+
+    }catch(error){
+        console.error(error);
+        alert("Offer add failed");
+    }
+}
         const data = await res.json().catch(()=>({}));
         if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
         document.getElementById("offerTitle").value = "";
