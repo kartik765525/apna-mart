@@ -237,20 +237,42 @@ function setActiveSection(sectionName){ activeSection = sectionName; localStorag
 function getActiveSection(){ return localStorage.getItem("adminActiveSection") || "add"; }
 
 async function unlockAdmin(){
-    const username = document.getElementById("adminUsername").value.trim();
-    const password = document.getElementById("adminPassword").value.trim();
-    if(!username || !password){ alert("Username aur password dono dalo"); return; }
+    const usernameInput = document.getElementById("adminUsername");
+    const passwordInput = document.getElementById("adminPassword");
+
+    if(!usernameInput || !passwordInput){
+        alert("Login inputs nahi mil rahe");
+        return;
+    }
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if(!username || !password){
+        alert("Username aur password dono dalo");
+        return;
+    }
+
     try{
         const res = await fetch("/api/admin/login", {
             method: "POST",
-            headers: {"Content-Type":"application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
         });
+
         const data = await res.json().catch(() => ({}));
-        if(!res.ok || !data.token){ alert(data.message || "Login failed"); return; }
+
+        if(!res.ok || !data.token){
+            alert(data.message || "Login failed");
+            return;
+        }
+
         adminToken = data.token;
         localStorage.setItem(ADMIN_STORAGE_KEY, data.token);
-        document.getElementById("lockScreen").style.display = "none";
+
+        const lockScreen = document.getElementById("lockScreen");
+        if(lockScreen) lockScreen.style.display = "none";
+
         try{
             await loadAdmin();
         }catch(loadError){
@@ -264,23 +286,28 @@ async function unlockAdmin(){
 
 async function checkAdminLogin(){
     adminToken = localStorage.getItem(ADMIN_STORAGE_KEY) || "";
+    const lockScreen = document.getElementById("lockScreen");
+
     if(!adminToken){
-        document.getElementById("lockScreen").style.display = "flex";
+        if(lockScreen) lockScreen.style.display = "flex";
         return false;
     }
+
     try{
         const res = await fetch("/api/admin/me", { headers: getAuthHeaders(false) });
+
         if(!res.ok){
             localStorage.removeItem(ADMIN_STORAGE_KEY);
             adminToken = "";
-            document.getElementById("lockScreen").style.display = "flex";
+            if(lockScreen) lockScreen.style.display = "flex";
             return false;
         }
-        document.getElementById("lockScreen").style.display = "none";
+
+        if(lockScreen) lockScreen.style.display = "none";
         return true;
     }catch(error){
         console.error("Admin auth check error:", error);
-        document.getElementById("lockScreen").style.display = "flex";
+        if(lockScreen) lockScreen.style.display = "flex";
         return false;
     }
 }
@@ -300,10 +327,22 @@ document.addEventListener("change", function(e){
 document.addEventListener("DOMContentLoaded", function(){
     const passwordInput = document.getElementById("adminPassword");
     const usernameInput = document.getElementById("adminUsername");
+    const loginBtn = document.querySelector(".lock-box button");
+
+    if(loginBtn){
+        loginBtn.addEventListener("click", function(e){
+            e.preventDefault();
+            unlockAdmin();
+        });
+    }
+
     [usernameInput, passwordInput].forEach(input => {
         if(!input) return;
         input.addEventListener("keydown", function(e){
-            if(e.key === "Enter") unlockAdmin();
+            if(e.key === "Enter"){
+                e.preventDefault();
+                unlockAdmin();
+            }
         });
     });
 });
@@ -620,71 +659,17 @@ async function addOfferItem(){
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
     const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
-
     if(!title){ alert("Offer title required"); return; }
     if(!code){ alert("Coupon code required"); return; }
     if(!validTill){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
-    if(!discount || discount <= 0){ alert("Valid discount required"); return; }
-
     try{
-        // 1. Upload image
         const formData = new FormData();
-        formData.append("image", file);
-
-        const uploadRes = await fetch("/upload", {
-            method: "POST",
-            headers: getAuthHeaders(false),
-            body: formData
-        });
-
-        const uploadData = await uploadRes.json();
-
-        if(!uploadRes.ok){
-            alert(uploadData.message || "Image upload failed");
-            return;
-        }
-
-        // 2. Save offer (IMPORTANT FIX)
-        const res = await fetch("/api/admin/offers", {
-            method: "POST",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({
-                title: title,
-                description: subtitle,   // 👈 IMPORTANT FIX
-                code: code,
-                discountType: "percentage", // 👈 REQUIRED
-                discountValue: discount,    // 👈 IMPORTANT FIX
-                validTill: new Date(validTill).toISOString(),
-                image: uploadData.imageUrl
-            })
-        });
-
-        const data = await res.json();
-
-        if(!res.ok){
-            alert(data.message || "Offer add failed");
-            return;
-        }
-
-        // reset form
-        document.getElementById("offerTitle").value = "";
-        document.getElementById("offerSubtitle").value = "";
-        document.getElementById("offerDiscount").value = "";
-        document.getElementById("offerCode").value = "";
-        document.getElementById("offerValidTill").value = "";
-        document.getElementById("offerImage").value = "";
-
-        await fetchOffers();
-        renderOffers();
-
-        alert("Offer added successfully");
-
-    }catch(error){
-        console.error(error);
-        alert("Offer add failed");
-    }
-}
+        formData.append('image', file);
+        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
+        const uploadData = await uploadRes.json().catch(()=>({}));
+        if(!uploadRes.ok || !uploadData.imageUrl) throw new Error(uploadData.message || 'Upload failed');
+        const res = await fetch('/api/admin/offers', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ title, subtitle, discount, code, validTill, image: uploadData.imageUrl }) });
         const data = await res.json().catch(()=>({}));
         if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
         document.getElementById("offerTitle").value = "";
@@ -696,7 +681,6 @@ async function addOfferItem(){
         document.getElementById("offerImageStatus").textContent = "No offer image selected";
         await fetchOffers();
         renderOffers();
-        alert('Offer added successfully');
     }catch(error){
         console.error(error);
         alert('Offer add failed');
@@ -723,10 +707,10 @@ function renderOffers(){
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                 <img src="${item.image}" style="width:120px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
                 <div style="flex:1;min-width:180px;">
-                    <div style="font-weight:700;">${item.title || ""}</div>
-                    <div style="font-size:13px;color:#666;margin-top:4px;">${item.description || item.subtitle || ""}</div>
+                    <div style="font-weight:700;">${item.title}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">${item.subtitle || ""}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">Code: ${item.code || ''}</div>
-                    <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discountValue || item.discount || 0}${(item.discountType || 'percentage') === 'flat' ? '' : '%'}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discount || 0}%</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">Valid till: ${item.validTill ? new Date(item.validTill).toLocaleString('en-IN') : ''}</div>
                 </div>
                 <button onclick="deleteOfferItem('${item.id}')" class="action-btn red">Delete</button>
@@ -1171,8 +1155,8 @@ async function loadAdmin(){
     await fetchProducts();
     await fetchOrders();
     await fetchDeliveryUsers();
-    await fetchOffers();
-    await fetchCoupons();
+    try{ await fetchOffers(); }catch(error){ console.error("Offers fetch error:", error); }
+    try{ await fetchCoupons(); }catch(error){ console.error("Coupons fetch error:", error); }
     renderProducts();
     renderDashboard();
     renderOrders();
