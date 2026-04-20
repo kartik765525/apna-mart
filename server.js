@@ -641,11 +641,18 @@ app.post('/api/admin/login', (req, res) => {
   const username = String(req.body.username || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
 
-  if (username !== ADMIN_USERNAME.toLowerCase() || password !== ADMIN_PASSWORD) {
+  const adminUser = String(ADMIN_USERNAME || '').trim().toLowerCase();
+  const adminPass = String(ADMIN_PASSWORD || '').trim();
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password required' });
+  }
+
+  if (username !== adminUser || password !== adminPass) {
     return res.status(401).json({ message: 'Invalid username or password' });
   }
 
-  res.json({
+  return res.json({
     message: 'Login successful',
     token: createAdminToken(),
     admin: { username: ADMIN_USERNAME }
@@ -1093,7 +1100,7 @@ app.post('/api/admin/offers', requireAdmin, (req, res) => {
   offers.unshift(offer);
   writeOffers(offers);
 
-  res.status(201).json({
+  return res.status(201).json({
     message: 'Offer created successfully',
     offer: sanitizeOfferForResponse(offer)
   });
@@ -1209,8 +1216,7 @@ app.post('/api/admin/coupons', requireAdmin, (req, res) => {
     return res.status(400).json({ message: 'Type must be flat or percent' });
   }
 
-  const exists = coupons.find((item) => normalizeCouponCode(item.code) === code);
-  if (exists) {
+  if (coupons.some((item) => normalizeCouponCode(item.code) === code)) {
     return res.status(400).json({ message: 'Coupon code already exists' });
   }
 
