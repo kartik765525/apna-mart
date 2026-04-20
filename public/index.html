@@ -1829,17 +1829,18 @@ html[data-theme="dark"] .delivery-boy-call{
     font-weight:700;
     opacity:.96;
 }
+
 .offers-heading{
     width:max-content;
     max-width:calc(100% - 24px);
     margin:-8px auto 0;
-    padding:12px 28px;
-    border-radius:24px 24px 18px 18px;
+    padding:10px 24px;
+    border-radius:22px 22px 18px 18px;
     background:linear-gradient(180deg,#ffd64a 0%,#f3c41a 100%);
     color:#24344a;
     font-weight:900;
-    font-size:17px;
-    letter-spacing:.4px;
+    font-size:16px;
+    letter-spacing:.35px;
     position:relative;
     z-index:2;
     box-shadow:none;
@@ -1849,8 +1850,8 @@ html[data-theme="dark"] .delivery-boy-call{
     gap:14px;
     overflow-x:auto;
     overflow-y:hidden;
-    padding:14px 14px 16px;
-    background:linear-gradient(180deg,#e1b115 0%,#efc22a 100%);
+    padding:14px 12px 16px;
+    background:linear-gradient(180deg,#e0b014 0%,#efc22a 100%);
     margin:0 -14px 0;
     scrollbar-width:none;
     -webkit-overflow-scrolling:touch;
@@ -1859,13 +1860,13 @@ html[data-theme="dark"] .delivery-boy-call{
 }
 .offers-strip::-webkit-scrollbar{display:none;}
 .offer-card{
-    min-width:calc(50% - 8px);
-    max-width:calc(50% - 8px);
+    min-width:310px;
+    max-width:310px;
     scroll-snap-align:start;
     background:linear-gradient(180deg,#f8e7a7 0%,#f2dfa0 100%);
     border:1px solid rgba(136,103,11,.10);
     border-radius:22px;
-    padding:18px 18px;
+    padding:18px;
     display:flex;
     align-items:center;
     gap:14px;
@@ -1887,7 +1888,7 @@ html[data-theme="dark"] .delivery-boy-call{
     align-items:center;
     justify-content:center;
     font-size:28px;
-    background:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.62);
     overflow:hidden;
 }
 .offer-icon img{
@@ -1908,23 +1909,25 @@ html[data-theme="dark"] .delivery-boy-call{
     margin:0;
 }
 .offer-desc{
-    margin-top:4px;
-    font-size:15px;
-    color:#313131;
+    margin-top:6px;
+    font-size:14px;
+    color:#3b4252;
     line-height:1.35;
     font-weight:700;
 }
 .offer-pill{
     display:inline-flex;
-    margin-top:8px;
+    margin-top:10px;
     border-radius:999px;
-    padding:5px 10px;
-    font-size:11px;
+    padding:6px 11px;
+    font-size:12px;
     font-weight:900;
     background:#fff8dc;
     color:#8b6300;
     border:1px solid rgba(139,99,0,.12);
 }
+.offer-card{cursor:pointer;}
+.offers-strip.auto-scroll-active{scroll-behavior:smooth;}
 .offer-image-strip{display:none !important;}
 .offer-discount-section{
     display:none !important;
@@ -1936,6 +1939,30 @@ html[data-theme="dark"] .delivery-boy-call{
     padding:0 !important;
     border:none !important;
     box-shadow:none !important;
+}
+html[data-theme="dark"] .offers-heading{
+    background:linear-gradient(180deg,#ffd64a 0%,#f3c41a 100%);
+    color:#24344a;
+}
+html[data-theme="dark"] .offers-strip{
+    background:linear-gradient(180deg,#e0b014 0%,#efc22a 100%);
+}
+html[data-theme="dark"] .offer-card{
+    background:linear-gradient(180deg,#f8e7a7 0%,#f2dfa0 100%) !important;
+    border:1px solid rgba(136,103,11,.10) !important;
+}
+html[data-theme="dark"] .offer-title{color:#24344a !important;}
+html[data-theme="dark"] .offer-desc{color:#3b4252 !important;}
+html[data-theme="dark"] .offer-pill{
+    background:#fff8dc !important;
+    color:#8b6300 !important;
+    border:1px solid rgba(139,99,0,.12) !important;
+}
+@media (max-width:600px){
+    .offer-card{
+        min-width:330px;
+        max-width:330px;
+    }
 }
 @keyframes offersSlide{
     0%{opacity:0;transform:translateY(24px)}
@@ -3947,7 +3974,9 @@ async function applyOfferFromStrip(code){
     if(!cleanCode) return;
     const input = document.getElementById('couponCodeInput') || document.getElementById('couponInput');
     if(input) input.value = cleanCode;
-    await applyCouponCode(cleanCode, true);
+    if(typeof applyCouponCode === 'function'){
+        await applyCouponCode(cleanCode, true);
+    }
 }
 
 async function fetchLiveOffers(){
@@ -3955,13 +3984,11 @@ async function fetchLiveOffers(){
         const res = await fetch('/api/offers');
         const data = await res.json().catch(()=>[]);
         serverOffers = Array.isArray(data) ? data : [];
-        closeOfferDiscount();
         renderOffersFromServer();
         startOffersAutoScroll();
     }catch(error){
         console.error('Offers fetch failed', error);
         serverOffers = [];
-        closeOfferDiscount();
         renderOffersFromServer();
     }
 }
