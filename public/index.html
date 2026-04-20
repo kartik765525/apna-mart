@@ -1944,7 +1944,7 @@ html[data-theme="dark"] .delivery-boy-call{
     font-weight:800;
 }
 .offer-discount-section{
-    display:none;
+    display:none !important;
     margin:12px 14px 4px 14px;
     background:linear-gradient(135deg,#fff7cf 0%, #fff1b8 100%);
     border:1px solid #f6d97c;
@@ -3965,28 +3965,35 @@ function renderOffersFromServer(){
     const strip = document.getElementById('offersStrip');
     const imageStrip = document.getElementById('offerImageStrip');
     if(!strip || !imageStrip) return;
+
     const active = (serverOffers || []).filter(item => !item.hidden);
+
     if(!active.length){
-        strip.innerHTML = `<div class="offer-card"><div class="offer-top"><div class="offer-icon">🎁</div><div class="offer-title">No live offers</div></div><div class="offer-desc">Admin se naya offer aane par yahan dikhega</div><div class="offer-pill">Stay tuned</div></div>`;
+        strip.innerHTML = `<div class="offer-card"><div class="offer-top"><div class="offer-icon">🎁</div><div class="offer-title">no current ofer/coupen</div></div><div class="offer-desc">Admin se kuch add hoga to yahan dikh jayega</div><div class="offer-pill">No current offer/coupen</div></div>`;
         imageStrip.innerHTML = '';
+        closeOfferDiscount();
         return;
     }
+
     strip.innerHTML = active.map(item => `
-        <div class="offer-card" onclick="openOfferDiscount('${item.id}')">
+        <div class="offer-card">
             <div class="offer-top">
                 <div class="offer-icon">🏷️</div>
                 <div class="offer-title">${item.title || 'Special Offer'}</div>
             </div>
-            <div class="offer-desc">${item.subtitle || ''}</div>
+            <div class="offer-desc">${item.subtitle || item.description || ''}</div>
             <div class="offer-pill">${item.code || 'COUPON'}</div>
         </div>
     `).join('');
+
     imageStrip.innerHTML = active.map(item => `
-        <div class="offer-image-card" onclick="openOfferDiscount('${item.id}')">
+        <div class="offer-image-card">
             <img src="${item.image || 'https://via.placeholder.com/300x120?text=Offer'}" alt="${item.title || 'Offer'}">
             <div class="offer-image-overlay">${item.code || 'OFFER'}</div>
         </div>
     `).join('');
+
+    closeOfferDiscount();
 }
 
 async function fetchLiveOffers(){
@@ -4098,21 +4105,7 @@ function startOffersAutoScroll(){
 
 function openOfferDiscount(key){
     selectedOfferKey = String(key || '');
-    const section = document.getElementById('offerDiscountSection');
-    const serverOffer = (serverOffers || []).find(item => String(item.id) === String(key));
-    if(serverOffer){
-        document.getElementById('offerDiscountTitle').textContent = serverOffer.title || 'Special Discount';
-        document.getElementById('offerDiscountDesc').textContent = `${serverOffer.subtitle || ''}${serverOffer.validTill ? ' · Valid till: ' + new Date(serverOffer.validTill).toLocaleString('en-IN') : ''}`.trim();
-        document.getElementById('offerDiscountCode').textContent = `CODE: ${serverOffer.code || 'SAVE'}`;
-        section?.classList.add('open');
-        return;
-    }
-    const data = offerDiscountData[key];
-    if(!data) return;
-    document.getElementById('offerDiscountTitle').textContent = data.title;
-    document.getElementById('offerDiscountDesc').textContent = data.desc;
-    document.getElementById('offerDiscountCode').textContent = data.code;
-    section?.classList.add('open');
+    closeOfferDiscount();
 }
 
 function closeOfferDiscount(){
