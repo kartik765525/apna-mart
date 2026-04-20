@@ -108,7 +108,7 @@ html[data-theme="dark"] .top-cut,
 html[data-theme="dark"] .change-address-btn,
 html[data-theme="dark"] .profile-menu-left,
 html[data-theme="dark"] .profile-arrow,
-html[data-theme="dark"] .close-btn,
+html[data-theme="dark"] .-btn,
 html[data-theme="dark"] .order-route-title{
     color:#e5e7eb !important;
 }
@@ -592,7 +592,7 @@ html.apnamart-has-token #app{display:block !important;}
     margin-bottom:10px;
 }
 .panel-top h3{color:var(--blue)}
-.close-btn{
+.-btn{
     background:none;
     border:none;
     font-size:22px;
@@ -2320,11 +2320,7 @@ html[data-theme="dark"] .place-order-loader-sub{
 </div>
 <div id="offerDiscountSection" style="display:none !important;"></div>
 
-                <div class="offer-discount-desc" id="offerDiscountDesc">Best deal details yahan dikhenge.</div>
-                <div class="offer-discount-code" id="offerDiscountCode">CODE: SAVE</div>
-            </div>
-            <button class="offer-discount-close" onclick="closeOfferDiscount()">Close</button>
-        </div>
+                <div class="offer-discount-desc" id="offerDiscountDesc"></div></div></div>
     </div>
 
     <div class="products" id="products"></div>
@@ -2333,7 +2329,7 @@ html[data-theme="dark"] .place-order-loader-sub{
 <div class="side-panel" id="cartPanel">
         <div class="cart-panel-header">
             <div class="cart-panel-title">
-                <button class="close-btn" onclick="closeAllPanels()">←</button>
+                <button class="-btn" onclick="AllPanels()">←</button>
                 <span id="myCartTitle">My Cart</span>
             </div>
         </div>
@@ -2394,7 +2390,7 @@ html[data-theme="dark"] .place-order-loader-sub{
 <div class="side-panel" id="ordersPanel">
         <div class="orders-panel-header">
             <div class="orders-panel-title">
-                <button class="close-btn" onclick="closeAllPanels()">←</button>
+                <button class="-btn" onclick="AllPanels()">←</button>
                 <span id="myOrdersTitle">My Orders</span>
             </div>
         </div>
@@ -2413,9 +2409,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="order-detail-panel" id="orderDetailPanel">
     <div class="order-detail-header">
-        <button class="close-btn" onclick="closeOrderDetails()">←</button>
+        <button class="-btn" onclick="OrderDetails()">←</button>
         <div class="order-detail-title" id="orderDetailsTitle">Order Details</div>
-        <button class="close-btn" onclick="closeOrderDetails()">✕</button>
+        <button class="-btn" onclick="OrderDetails()">✕</button>
     </div>
     <div class="order-detail-body" id="orderDetailBody"></div>
 </div>
@@ -2423,9 +2419,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="support-panel" id="supportPanel">
     <div class="support-header">
-        <button class="close-btn" onclick="closeSupportPanel()">←</button>
+        <button class="-btn" onclick="SupportPanel()">←</button>
         <div class="support-title" id="supportTitle">Customer Service</div>
-        <button class="close-btn" onclick="closeSupportPanel()">✕</button>
+        <button class="-btn" onclick="SupportPanel()">✕</button>
     </div>
     <div class="support-body">
         <div class="support-card">
@@ -2441,9 +2437,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="language-panel" id="languagePanel">
     <div class="language-header">
-        <button class="close-btn" onclick="closeLanguagePanel()">←</button>
+        <button class="-btn" onclick="LanguagePanel()">←</button>
         <div class="language-title" id="languagePanelTitle">Change Language</div>
-        <button class="close-btn" onclick="closeLanguagePanel()">✕</button>
+        <button class="-btn" onclick="LanguagePanel()">✕</button>
     </div>
     <div class="language-body">
         <div class="language-card">
@@ -2456,9 +2452,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="language-panel" id="themePanel">
     <div class="language-header">
-        <button class="close-btn" onclick="closeThemePanel()">←</button>
+        <button class="-btn" onclick="ThemePanel()">←</button>
         <div class="language-title" id="themePanelTitle">Theme</div>
-        <button class="close-btn" onclick="closeThemePanel()">✕</button>
+        <button class="-btn" onclick="ThemePanel()">✕</button>
     </div>
     <div class="language-body">
         <div class="language-card">
@@ -2473,9 +2469,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 <!-- PROFILE PAGE -->
 <div class="profile-page" id="profilePage">
     <div class="profile-header">
-        <button class="close-btn" onclick="closeProfilePage()">←</button>
+        <button class="-btn" onclick="ProfilePage()">←</button>
         <div class="profile-title" id="myProfileTitle">My Profile</div>
-        <button class="close-btn" onclick="closeProfilePage()">⚙️</button>
+        <button class="-btn" onclick="ProfilePage()">⚙️</button>
     </div>
 
     <div class="profile-main">
@@ -2585,7 +2581,7 @@ html[data-theme="dark"] .place-order-loader-sub{
         <h2>Success</h2>
         <p id="successMessage">Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.</p>
         <button class="success-primary-btn" onclick="goToOrders()">View Order</button>
-        <div class="success-secondary-btn" onclick="closeSuccess()">Done</div>
+        <div class="success-secondary-btn" onclick="Success()">Done</div>
     </div>
 </div>
 
@@ -2630,15 +2626,14 @@ function showSuccessScreen(customMessage){
     requestAnimationFrame(() => screen.classList.add("show"));
 }
 
-function closeSuccess(){
+functionSuccess(){
     const screen = document.getElementById("successScreen");
     if(!screen) return;
     screen.classList.remove("show");
     setTimeout(() => { screen.style.display = "none"; }, 280);
 }
 
-function goToOrders(){
-    closeSuccess();
+function goToOrders(){Success();
     openOrdersPanel();
 }
 
@@ -2874,15 +2869,12 @@ function openOrderDetails(id){
             <div class="order-detail-items-title">Ordered Items</div>
             ${itemsHtml || '<div style="color:#6b7280;">No items found</div>'}
         </div>
-    `;
-
-    closeAllPanels();
+    `;AllPanels();
     document.getElementById("orderDetailPanel").classList.add("open");
     pushPanelState("orderDetails");
 }
 
-function closeOrderDetails(){
-    closeAllPanels(true);
+functionOrderDetails(){AllPanels(true);
 }
 
 function renderOrdersList(orders){
@@ -3100,16 +3092,14 @@ async function saveProfile(){
     showProfileView();
 }
 
-function openProfilePage(addToHistory = true){
-    closeAllPanels(false);
+function openProfilePage(addToHistory = true){AllPanels(false);
     document.getElementById("profilePage").classList.add("open");
     loadProfileForm();
     showProfileView();
     if(addToHistory) pushPanelState("profile");
 }
 
-function closeProfilePage(){
-    closeAllPanels(true);
+functionProfilePage(){AllPanels(true);
 }
 
 function openEditProfile(){
@@ -3129,8 +3119,7 @@ function isProfileEditing(){
            document.getElementById("profileEditPage")?.classList.contains("active");
 }
 
-function openOrdersPanelFromProfile(){
-    closeProfilePage();
+function openOrdersPanelFromProfile(){ProfilePage();
     openOrdersPanel();
 }
 
@@ -3257,8 +3246,7 @@ fetchLiveOffers();
 
 function logoutCustomer(showAlert=true){
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
-    customerToken = "";
-    closeAllPanels(true);
+    customerToken = "";AllPanels(true);
     showLogin();
     if(showAlert) showToast("Logged out", "info");
 }
@@ -3319,7 +3307,7 @@ async function fetchProducts() {
     }
 }
 
-function closeAllPanels(clearHash = false) {
+functionAllPanels(clearHash = false) {
     document.getElementById("cartPanel")?.classList.remove("open");
     document.getElementById("ordersPanel")?.classList.remove("open");
     document.getElementById("orderDetailPanel")?.classList.remove("open");
@@ -3341,8 +3329,7 @@ function pushPanelState(panelName){
 }
 
 function syncPanelWithHash(){
-    const hash = location.hash.replace("#", "");
-    closeAllPanels(false);
+    const hash = location.hash.replace("#", "");AllPanels(false);
 
     if(hash === "cart"){
         document.getElementById("cartPanel")?.classList.add("open");
@@ -3373,19 +3360,16 @@ function syncPanelWithHash(){
         return;
     }
 
-    // Home page = koi panel nahi
-    closeAllPanels(true);
+    // Home page = koi panel nahiAllPanels(true);
 }
 window.addEventListener("popstate", syncPanelWithHash);
 window.addEventListener("hashchange", syncPanelWithHash);
 
-function openCartPanel(addToHistory = true){
-    closeAllPanels(false);
+function openCartPanel(addToHistory = true){AllPanels(false);
     document.getElementById("cartPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("cart");
 }
-async function openOrdersPanel(addToHistory = true){
-    closeAllPanels(false);
+async function openOrdersPanel(addToHistory = true){AllPanels(false);
     document.getElementById("ordersPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("orders");
     await showOrders();
@@ -3763,13 +3747,11 @@ async function placeOrder() {
     }
 }
 
-function openSupportPanel(addToHistory = true){
-    closeAllPanels(false);
+function openSupportPanel(addToHistory = true){AllPanels(false);
     document.getElementById("supportPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("support");
 }
-function closeSupportPanel(){
-    closeAllPanels(true);
+functionSupportPanel(){AllPanels(true);
 }
 function sendSupportMessage(){
     const textarea = document.getElementById("supportMessage");
@@ -4003,8 +3985,7 @@ function applySelectedOfferCoupon(){
     if(!selectedOfferKey) return;
     const offer = (serverOffers || []).find(item => String(item.id) === String(selectedOfferKey));
     if(!offer) return;
-    applyCouponCode(offer.code || '');
-    closeOfferDiscount();
+    applyCouponCode(offer.code || '');OfferDiscount();
 }
 
 const offerDiscountData = {
@@ -4056,11 +4037,9 @@ function startOffersAutoScroll(){
     strip.ontouchend = () => startOffersAutoScroll();
 }
 
-function openOfferDiscount(key){
-    return;
-}
+function openOfferDiscount(key){ return; }
 
-function closeOfferDiscount(){
+functionOfferDiscount(){
     return;
 }
 
@@ -4232,12 +4211,11 @@ function applyThemeMode(){
     updateThemeButtons();
     updateThemeChrome(effective);
 }
-function openThemePanel(addToHistory = true){
-    closeAllPanels();
+function openThemePanel(addToHistory = true){AllPanels();
     document.getElementById("themePanel")?.classList.add("open");
     if(addToHistory) pushPanelState("theme");
 }
-function closeThemePanel(){
+functionThemePanel(){
     if(location.hash === "#theme"){
         history.back();
         return;
@@ -4247,8 +4225,7 @@ function closeThemePanel(){
 function setThemeMode(mode){
     currentThemeMode = ["system","light","dark"].includes(mode) ? mode : "system";
     localStorage.setItem(THEME_KEY, currentThemeMode);
-    applyThemeMode();
-    closeThemePanel();
+    applyThemeMode();ThemePanel();
 }
 if(window.matchMedia){
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", function(){
@@ -4344,13 +4321,11 @@ function applyLanguage(){
     updateLanguageButtons();
     updateThemeButtons();
 }
-function openLanguagePanel(addToHistory = true){
-    closeAllPanels(false);
+function openLanguagePanel(addToHistory = true){AllPanels(false);
     document.getElementById("languagePanel")?.classList.add("open");
     if(addToHistory) pushPanelState("language");
 }
-function closeLanguagePanel(){
-    closeAllPanels(true);
+functionLanguagePanel(){AllPanels(true);
 }
 
 let autoRefreshTimer = null;
@@ -4397,8 +4372,7 @@ function stopAutoRefresh(){
 function setLanguage(lang){
     currentLanguage = lang === "en" ? "en" : "hi";
     localStorage.setItem(LANGUAGE_KEY, currentLanguage);
-    applyLanguage();
-    closeLanguagePanel();
+    applyLanguage();LanguagePanel();
 }
 
 async function initApp(){
