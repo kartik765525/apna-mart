@@ -108,7 +108,7 @@ html[data-theme="dark"] .top-cut,
 html[data-theme="dark"] .change-address-btn,
 html[data-theme="dark"] .profile-menu-left,
 html[data-theme="dark"] .profile-arrow,
-html[data-theme="dark"] .-btn,
+html[data-theme="dark"] .close-btn,
 html[data-theme="dark"] .order-route-title{
     color:#e5e7eb !important;
 }
@@ -592,7 +592,7 @@ html.apnamart-has-token #app{display:block !important;}
     margin-bottom:10px;
 }
 .panel-top h3{color:var(--blue)}
-.-btn{
+.close-btn{
     background:none;
     border:none;
     font-size:22px;
@@ -1352,17 +1352,6 @@ html[data-theme="dark"] .delivery-boy-call{
     border-top:1px solid #eceff3;
     border-bottom:1px solid #eceff3;
 }
-
-.coupon-box{margin-top:12px;padding:12px;border:1px solid #d7e7f8;border-radius:14px;background:#f8fbff;}
-.coupon-row{display:flex;gap:10px;align-items:center;}
-.coupon-input{flex:1;padding:11px 12px;border:1px solid #d9e2eb;border-radius:12px;outline:none;background:#fff;}
-.coupon-apply-btn{border:none;padding:11px 14px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;}
-.coupon-status{margin-top:8px;font-size:13px;font-weight:700;color:#1f8f45;}
-.coupon-status.error{color:#dc2626;}
-.offer-image-card{min-width:132px;max-width:132px;height:58px;}
-.offer-image-card img{object-fit:cover;}
-.discount-apply-btn{margin-top:12px;border:none;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;font-weight:800;cursor:pointer;}
-
 .cart-payment-box label{
     display:flex;
     align-items:center;
@@ -1786,171 +1775,124 @@ html[data-theme="dark"] .delivery-boy-call{
 .welcome-stack{
     padding:0 14px 10px 14px;
 }
-.welcome-banner{display:none !important;}
+.welcome-banner{
+    position:relative;
+    overflow:hidden;
+    border-radius:24px;
+    padding:26px 18px 18px;
+    background:linear-gradient(135deg,#9a6300 0%, #c78811 55%, #915600 100%);
+    color:#fff;
+    box-shadow:0 18px 36px rgba(145,86,0,.22);
+    animation:welcomeFloat .65s ease both;
+}
+.welcome-banner::before,
+.welcome-banner::after{
+    content:"🛍️";
+    position:absolute;
+    top:22px;
+    font-size:38px;
+    opacity:.32;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.18));
+}
+.welcome-banner::before{left:14px; transform:rotate(-10deg);}
+.welcome-banner::after{right:14px; transform:rotate(10deg);}
+.welcome-kicker{
+    text-align:center;
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:.18em;
+    margin-bottom:8px;
+    text-transform:uppercase;
+}
+.welcome-title{
+    text-align:center;
+    font-size:44px;
+    line-height:1;
+    font-weight:900;
+    margin-bottom:10px;
+    text-shadow:0 8px 18px rgba(0,0,0,.16);
+}
+.welcome-subtitle{
+    text-align:center;
+    font-size:16px;
+    font-weight:700;
+    opacity:.96;
+}
 .offers-heading{
     width:max-content;
-    max-width:calc(100% - 28px);
-    margin:0 auto -6px;
-    padding:10px 24px;
-    border-radius:20px 20px 18px 18px;
-    background:linear-gradient(180deg,#ffd64a 0%,#f1c21a 100%);
-    color:#233449;
+    max-width:100%;
+    margin:-14px auto 10px;
+    padding:10px 18px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#ffd348,#facc15);
+    color:#233047;
     font-weight:900;
-    font-size:16px;
-    letter-spacing:.3px;
+    font-size:14px;
+    box-shadow:0 12px 26px rgba(250,204,21,.24);
     position:relative;
     z-index:2;
-    box-shadow:0 10px 18px rgba(241,194,26,.16);
 }
 .offers-strip{
-    display:grid;
-    grid-auto-flow:column;
-    grid-auto-columns:minmax(300px,1fr);
+    display:flex;
     gap:12px;
     overflow-x:auto;
-    overflow-y:hidden;
-    padding:18px 12px 16px;
-    background:linear-gradient(180deg,#dfaf13 0%,#edc12a 100%);
-    border-radius:0;
-    margin:0 -14px 0;
-    scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
+    padding:4px 2px 6px;
+    scroll-snap-type:x proximity;
     animation:offersSlide .75s ease both;
 }
 .offers-strip::-webkit-scrollbar{display:none;}
 .offer-card{
-    min-width:300px;
-    background:linear-gradient(180deg,#f8e9ad 0%,#f3e1a1 100%);
-    border:1px solid rgba(145,109,9,.12);
-    border-radius:22px;
-    padding:18px;
-    display:flex;
-    align-items:flex-start;
-    gap:14px;
-    cursor:pointer;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.26);
+    min-width:250px;
+    max-width:250px;
+    scroll-snap-align:start;
+    background:linear-gradient(180deg,#fff7cf 0%, #fff1b8 100%);
+    border:1px solid #f6d97c;
+    border-radius:20px;
+    padding:16px;
+    box-shadow:0 12px 26px rgba(191,145,0,.12);
 }
 .offer-top{
     display:flex;
-    align-items:flex-start;
-    gap:14px;
-    width:100%;
+    align-items:center;
+    gap:10px;
 }
 .offer-icon{
-    width:56px;
-    height:56px;
-    min-width:56px;
-    border-radius:16px;
+    width:44px;
+    height:44px;
+    border-radius:14px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:28px;
-    background:rgba(255,255,255,.58);
-    overflow:hidden;
-}
-.offer-icon img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-}
-.offer-copy{
-    min-width:0;
-    flex:1;
+    font-size:24px;
+    background:rgba(255,255,255,.72);
+    box-shadow:0 6px 16px rgba(0,0,0,.08);
 }
 .offer-title{
-    font-size:18px;
+    font-size:17px;
     font-weight:900;
-    color:#233449;
-    line-height:1.18;
-    margin:0;
+    color:#1f2937;
+    line-height:1.2;
 }
 .offer-desc{
     margin-top:8px;
     font-size:14px;
-    color:#4b5563;
-    line-height:1.33;
-    font-weight:800;
+    color:#5b6470;
+    line-height:1.45;
+    font-weight:700;
 }
 .offer-pill{
     display:inline-flex;
-    margin-top:14px;
+    margin-top:12px;
     border-radius:999px;
-    padding:7px 14px;
-    font-size:11px;
+    padding:6px 11px;
+    font-size:12px;
     font-weight:900;
-    background:#fff9de;
-    color:#946800;
-    border:1px solid rgba(148,104,0,.12);
+    background:#fff;
+    color:#9a6300;
 }
-.offer-image-strip{display:none !important;}
-.offer-discount-section,
-#offerDiscountSection{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    height:0 !important;
-    overflow:hidden !important;
-    margin:0 !important;
-    padding:0 !important;
-    border:none !important;
-    box-shadow:none !important;
-}
-html[data-theme="dark"] .offers-heading{
-    background:linear-gradient(180deg,#ffd64a 0%,#f1c21a 100%);
-    color:#233449;
-}
-html[data-theme="dark"] .offers-strip{
-    background:linear-gradient(180deg,#dfaf13 0%,#edc12a 100%);
-}
-html[data-theme="dark"] .offer-card{
-    background:linear-gradient(180deg,#f8e9ad 0%,#f3e1a1 100%) !important;
-    border:1px solid rgba(145,109,9,.12) !important;
-}
-html[data-theme="dark"] .offer-title{color:#233449 !important;}
-html[data-theme="dark"] .offer-desc{color:#4b5563 !important;}
-html[data-theme="dark"] .offer-pill{
-    background:#fff9de !important;
-    color:#946800 !important;
-    border:1px solid rgba(148,104,0,.12) !important;
-}
-@media (max-width:600px){
-    .offers-heading{
-        font-size:15px;
-        padding:8px 22px;
-    }
-    .offers-strip{
-        grid-auto-columns:calc(50vw - 2px);
-        gap:10px;
-        padding:16px 10px 14px;
-    }
-    .offer-card{
-        min-width:calc(50vw - 2px);
-        padding:14px 12px 14px;
-        border-radius:20px;
-        gap:12px;
-    }
-    .offer-icon{
-        width:48px;
-        height:48px;
-        min-width:48px;
-        border-radius:14px;
-        font-size:24px;
-    }
-    .offer-title{
-        font-size:17px;
-        line-height:1.15;
-    }
-    .offer-desc{
-        margin-top:8px;
-        font-size:13px;
-        line-height:1.28;
-    }
-    .offer-pill{
-        margin-top:12px;
-        padding:6px 12px;
-        font-size:10px;
-    }
+@keyframes welcomeFloat{
+    0%{opacity:0;transform:translateY(18px) scale(.98)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
 }
 @keyframes offersSlide{
     0%{opacity:0;transform:translateY(24px)}
@@ -2313,14 +2255,47 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 
 
-    
-<div class="welcome-stack">
-    <div class="offers-heading">✦ OFFERS FOR YOU ✦</div>
-    <div class="offers-strip auto-scroll-active" id="offersStrip"></div>
-</div>
-<div id="offerDiscountSection" style="display:none !important;"></div>
-
-                <div class="offer-discount-desc" id="offerDiscountDesc"></div></div></div>
+    <div class="welcome-stack">
+        <div class="welcome-banner">
+            <div class="welcome-kicker">WELCOME</div>
+            <div class="welcome-title">WELCOME</div>
+            <div class="welcome-subtitle">Order now and enjoy great offers</div>
+        </div>
+        <div class="offers-heading">✦ OFFERS FOR YOU ✦</div>
+        <div class="offers-strip">
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">💸</div>
+                    <div class="offer-title">Get FLAT ₹50 OFF</div>
+                </div>
+                <div class="offer-desc">On your first order above ₹199</div>
+                <div class="offer-pill">New Customer Offer</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🛵</div>
+                    <div class="offer-title">Enjoy FREE delivery</div>
+                </div>
+                <div class="offer-desc">On all your orders above ₹499</div>
+                <div class="offer-pill">Fast Delivery</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🥛</div>
+                    <div class="offer-title">Fresh dairy deals</div>
+                </div>
+                <div class="offer-desc">Milk, paneer and dahi par daily savings</div>
+                <div class="offer-pill">Daily Savings</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🧺</div>
+                    <div class="offer-title">Kitchen essentials combo</div>
+                </div>
+                <div class="offer-desc">Atta, oil and masala par special combo price</div>
+                <div class="offer-pill">Combo Offer</div>
+            </div>
+        </div>
     </div>
 
     <div class="products" id="products"></div>
@@ -2329,7 +2304,7 @@ html[data-theme="dark"] .place-order-loader-sub{
 <div class="side-panel" id="cartPanel">
         <div class="cart-panel-header">
             <div class="cart-panel-title">
-                <button class="-btn" onclick="AllPanels()">←</button>
+                <button class="close-btn" onclick="closeAllPanels()">←</button>
                 <span id="myCartTitle">My Cart</span>
             </div>
         </div>
@@ -2351,7 +2326,6 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <h4 id="priceDetailsTitle">Price Details</h4>
                 <div class="cart-summary-row"><span id="subtotalLabel">Subtotal</span><strong>₹<span id="subtotal">0</span></strong></div>
                 <div class="cart-summary-row"><span id="shippingLabel">Shipping</span><strong>₹<span id="shipping">0</span></strong></div>
-                <div class="cart-summary-row" id="couponDiscountRow" style="display:none;"><span>Coupon Discount</span><strong>-₹<span id="couponDiscountValue">0</span></strong></div>
                 <div class="cart-summary-row"><span id="totalItemsLabel">Total Items</span><strong><span id="countSummary">0</span></strong></div>
                 <div class="cart-summary-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #eceff3;font-size:16px;">
                     <span><strong id="totalPayLabel">Total Pay</strong></span>
@@ -2365,13 +2339,6 @@ html[data-theme="dark"] .place-order-loader-sub{
                 <h4 id="paymentOptionTitle" style="margin-bottom:8px;color:#111827;">Payment Option</h4>
                 <label><input type="radio" name="payment" value="cod" checked> <span id="codLabel">Cash on Delivery</span></label>
                 <label><input type="radio" name="payment" value="upi"> <span id="upiLabel">UPI Payment</span></label>
-                <div class="coupon-box">
-                    <div class="coupon-row">
-                        <input type="text" id="couponCodeInput" class="coupon-input" placeholder="Enter coupon code">
-                        <button type="button" class="coupon-apply-btn" onclick="applyCouponFromInput()">Apply</button>
-                    </div>
-                    <div id="couponStatus" class="coupon-status" style="display:none;"></div>
-                </div>
                 <button onclick="orderOnWhatsApp()" id="orderWhatsappBtn" class="main-btn whatsapp-btn" style="margin-top:12px;">Order on WhatsApp</button>
                 <button onclick="orderOnCall()" id="orderCallBtn" class="main-btn call-btn">Order on Call</button>
             </div>
@@ -2390,7 +2357,7 @@ html[data-theme="dark"] .place-order-loader-sub{
 <div class="side-panel" id="ordersPanel">
         <div class="orders-panel-header">
             <div class="orders-panel-title">
-                <button class="-btn" onclick="AllPanels()">←</button>
+                <button class="close-btn" onclick="closeAllPanels()">←</button>
                 <span id="myOrdersTitle">My Orders</span>
             </div>
         </div>
@@ -2409,9 +2376,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="order-detail-panel" id="orderDetailPanel">
     <div class="order-detail-header">
-        <button class="-btn" onclick="OrderDetails()">←</button>
+        <button class="close-btn" onclick="closeOrderDetails()">←</button>
         <div class="order-detail-title" id="orderDetailsTitle">Order Details</div>
-        <button class="-btn" onclick="OrderDetails()">✕</button>
+        <button class="close-btn" onclick="closeOrderDetails()">✕</button>
     </div>
     <div class="order-detail-body" id="orderDetailBody"></div>
 </div>
@@ -2419,9 +2386,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="support-panel" id="supportPanel">
     <div class="support-header">
-        <button class="-btn" onclick="SupportPanel()">←</button>
+        <button class="close-btn" onclick="closeSupportPanel()">←</button>
         <div class="support-title" id="supportTitle">Customer Service</div>
-        <button class="-btn" onclick="SupportPanel()">✕</button>
+        <button class="close-btn" onclick="closeSupportPanel()">✕</button>
     </div>
     <div class="support-body">
         <div class="support-card">
@@ -2437,9 +2404,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="language-panel" id="languagePanel">
     <div class="language-header">
-        <button class="-btn" onclick="LanguagePanel()">←</button>
+        <button class="close-btn" onclick="closeLanguagePanel()">←</button>
         <div class="language-title" id="languagePanelTitle">Change Language</div>
-        <button class="-btn" onclick="LanguagePanel()">✕</button>
+        <button class="close-btn" onclick="closeLanguagePanel()">✕</button>
     </div>
     <div class="language-body">
         <div class="language-card">
@@ -2452,9 +2419,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 <div class="language-panel" id="themePanel">
     <div class="language-header">
-        <button class="-btn" onclick="ThemePanel()">←</button>
+        <button class="close-btn" onclick="closeThemePanel()">←</button>
         <div class="language-title" id="themePanelTitle">Theme</div>
-        <button class="-btn" onclick="ThemePanel()">✕</button>
+        <button class="close-btn" onclick="closeThemePanel()">✕</button>
     </div>
     <div class="language-body">
         <div class="language-card">
@@ -2469,9 +2436,9 @@ html[data-theme="dark"] .place-order-loader-sub{
 <!-- PROFILE PAGE -->
 <div class="profile-page" id="profilePage">
     <div class="profile-header">
-        <button class="-btn" onclick="ProfilePage()">←</button>
+        <button class="close-btn" onclick="closeProfilePage()">←</button>
         <div class="profile-title" id="myProfileTitle">My Profile</div>
-        <button class="-btn" onclick="ProfilePage()">⚙️</button>
+        <button class="close-btn" onclick="closeProfilePage()">⚙️</button>
     </div>
 
     <div class="profile-main">
@@ -2581,7 +2548,7 @@ html[data-theme="dark"] .place-order-loader-sub{
         <h2>Success</h2>
         <p id="successMessage">Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.</p>
         <button class="success-primary-btn" onclick="goToOrders()">View Order</button>
-        <div class="success-secondary-btn" onclick="Success()">Done</div>
+        <div class="success-secondary-btn" onclick="closeSuccess()">Done</div>
     </div>
 </div>
 
@@ -2626,14 +2593,15 @@ function showSuccessScreen(customMessage){
     requestAnimationFrame(() => screen.classList.add("show"));
 }
 
-functionSuccess(){
+function closeSuccess(){
     const screen = document.getElementById("successScreen");
     if(!screen) return;
     screen.classList.remove("show");
     setTimeout(() => { screen.style.display = "none"; }, 280);
 }
 
-function goToOrders(){Success();
+function goToOrders(){
+    closeSuccess();
     openOrdersPanel();
 }
 
@@ -2645,9 +2613,6 @@ const CUSTOMER_TOKEN_KEY = "apnaMartCustomerToken";
 let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 
 let latestOrders = [];
-let serverOffers = [];
-let appliedCoupon = null;
-let selectedOfferKey = "";
 let currentOpenOrderId = null;
 let otpSent = false;
 
@@ -2869,12 +2834,15 @@ function openOrderDetails(id){
             <div class="order-detail-items-title">Ordered Items</div>
             ${itemsHtml || '<div style="color:#6b7280;">No items found</div>'}
         </div>
-    `;AllPanels();
+    `;
+
+    closeAllPanels();
     document.getElementById("orderDetailPanel").classList.add("open");
     pushPanelState("orderDetails");
 }
 
-functionOrderDetails(){AllPanels(true);
+function closeOrderDetails(){
+    closeAllPanels(true);
 }
 
 function renderOrdersList(orders){
@@ -3058,17 +3026,8 @@ async function saveProfile(){
     }
 
     let image = oldProfile.image || getDefaultProfileImage();
-    try{
-        if(imageFile){
-            image = await readProfileImageFile(imageFile);
-        } else {
-            const previewSrc = document.getElementById("profilePreview")?.src || "";
-            if(previewSrc) image = previewSrc;
-        }
-    }catch(error){
-        console.error(error);
-        showToast("Photo save nahi hui", "error");
-        return;
+    if(imageFile){
+        image = await readProfileImageFile(imageFile);
     }
 
     const profile = {
@@ -3082,9 +3041,6 @@ async function saveProfile(){
 
     localStorage.setItem("apnaMartProfile", JSON.stringify(profile));
     document.getElementById("profileImageInput").value = "";
-    document.getElementById("profilePreview").src = profile.image;
-    document.getElementById("profileViewImg").src = profile.image;
-    document.getElementById("headerProfileImg").src = profile.image;
     showToast("Profile saved successfully", "success");
     renderSavedProfile();
     renderTopProfile();
@@ -3092,14 +3048,16 @@ async function saveProfile(){
     showProfileView();
 }
 
-function openProfilePage(addToHistory = true){AllPanels(false);
+function openProfilePage(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("profilePage").classList.add("open");
     loadProfileForm();
     showProfileView();
     if(addToHistory) pushPanelState("profile");
 }
 
-functionProfilePage(){AllPanels(true);
+function closeProfilePage(){
+    closeAllPanels(true);
 }
 
 function openEditProfile(){
@@ -3119,7 +3077,8 @@ function isProfileEditing(){
            document.getElementById("profileEditPage")?.classList.contains("active");
 }
 
-function openOrdersPanelFromProfile(){ProfilePage();
+function openOrdersPanelFromProfile(){
+    closeProfilePage();
     openOrdersPanel();
 }
 
@@ -3236,7 +3195,6 @@ async function verifyOtp(){
         localStorage.setItem("apnaMartProfile", JSON.stringify({ ...oldProfile, phone, village: normalizeVillage(village) }));
 
         await checkCustomerLogin();
-fetchLiveOffers();
         showToast("OTP login successful", "success");
     }catch(error){
         console.error(error);
@@ -3246,7 +3204,8 @@ fetchLiveOffers();
 
 function logoutCustomer(showAlert=true){
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
-    customerToken = "";AllPanels(true);
+    customerToken = "";
+    closeAllPanels(true);
     showLogin();
     if(showAlert) showToast("Logged out", "info");
 }
@@ -3307,7 +3266,7 @@ async function fetchProducts() {
     }
 }
 
-functionAllPanels(clearHash = false) {
+function closeAllPanels(clearHash = false) {
     document.getElementById("cartPanel")?.classList.remove("open");
     document.getElementById("ordersPanel")?.classList.remove("open");
     document.getElementById("orderDetailPanel")?.classList.remove("open");
@@ -3329,7 +3288,8 @@ function pushPanelState(panelName){
 }
 
 function syncPanelWithHash(){
-    const hash = location.hash.replace("#", "");AllPanels(false);
+    const hash = location.hash.replace("#", "");
+    closeAllPanels(false);
 
     if(hash === "cart"){
         document.getElementById("cartPanel")?.classList.add("open");
@@ -3360,16 +3320,19 @@ function syncPanelWithHash(){
         return;
     }
 
-    // Home page = koi panel nahiAllPanels(true);
+    // Home page = koi panel nahi
+    closeAllPanels(true);
 }
 window.addEventListener("popstate", syncPanelWithHash);
 window.addEventListener("hashchange", syncPanelWithHash);
 
-function openCartPanel(addToHistory = true){AllPanels(false);
+function openCartPanel(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("cartPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("cart");
 }
-async function openOrdersPanel(addToHistory = true){AllPanels(false);
+async function openOrdersPanel(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("ordersPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("orders");
     await showOrders();
@@ -3379,22 +3342,8 @@ async function openOrdersPanel(addToHistory = true){AllPanels(false);
 function calculateTotal() {
     const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
     const profile = getSavedProfile();
-    let shipping = profile ? (getVillageDeliveryCharge(profile.village) ?? 0) : 0;
-    let couponDiscount = 0;
-
-    if(appliedCoupon){
-        if(String(appliedCoupon.type || '').toLowerCase() === 'percent'){
-            couponDiscount = Math.round((subtotal * Number(appliedCoupon.discount || 0)) / 100);
-        }else if(String(appliedCoupon.type || '').toLowerCase() === 'free_delivery'){
-            couponDiscount = shipping;
-        }else{
-            couponDiscount = Number(appliedCoupon.discount || 0);
-        }
-        if(couponDiscount > subtotal + shipping) couponDiscount = subtotal + shipping;
-        if(String(appliedCoupon.type || '').toLowerCase() === 'free_delivery') shipping = 0;
-    }
-
-    const grandTotal = Math.max(0, subtotal + shipping - couponDiscount);
+    const shipping = profile ? (getVillageDeliveryCharge(profile.village) ?? 0) : 0;
+    const grandTotal = subtotal + shipping;
     const countSummary = cart.reduce((a, b) => a + b.qty, 0);
     const originalEstimate = estimateOriginalTotal(subtotal, shipping);
 
@@ -3404,24 +3353,6 @@ function calculateTotal() {
     document.getElementById("bottomGrandTotal").innerText = grandTotal;
     document.getElementById("total").innerText = originalEstimate;
     document.getElementById("countSummary").innerText = countSummary;
-
-    const row = document.getElementById('couponDiscountRow');
-    const val = document.getElementById('couponDiscountValue');
-    const status = document.getElementById('couponStatus');
-    if(row && val){
-        if(appliedCoupon && couponDiscount > 0){
-            row.style.display = 'flex';
-            val.textContent = couponDiscount;
-        }else{
-            row.style.display = 'none';
-            val.textContent = '0';
-        }
-    }
-    if(status && appliedCoupon){
-        status.style.display = 'block';
-        status.classList.remove('error');
-        status.textContent = `Applied: ${appliedCoupon.code}`;
-    }
     updateCartDeliveryBox();
 }
 
@@ -3747,11 +3678,13 @@ async function placeOrder() {
     }
 }
 
-function openSupportPanel(addToHistory = true){AllPanels(false);
+function openSupportPanel(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("supportPanel")?.classList.add("open");
     if(addToHistory) pushPanelState("support");
 }
-functionSupportPanel(){AllPanels(true);
+function closeSupportPanel(){
+    closeAllPanels(true);
 }
 function sendSupportMessage(){
     const textarea = document.getElementById("supportMessage");
@@ -3859,189 +3792,10 @@ function orderOnWhatsApp() {
 document.getElementById("profileImageInput")?.addEventListener("change", async function(e){
     const file = e.target.files[0];
     if(!file) return;
-    try{
-        const dataUrl = await readProfileImageFile(file);
-        document.getElementById("profilePreview").src = dataUrl;
-        const viewImg = document.getElementById("profileViewImg");
-        if(viewImg) viewImg.src = dataUrl;
-    }catch(error){
-        console.error(error);
-        showToast("Photo load nahi hui", "error");
-    }
+    const dataUrl = await readProfileImageFile(file);
+    document.getElementById("profilePreview").src = dataUrl;
 });
 
-
-
-let offerAutoScrollTimer = null;
-
-function renderOffersFromServer(){
-    const strip = document.getElementById('offersStrip');
-    if(!strip) return;
-
-    const active = (serverOffers || []).filter(item => !item.hidden);
-
-    if(!active.length){
-        strip.innerHTML = `
-            <div class="offer-card">
-                <div class="offer-top">
-                    <div class="offer-icon">🎁</div>
-                    <div class="offer-copy">
-                        <div class="offer-title">no current ofer/coupen</div>
-                        <div class="offer-desc">Admin se offer ya coupen add hoga to yahan dikhega</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    strip.innerHTML = active.map(item => {
-        const title = item.title || 'Special Offer';
-        const desc = item.subtitle || item.description || '';
-        const code = String(item.code || '').trim().toUpperCase();
-        const image = item.image || '';
-        const visual = image
-            ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
-            : `<div class="offer-icon">🏷️</div>`;
-
-        return `
-            <div class="offer-card" onclick="applyOfferFromStrip('${code.replace(/'/g, "\'")}')">
-                <div class="offer-top">
-                    ${visual}
-                    <div class="offer-copy">
-                        <div class="offer-title">${title}</div>
-                        <div class="offer-desc">${desc}</div>
-                        ${code ? `<div class="offer-pill">${code}</div>` : ``}
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-async function applyOfferFromStrip(code){
-    const cleanCode = String(code || '').trim().toUpperCase();
-    if(!cleanCode) return;
-    const input = document.getElementById('couponCodeInput') || document.getElementById('couponInput');
-    if(input) input.value = cleanCode;
-    if(typeof applyCouponCode === 'function'){
-        await applyCouponCode(cleanCode, true);
-    }
-}
-
-async function fetchLiveOffers(){
-    try{
-        const res = await fetch('/api/offers');
-        const data = await res.json().catch(()=>[]);
-        serverOffers = Array.isArray(data) ? data : [];
-        renderOffersFromServer();
-        startOffersAutoScroll();
-    }catch(error){
-        console.error('Offers fetch failed', error);
-        serverOffers = [];
-        renderOffersFromServer();
-    }
-}
-
-async function applyCouponCode(code, showMessage=true){
-    code = String(code || '').trim().toUpperCase();
-    const status = document.getElementById('couponStatus');
-    if(!code){
-        appliedCoupon = null;
-        if(status){ status.style.display='block'; status.classList.add('error'); status.textContent='Enter coupon code'; }
-        calculateTotal();
-        return false;
-    }
-    const subtotal = cart.reduce((a,b)=>a + (b.price*b.qty), 0);
-    const shipping = Number(document.getElementById('shipping')?.textContent || 0);
-    try{
-        const res = await fetch('/api/coupons/validate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code, subtotal, shipping})});
-        const data = await res.json().catch(()=>({}));
-        if(!res.ok || !data.valid){
-            appliedCoupon = null;
-            if(status){ status.style.display='block'; status.classList.add('error'); status.textContent=data.message || 'Invalid coupon'; }
-            calculateTotal();
-            return false;
-        }
-        appliedCoupon = data.coupon;
-        const input = document.getElementById('couponCodeInput');
-        if(input) input.value = code;
-        if(status){ status.style.display='block'; status.classList.remove('error'); status.textContent=`Applied: ${code}`; }
-        calculateTotal();
-        return true;
-    }catch(error){
-        console.error(error);
-        if(status){ status.style.display='block'; status.classList.add('error'); status.textContent='Coupon apply failed'; }
-        return false;
-    }
-}
-
-function applyCouponFromInput(){
-    const input = document.getElementById('couponCodeInput');
-    applyCouponCode(input ? input.value : '');
-}
-
-function applySelectedOfferCoupon(){
-    if(!selectedOfferKey) return;
-    const offer = (serverOffers || []).find(item => String(item.id) === String(selectedOfferKey));
-    if(!offer) return;
-    applyCouponCode(offer.code || '');OfferDiscount();
-}
-
-const offerDiscountData = {
-    flat50: {
-        title: "Get FLAT ₹50 OFF",
-        desc: "Apne first order par ₹199 ya usse upar shopping karo aur flat ₹50 discount pao.",
-        code: "CODE: FIRST50"
-    },
-    freeDelivery: {
-        title: "Enjoy FREE delivery",
-        desc: "₹499 ya usse upar ke order par delivery charge zero rahega.",
-        code: "CODE: FREEDEL"
-    },
-    dairyDeals: {
-        title: "Fresh dairy deals",
-        desc: "Milk, paneer aur dahi category me daily savings aur combo benefit milega.",
-        code: "CODE: DAIRY10"
-    },
-    comboOffer: {
-        title: "Kitchen essentials combo",
-        desc: "Atta, oil aur masala combo lene par special combo price unlock hoga.",
-        code: "CODE: COMBO20"
-    }
-};
-
-function startOffersAutoScroll(){
-    const strip = document.getElementById("offersStrip");
-    if(!strip) return;
-    if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer);
-
-    const moveOffers = () => {
-        const cards = strip.querySelectorAll('.offer-card');
-        if(!cards.length) return;
-        const cardWidth = cards[0].offsetWidth + 12;
-        const maxLeft = strip.scrollWidth - strip.clientWidth;
-        if(maxLeft <= 0) return;
-        if(strip.scrollLeft + cardWidth >= maxLeft - 5){
-            strip.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-            strip.scrollBy({ left: cardWidth, behavior: 'smooth' });
-        }
-    };
-
-    offerAutoScrollTimer = setInterval(moveOffers, 2000);
-
-    strip.onmouseenter = () => { if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer); };
-    strip.onmouseleave = () => startOffersAutoScroll();
-    strip.ontouchstart = () => { if(offerAutoScrollTimer) clearInterval(offerAutoScrollTimer); };
-    strip.ontouchend = () => startOffersAutoScroll();
-}
-
-function openOfferDiscount(key){ return; }
-
-functionOfferDiscount(){
-    return;
-}
 
 const THEME_KEY = "apnaMartThemeMode";
 let currentThemeMode = localStorage.getItem(THEME_KEY) || "system";
@@ -4211,11 +3965,12 @@ function applyThemeMode(){
     updateThemeButtons();
     updateThemeChrome(effective);
 }
-function openThemePanel(addToHistory = true){AllPanels();
+function openThemePanel(addToHistory = true){
+    closeAllPanels();
     document.getElementById("themePanel")?.classList.add("open");
     if(addToHistory) pushPanelState("theme");
 }
-functionThemePanel(){
+function closeThemePanel(){
     if(location.hash === "#theme"){
         history.back();
         return;
@@ -4225,7 +3980,8 @@ functionThemePanel(){
 function setThemeMode(mode){
     currentThemeMode = ["system","light","dark"].includes(mode) ? mode : "system";
     localStorage.setItem(THEME_KEY, currentThemeMode);
-    applyThemeMode();ThemePanel();
+    applyThemeMode();
+    closeThemePanel();
 }
 if(window.matchMedia){
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", function(){
@@ -4321,11 +4077,13 @@ function applyLanguage(){
     updateLanguageButtons();
     updateThemeButtons();
 }
-function openLanguagePanel(addToHistory = true){AllPanels(false);
+function openLanguagePanel(addToHistory = true){
+    closeAllPanels(false);
     document.getElementById("languagePanel")?.classList.add("open");
     if(addToHistory) pushPanelState("language");
 }
-functionLanguagePanel(){AllPanels(true);
+function closeLanguagePanel(){
+    closeAllPanels(true);
 }
 
 let autoRefreshTimer = null;
@@ -4372,7 +4130,8 @@ function stopAutoRefresh(){
 function setLanguage(lang){
     currentLanguage = lang === "en" ? "en" : "hi";
     localStorage.setItem(LANGUAGE_KEY, currentLanguage);
-    applyLanguage();LanguagePanel();
+    applyLanguage();
+    closeLanguagePanel();
 }
 
 async function initApp(){
