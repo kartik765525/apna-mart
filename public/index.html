@@ -1831,127 +1831,103 @@ html[data-theme="dark"] .delivery-boy-call{
 }
 .offers-heading{
     width:max-content;
-    max-width:100%;
-    margin:-14px auto 10px;
-    padding:10px 18px;
-    border-radius:999px;
-    background:linear-gradient(135deg,#ffd348,#facc15);
-    color:#233047;
+    max-width:calc(100% - 24px);
+    margin:-8px auto 0;
+    padding:12px 28px;
+    border-radius:22px 22px 18px 18px;
+    background:linear-gradient(180deg,#ffd64a 0%,#f4c51f 100%);
+    color:#1f2e47;
     font-weight:900;
-    font-size:14px;
-    box-shadow:0 12px 26px rgba(250,204,21,.24);
+    font-size:17px;
+    letter-spacing:.4px;
+    box-shadow:none;
     position:relative;
     z-index:2;
 }
 .offers-strip{
     display:flex;
-    gap:12px;
+    gap:14px;
     overflow-x:auto;
-    padding:4px 2px 6px;
+    padding:14px 12px 14px;
+    background:linear-gradient(180deg,#e6b318 0%,#f0c32d 100%);
+    border-radius:0;
     scroll-snap-type:x proximity;
     animation:offersSlide .75s ease both;
+    margin:0 -14px 0;
 }
 .offers-strip::-webkit-scrollbar{display:none;}
 .offer-card{
-    min-width:250px;
-    max-width:250px;
+    min-width:320px;
+    max-width:320px;
     scroll-snap-align:start;
-    background:linear-gradient(180deg,#fff7cf 0%, #fff1b8 100%);
-    border:1px solid #f6d97c;
-    border-radius:20px;
-    padding:16px;
-    box-shadow:0 12px 26px rgba(191,145,0,.12);
+    background:linear-gradient(180deg,#f8e9b0 0%,#f4e1a3 100%);
+    border:1px solid rgba(141,105,12,.12);
+    border-radius:22px;
+    padding:16px 18px;
+    box-shadow:none;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
 }
 .offer-top{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:14px;
+    width:100%;
 }
 .offer-icon{
-    width:44px;
-    height:44px;
-    border-radius:14px;
+    width:58px;
+    height:58px;
+    min-width:58px;
+    border-radius:16px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:24px;
-    background:rgba(255,255,255,.72);
-    box-shadow:0 6px 16px rgba(0,0,0,.08);
-}
-.offer-title{
-    font-size:17px;
-    font-weight:900;
-    color:#1f2937;
-    line-height:1.2;
-}
-.offer-desc{
-    margin-top:8px;
-    font-size:14px;
-    color:#5b6470;
-    line-height:1.45;
-    font-weight:700;
-}
-.offer-pill{
-    display:inline-flex;
-    margin-top:12px;
-    border-radius:999px;
-    padding:6px 11px;
-    font-size:12px;
-    font-weight:900;
-    background:#fff;
-    color:#9a6300;
-}
-
-.offer-card{cursor:pointer;}
-.offers-strip.auto-scroll-active{scroll-behavior:smooth;}
-.offer-image-strip{
-    display:flex;
-    gap:10px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:8px 2px 2px;
-    margin-top:10px;
-    scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
-}
-.offer-image-strip::-webkit-scrollbar{display:none;}
-.offer-image-card{
-    min-width:150px;
-    max-width:150px;
-    height:72px;
-    position:relative;
-    border-radius:16px;
+    font-size:28px;
+    background:rgba(255,255,255,.55);
+    box-shadow:none;
     overflow:hidden;
-    cursor:pointer;
-    border:1px solid #dbe5ee;
-    box-shadow:0 8px 18px rgba(13,51,84,.08);
-    flex:0 0 auto;
-    background:#fff;
 }
-.offer-image-card img{
+.offer-icon img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
 }
-.offer-image-overlay{
-    position:absolute;
-    inset:auto 0 0 0;
-    padding:8px 10px;
-    background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.68) 100%);
-    color:#fff;
-    font-size:12px;
-    font-weight:800;
+.offer-copy{
+    min-width:0;
+    flex:1;
 }
-.offer-discount-section{
-    display:none !important;
-    margin:12px 14px 4px 14px;
-    background:linear-gradient(135deg,#fff7cf 0%, #fff1b8 100%);
-    border:1px solid #f6d97c;
-    border-radius:20px;
-    padding:16px;
-    box-shadow:0 12px 26px rgba(191,145,0,.12);
+.offer-title{
+    font-size:18px;
+    font-weight:900;
+    color:#25364c;
+    line-height:1.2;
+    margin:0;
 }
+.offer-desc{
+    margin-top:4px;
+    font-size:15px;
+    color:#374151;
+    line-height:1.35;
+    font-weight:700;
+}
+.offer-pill{
+    display:inline-flex;
+    margin-top:8px;
+    border-radius:999px;
+    padding:5px 10px;
+    font-size:11px;
+    font-weight:900;
+    background:#fff9db;
+    color:#8a6100;
+    border:1px solid rgba(138,97,0,.15);
+}
+.offer-card{cursor:pointer;}
+.offers-strip.auto-scroll-active{scroll-behavior:smooth;}
+.offer-image-strip{display:none !important;}
+.offer-discount-section{display:none !important;}
 .offer-discount-section.open{display:block; animation:offersSlide .3s ease both;}
 .offer-discount-head{
     display:flex;
@@ -3964,36 +3940,59 @@ let offerAutoScrollTimer = null;
 function renderOffersFromServer(){
     const strip = document.getElementById('offersStrip');
     const imageStrip = document.getElementById('offerImageStrip');
-    if(!strip || !imageStrip) return;
+    if(!strip) return;
+    if(imageStrip) imageStrip.innerHTML = '';
 
     const active = (serverOffers || []).filter(item => !item.hidden);
 
     if(!active.length){
-        strip.innerHTML = `<div class="offer-card"><div class="offer-top"><div class="offer-icon">🎁</div><div class="offer-title">no current ofer/coupen</div></div><div class="offer-desc">Admin se kuch add hoga to yahan dikh jayega</div><div class="offer-pill">No current offer/coupen</div></div>`;
-        imageStrip.innerHTML = '';
+        strip.innerHTML = `
+            <div class="offer-card">
+                <div class="offer-top">
+                    <div class="offer-icon">🎁</div>
+                    <div class="offer-copy">
+                        <div class="offer-title">no current ofer/coupen</div>
+                        <div class="offer-desc">Admin se offer ya coupen add hoga to yahan dikhega</div>
+                    </div>
+                </div>
+            </div>
+        `;
         closeOfferDiscount();
         return;
     }
 
-    strip.innerHTML = active.map(item => `
-        <div class="offer-card">
-            <div class="offer-top">
-                <div class="offer-icon">🏷️</div>
-                <div class="offer-title">${item.title || 'Special Offer'}</div>
-            </div>
-            <div class="offer-desc">${item.subtitle || item.description || ''}</div>
-            <div class="offer-pill">${item.code || 'COUPON'}</div>
-        </div>
-    `).join('');
+    strip.innerHTML = active.map(item => {
+        const title = item.title || 'Special Offer';
+        const desc = item.subtitle || item.description || 'Coupon available now';
+        const code = String(item.code || '').trim().toUpperCase();
+        const image = item.image || '';
+        const visual = image
+            ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
+            : `<div class="offer-icon">🏷️</div>`;
 
-    imageStrip.innerHTML = active.map(item => `
-        <div class="offer-image-card">
-            <img src="${item.image || 'https://via.placeholder.com/300x120?text=Offer'}" alt="${item.title || 'Offer'}">
-            <div class="offer-image-overlay">${item.code || 'OFFER'}</div>
-        </div>
-    `).join('');
+        return `
+            <div class="offer-card" onclick="applyOfferFromStrip('${code.replace(/'/g, "\'")}')">
+                <div class="offer-top">
+                    ${visual}
+                    <div class="offer-copy">
+                        <div class="offer-title">${title}</div>
+                        <div class="offer-desc">${desc}</div>
+                        ${code ? `<div class="offer-pill">CODE: ${code}</div>` : ``}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 
     closeOfferDiscount();
+}
+
+async function applyOfferFromStrip(code){
+    const cleanCode = String(code || '').trim().toUpperCase();
+    if(!cleanCode) return;
+    const input = document.getElementById('couponInput');
+    if(input) input.value = cleanCode;
+    await applyCouponCode(cleanCode, true);
 }
 
 async function fetchLiveOffers(){
@@ -4105,7 +4104,21 @@ function startOffersAutoScroll(){
 
 function openOfferDiscount(key){
     selectedOfferKey = String(key || '');
-    closeOfferDiscount();
+    const section = document.getElementById('offerDiscountSection');
+    const serverOffer = (serverOffers || []).find(item => String(item.id) === String(key));
+    if(serverOffer){
+        document.getElementById('offerDiscountTitle').textContent = serverOffer.title || 'Special Discount';
+        document.getElementById('offerDiscountDesc').textContent = `${serverOffer.subtitle || ''}${serverOffer.validTill ? ' · Valid till: ' + new Date(serverOffer.validTill).toLocaleString('en-IN') : ''}`.trim();
+        document.getElementById('offerDiscountCode').textContent = `CODE: ${serverOffer.code || 'SAVE'}`;
+        section?.classList.add('open');
+        return;
+    }
+    const data = offerDiscountData[key];
+    if(!data) return;
+    document.getElementById('offerDiscountTitle').textContent = data.title;
+    document.getElementById('offerDiscountDesc').textContent = data.desc;
+    document.getElementById('offerDiscountCode').textContent = data.code;
+    section?.classList.add('open');
 }
 
 function closeOfferDiscount(){
