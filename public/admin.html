@@ -251,7 +251,11 @@ async function unlockAdmin(){
         adminToken = data.token;
         localStorage.setItem(ADMIN_STORAGE_KEY, data.token);
         document.getElementById("lockScreen").style.display = "none";
-        await loadAdmin();
+        try{
+            await loadAdmin();
+        }catch(loadError){
+            console.error("loadAdmin error:", loadError);
+        }
     }catch(error){
         console.error("Admin login error:", error);
         alert("Backend login failed");
@@ -297,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const passwordInput = document.getElementById("adminPassword");
     const usernameInput = document.getElementById("adminUsername");
     [usernameInput, passwordInput].forEach(input => {
+        if(!input) return;
         input.addEventListener("keydown", function(e){
             if(e.key === "Enter") unlockAdmin();
         });
@@ -415,7 +420,6 @@ function getApprovedDeliveryOptions(selectedId = ""){
     `).join("");
 }
 
-async 
 function getAdminMapsLink(order){
     const lat = Number(order?.customerLocation?.latitude);
     const lng = Number(order?.customerLocation?.longitude);
@@ -423,7 +427,7 @@ function getAdminMapsLink(order){
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 }
 
-function assignDeliveryBoy(orderId, deliveryBoyId){
+async function assignDeliveryBoy(orderId, deliveryBoyId){
     if(!deliveryBoyId){
         alert("Select delivery boy");
         return;
@@ -616,78 +620,56 @@ async function addOfferItem(){
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
     const validTillRaw = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
-
     if(!title){ alert("Offer title required"); return; }
     if(!code){ alert("Coupon code required"); return; }
     if(!validTillRaw){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
     if(!discount || discount <= 0){ alert("Valid discount required"); return; }
-
     try{
         const formData = new FormData();
-        formData.append("image", file);
-
-        const uploadRes = await fetch("/upload", {
-            method: "POST",
-            headers: getAuthHeaders(false),
-            body: formData
-        });
-        const uploadData = await uploadRes.json().catch(() => ({}));
-
+        formData.append('image', file);
+        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
+        const uploadData = await uploadRes.json().catch(()=>({}));
         if(!uploadRes.ok || !uploadData.imageUrl){
-            alert(uploadData.message || "Image upload failed");
+            alert(uploadData.message || 'Image upload failed');
             return;
         }
-
-        const validTillIso = new Date(validTillRaw).toISOString();
-
-        const res = await fetch("/api/admin/offers", {
-            method: "POST",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({
+        const res = await fetch('/api/admin/offers', {
+            method:'POST',
+            headers:getAuthHeaders(true),
+            body:JSON.stringify({
                 title,
                 description: subtitle,
                 code,
-                discountType: "percentage",
+                discountType: 'percentage',
                 discountValue: discount,
                 minOrderAmount: 0,
                 maxDiscount: 0,
-                validTill: validTillIso,
+                validTill: new Date(validTillRaw).toISOString(),
                 image: uploadData.imageUrl
             })
         });
-
-        const data = await res.json().catch(() => ({}));
-
-        if(!res.ok){
-            alert(data.message || "Offer add failed");
-            return;
-        }
-
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
         document.getElementById("offerTitle").value = "";
         document.getElementById("offerSubtitle").value = "";
         document.getElementById("offerDiscount").value = "";
         document.getElementById("offerCode").value = "";
         document.getElementById("offerValidTill").value = "";
         document.getElementById("offerImage").value = "";
-        const statusEl = document.getElementById("offerImageStatus");
-        if(statusEl) statusEl.textContent = "No offer image selected";
-
+        document.getElementById("offerImageStatus").textContent = "No offer image selected";
         await fetchOffers();
         renderOffers();
-        alert("Offer added successfully");
+        alert('Offer added successfully');
     }catch(error){
-        console.error("Offer add error:", error);
-        alert("Offer add failed");
+        console.error(error);
+        alert('Offer add failed');
     }
 }
 async function deleteOfferItem(id){
     if(!confirm("Delete this offer?")) return;
     try{
-        const res = await fetch(`/api/admin/offers/${id}`, {
-            method:'DELETE',
-            headers:getAuthHeaders(false)
-        });
+        const res = await fetch(`/api/admin/offers/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
         const data = await res.json().catch(()=>({}));
         if(!res.ok){ alert(data.message || 'Delete failed'); return; }
         await fetchOffers();
@@ -742,7 +724,7 @@ async function addCouponItem(){
         alert('Coupon save failed');
     }
 }
-async async function deleteCouponItem(id){
+async function deleteCouponItem(id){
     if(!confirm("Delete this coupon?")) return;
     try{
         const res = await fetch(`/api/admin/coupons/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
