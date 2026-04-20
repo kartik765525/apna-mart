@@ -251,7 +251,11 @@ async function unlockAdmin(){
         adminToken = data.token;
         localStorage.setItem(ADMIN_STORAGE_KEY, data.token);
         document.getElementById("lockScreen").style.display = "none";
-        await loadAdmin();
+        try{
+            await loadAdmin();
+        }catch(loadError){
+            console.error("loadAdmin error:", loadError);
+        }
     }catch(error){
         console.error("Admin login error:", error);
         alert("Backend login failed");
@@ -297,6 +301,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const passwordInput = document.getElementById("adminPassword");
     const usernameInput = document.getElementById("adminUsername");
     [usernameInput, passwordInput].forEach(input => {
+        if(!input) return;
         input.addEventListener("keydown", function(e){
             if(e.key === "Enter") unlockAdmin();
         });
@@ -415,7 +420,6 @@ function getApprovedDeliveryOptions(selectedId = ""){
     `).join("");
 }
 
-async 
 function getAdminMapsLink(order){
     const lat = Number(order?.customerLocation?.latitude);
     const lng = Number(order?.customerLocation?.longitude);
@@ -423,7 +427,7 @@ function getAdminMapsLink(order){
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 }
 
-function assignDeliveryBoy(orderId, deliveryBoyId){
+async function assignDeliveryBoy(orderId, deliveryBoyId){
     if(!deliveryBoyId){
         alert("Select delivery boy");
         return;
@@ -643,7 +647,7 @@ async function addOfferItem(){
         alert('Offer add failed');
     }
 }
-async async function deleteOfferItem(id){
+async function deleteOfferItem(id){
     if(!confirm("Delete this offer?")) return;
     try{
         const res = await fetch(`/api/admin/offers/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
@@ -701,7 +705,7 @@ async function addCouponItem(){
         alert('Coupon save failed');
     }
 }
-async async function deleteCouponItem(id){
+async function deleteCouponItem(id){
     if(!confirm("Delete this coupon?")) return;
     try{
         const res = await fetch(`/api/admin/coupons/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
@@ -1112,6 +1116,8 @@ async function loadAdmin(){
     await fetchProducts();
     await fetchOrders();
     await fetchDeliveryUsers();
+    await fetchOffers();
+    await fetchCoupons();
     renderProducts();
     renderDashboard();
     renderOrders();
