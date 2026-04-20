@@ -613,6 +613,7 @@ function readFileAsDataURL(file){
         reader.readAsDataURL(file);
     });
 }
+<script>
 async function addOfferItem(){
     const title = document.getElementById("offerTitle").value.trim();
     const subtitle = document.getElementById("offerSubtitle").value.trim();
@@ -620,19 +621,53 @@ async function addOfferItem(){
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
     const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
+
     if(!title){ alert("Offer title required"); return; }
     if(!code){ alert("Coupon code required"); return; }
     if(!validTill){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
+    if(!discount || discount <= 0){ alert("Valid discount required"); return; }
+
     try{
         const formData = new FormData();
-        formData.append('image', file);
-        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
-        const uploadData = await uploadRes.json().catch(()=>({}));
-        if(!uploadRes.ok || !uploadData.imageUrl) throw new Error(uploadData.message || 'Upload failed');
-        const res = await fetch('/api/admin/offers', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ title, subtitle, discount, code, validTill, image: uploadData.imageUrl }) });
-        const data = await res.json().catch(()=>({}));
-        if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
+        formData.append("image", file);
+
+        const uploadRes = await fetch("/upload", {
+            method: "POST",
+            headers: getAuthHeaders(false),
+            body: formData
+        });
+
+        const uploadData = await uploadRes.json().catch(() => ({}));
+
+        if(!uploadRes.ok || !uploadData.imageUrl){
+            alert(uploadData.message || "Image upload failed");
+            return;
+        }
+
+        const res = await fetch("/api/admin/offers", {
+            method: "POST",
+            headers: getAuthHeaders(true),
+            body: JSON.stringify({
+                title,
+                description: subtitle,
+                code,
+                discountType: "percentage",
+                discountValue: discount,
+                minOrderAmount: 0,
+                maxDiscount: 0,
+                validTill,
+                image: uploadData.imageUrl
+            })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if(!res.ok){
+            alert(data.message || "Offer save failed");
+            return;
+        }
+
         document.getElementById("offerTitle").value = "";
         document.getElementById("offerSubtitle").value = "";
         document.getElementById("offerDiscount").value = "";
@@ -640,12 +675,17 @@ async function addOfferItem(){
         document.getElementById("offerValidTill").value = "";
         document.getElementById("offerImage").value = "";
         document.getElementById("offerImageStatus").textContent = "No offer image selected";
+
         await fetchOffers();
         renderOffers();
+
+        alert("Offer added successfully");
     }catch(error){
-        console.error(error);
-        alert('Offer add failed');
+        console.error("Offer add error:", error);
+        alert("Offer add failed: backend ya upload problem");
     }
+}
+</script>
 }
 async function deleteOfferItem(id){
     if(!confirm("Delete this offer?")) return;
