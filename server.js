@@ -40,6 +40,7 @@ const productsFile = path.join(dataDir, 'products.json');
 const ordersFile = path.join(dataDir, 'orders.json');
 const deliveryUsersFile = path.join(dataDir, 'delivery-users.json');
 const voiceOrdersFile = path.join(dataDir, 'voice-orders.json');
+const offersFile = path.join(dataDir, 'offers.json');
 
 const otpStore = new Map();
 
@@ -95,6 +96,7 @@ ensureFile(productsFile);
 ensureFile(ordersFile);
 ensureFile(deliveryUsersFile);
 ensureFile(voiceOrdersFile);
+ensureFile(offersFile);
 
 app.use('/uploads', express.static(uploadsDir));
 app.use('/voice-uploads', express.static(voiceUploadsDir));
@@ -109,6 +111,10 @@ function normalizePhone(phone) {
 
 function normalizeVillage(village) {
   return String(village || '').trim().toLowerCase();
+}
+
+function normalizeCouponCode(code) {
+  return String(code || '').trim().toUpperCase();
 }
 
 function getVillageDeliveryCharge(village) {
@@ -145,6 +151,10 @@ function generateDeliveryId() {
 
 function generateVoiceOrderId() {
   return 'VOICE' + Date.now();
+}
+
+function generateOfferId() {
+  return 'OFF' + Date.now();
 }
 
 function sanitizeLocation(location) {
@@ -211,6 +221,96 @@ function deleteVoiceByUrl(audioUrl) {
   } catch (error) {
     console.error('Voice delete error:', error.message);
   }
+}
+
+/* =========================
+   OFFERS / COUPONS HELPERS
+   ========================= */
+function readOffers() {
+  return readJson(offersFile, []);
+}
+
+function writeOffers(offers) {
+  writeJson(offersFile, offers);
+}
+
+function parseOfferDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isOfferExpired(offer) {
+  const validTill = parseOfferDate(offer.validTill);
+  if (!validTill) return false;
+  return validTill.getTime() < Date.now();
+}
+
+function cleanupExpiredOffers() {
+  const offers = readOffers();
+  const activeOffers = [];
+
+  for (const offer of offers) {
+    if (isOfferExpired(offer)) {
+      if (offer.image) deleteImageByUrl(offer.image);
+      continue;
+    }
+    activeOffers.push(offer);
+  }
+
+  if (activeOffers.length !== offers.length) {
+    writeOffers(activeOffers);
+  }
+
+  return activeOffers;
+}
+
+function sanitizeOfferForResponse(offer) {
+  return {
+    ...offer,
+    code: normalizeCouponCode(offer.code),
+    isExpired: isOfferExpired(offer)
+  };
+}
+
+function calculateCouponDiscount(subtotal, offer) {
+  const numericSubtotal = Number(subtotal || 0);
+  const discountType = String(offer.discountType || 'percentage').trim().toLowerCase();
+  const discountValue = Number(offer.discountValue || offer.discount || 0);
+  const maxDiscount = Number(offer.maxDiscount || 0);
+  const minOrderAmount = Number(offer.minOrderAmount || 0);
+
+  if (numericSubtotal <= 0) {
+    return { valid: false, message: 'Invalid subtotal', discountAmount: 0 };
+  }
+
+  if (numericSubtotal < minOrderAmount) {
+    return {
+      valid: false,
+      message: `Minimum order ₹${minOrderAmount} required for this coupon`,
+      discountAmount: 0
+    };
+  }
+
+  let discountAmount = 0;
+
+  if (discountType === 'flat') {
+    discountAmount = discountValue;
+  } else {
+    discountAmount = (numericSubtotal * discountValue) / 100;
+  }
+
+  if (maxDiscount > 0) {
+    discountAmount = Math.min(discountAmount, maxDiscount);
+  }
+
+  discountAmount = Math.max(0, Math.min(discountAmount, numericSubtotal));
+
+  return {
+    valid: discountAmount > 0,
+    message: discountAmount > 0 ? 'Coupon applied successfully' : 'Coupon discount not valid',
+    discountAmount: Math.round(discountAmount * 100) / 100
+  };
 }
 
 /* =========================
@@ -584,7 +684,6 @@ app.post('/api/delivery/login', (req, res) => {
 
   const deliveryUsers = readDeliveryUsers();
 
-  /* old demo delivery panel support */
   if (username || password) {
     if (username === DELIVERY_DEMO_USERNAME && password === DELIVERY_DEMO_PASSWORD) {
       let demoUser = deliveryUsers.find((u) => String(u.id) === 'DB-DEMO-DELIVERY');
@@ -632,7 +731,6 @@ app.post('/api/delivery/login', (req, res) => {
     return res.status(401).json({ message: 'Invalid username or password' });
   }
 
-  /* new phone + device flow */
   if (!rawPhone || rawPhone.length < 10) {
     return res.status(400).json({ message: 'Valid phone required' });
   }
@@ -686,7 +784,6 @@ app.get('/api/delivery/me', requireDelivery, (req, res) => {
   const deliveryUsers = readDeliveryUsers();
   const deliveryUser = deliveryUsers.find((user) => String(user.id) === String(req.delivery.id));
 
-  /* demo old panel token */
   if (!deliveryUser && String(req.delivery.id) === 'DB-DEMO-DELIVERY') {
     return res.json({
       delivery: {
@@ -892,12 +989,213 @@ app.delete('/api/products/:id', requireAdmin, async (req, res) => {
 });
 
 /* =========================
+   OFFERS / COUPONS ROUTES
+   ========================= */
+
+/* customer active offers */
+app.get('/api/offers', (req, res) => {
+  const offers = cleanupExpiredOffers()
+    .filter((offer) => String(offer.isActive ?? true) !== 'false')
+    .map(sanitizeOfferForResponse);
+
+  res.json(offers);
+});
+
+/* admin all offers */
+app.get('/api/admin/offers', requireAdmin, (req, res) => {
+  const offers = cleanupExpiredOffers().map(sanitizeOfferForResponse);
+  res.json(offers);
+});
+
+/* add offer */
+app.post('/api/admin/offers', requireAdmin, (req, res) => {
+  const offers = cleanupExpiredOffers();
+
+  const image = String(req.body.image || '').trim();
+  const title = String(req.body.title || '').trim();
+  const code = normalizeCouponCode(req.body.code);
+  const discountType = String(req.body.discountType || 'percentage').trim().toLowerCase();
+  const discountValue = Number(req.body.discountValue ?? req.body.discount ?? 0);
+  const minOrderAmount = Number(req.body.minOrderAmount || 0);
+  const maxDiscount = Number(req.body.maxDiscount || 0);
+  const validTill = String(req.body.validTill || '').trim();
+
+  if (!image) return res.status(400).json({ message: 'Offer image required' });
+  if (!title) return res.status(400).json({ message: 'Offer title required' });
+  if (!code) return res.status(400).json({ message: 'Coupon code required' });
+  if (!['percentage', 'flat'].includes(discountType)) {
+    return res.status(400).json({ message: 'Valid discount type required' });
+  }
+  if (!Number.isFinite(discountValue) || discountValue <= 0) {
+    return res.status(400).json({ message: 'Valid discount value required' });
+  }
+  if (offers.some((offer) => normalizeCouponCode(offer.code) === code)) {
+    return res.status(400).json({ message: 'Coupon code already exists' });
+  }
+
+  const validTillDate = parseOfferDate(validTill);
+  if (!validTillDate) {
+    return res.status(400).json({ message: 'Valid expiry date required' });
+  }
+  if (validTillDate.getTime() <= Date.now()) {
+    return res.status(400).json({ message: 'Expiry date must be in the future' });
+  }
+
+  const offer = {
+    id: generateOfferId(),
+    image,
+    title,
+    description: String(req.body.description || '').trim(),
+    code,
+    discountType,
+    discountValue,
+    minOrderAmount: Number.isFinite(minOrderAmount) ? minOrderAmount : 0,
+    maxDiscount: Number.isFinite(maxDiscount) ? maxDiscount : 0,
+    validTill: validTillDate.toISOString(),
+    isActive: true,
+    createdAt: getISTDateTime(),
+    updatedAt: getISTDateTime()
+  };
+
+  offers.unshift(offer);
+  writeOffers(offers);
+
+  res.status(201).json({
+    message: 'Offer created successfully',
+    offer: sanitizeOfferForResponse(offer)
+  });
+});
+
+/* update offer */
+app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
+  const offers = cleanupExpiredOffers();
+  const offerId = String(req.params.id || '').trim();
+  const index = offers.findIndex((offer) => String(offer.id) === offerId);
+
+  if (index === -1) return res.status(404).json({ message: 'Offer not found' });
+
+  const oldOffer = offers[index];
+
+  const nextCode = req.body.code !== undefined ? normalizeCouponCode(req.body.code) : oldOffer.code;
+  if (!nextCode) return res.status(400).json({ message: 'Coupon code required' });
+
+  const duplicate = offers.find((offer, i) => i !== index && normalizeCouponCode(offer.code) === nextCode);
+  if (duplicate) return res.status(400).json({ message: 'Coupon code already exists' });
+
+  const nextDiscountType = req.body.discountType !== undefined
+    ? String(req.body.discountType || '').trim().toLowerCase()
+    : oldOffer.discountType;
+
+  if (!['percentage', 'flat'].includes(nextDiscountType)) {
+    return res.status(400).json({ message: 'Valid discount type required' });
+  }
+
+  const nextDiscountValue = req.body.discountValue !== undefined || req.body.discount !== undefined
+    ? Number(req.body.discountValue ?? req.body.discount)
+    : Number(oldOffer.discountValue || 0);
+
+  if (!Number.isFinite(nextDiscountValue) || nextDiscountValue <= 0) {
+    return res.status(400).json({ message: 'Valid discount value required' });
+  }
+
+  const nextValidTill = req.body.validTill !== undefined ? String(req.body.validTill || '').trim() : oldOffer.validTill;
+  const validTillDate = parseOfferDate(nextValidTill);
+  if (!validTillDate) return res.status(400).json({ message: 'Valid expiry date required' });
+
+  const updatedOffer = {
+    ...oldOffer,
+    image: req.body.image !== undefined ? String(req.body.image || '').trim() : oldOffer.image,
+    title: req.body.title !== undefined ? String(req.body.title || '').trim() : oldOffer.title,
+    description: req.body.description !== undefined ? String(req.body.description || '').trim() : oldOffer.description,
+    code: nextCode,
+    discountType: nextDiscountType,
+    discountValue: nextDiscountValue,
+    minOrderAmount: req.body.minOrderAmount !== undefined ? Number(req.body.minOrderAmount || 0) : Number(oldOffer.minOrderAmount || 0),
+    maxDiscount: req.body.maxDiscount !== undefined ? Number(req.body.maxDiscount || 0) : Number(oldOffer.maxDiscount || 0),
+    validTill: validTillDate.toISOString(),
+    isActive: req.body.isActive !== undefined ? Boolean(req.body.isActive) : oldOffer.isActive,
+    updatedAt: getISTDateTime()
+  };
+
+  if (!updatedOffer.image) return res.status(400).json({ message: 'Offer image required' });
+  if (!updatedOffer.title) return res.status(400).json({ message: 'Offer title required' });
+
+  offers[index] = updatedOffer;
+  writeOffers(offers);
+
+  res.json({
+    message: 'Offer updated successfully',
+    offer: sanitizeOfferForResponse(updatedOffer)
+  });
+});
+
+/* delete offer */
+app.delete('/api/admin/offers/:id', requireAdmin, (req, res) => {
+  const offers = cleanupExpiredOffers();
+  const offerId = String(req.params.id || '').trim();
+  const offer = offers.find((item) => String(item.id) === offerId);
+
+  if (!offer) return res.status(404).json({ message: 'Offer not found' });
+
+  if (offer.image) deleteImageByUrl(offer.image);
+
+  const filtered = offers.filter((item) => String(item.id) !== offerId);
+  writeOffers(filtered);
+
+  res.json({ message: 'Offer deleted successfully' });
+});
+
+/* coupon validate */
+app.post('/api/coupons/validate', (req, res) => {
+  const subtotal = Number(req.body.subtotal || req.body.total || 0);
+  const code = normalizeCouponCode(req.body.code);
+
+  if (!code) return res.status(400).json({ message: 'Coupon code required' });
+  if (!Number.isFinite(subtotal) || subtotal <= 0) {
+    return res.status(400).json({ message: 'Valid subtotal required' });
+  }
+
+  const offers = cleanupExpiredOffers();
+  const offer = offers.find((item) => normalizeCouponCode(item.code) === code && item.isActive !== false);
+
+  if (!offer) {
+    return res.status(404).json({ valid: false, message: 'Invalid or expired coupon' });
+  }
+
+  const result = calculateCouponDiscount(subtotal, offer);
+
+  if (!result.valid) {
+    return res.status(400).json({
+      valid: false,
+      message: result.message,
+      discountAmount: 0
+    });
+  }
+
+  res.json({
+    valid: true,
+    message: result.message,
+    coupon: {
+      id: offer.id,
+      title: offer.title,
+      code: offer.code,
+      discountType: offer.discountType,
+      discountValue: offer.discountValue,
+      minOrderAmount: Number(offer.minOrderAmount || 0),
+      maxDiscount: Number(offer.maxDiscount || 0),
+      validTill: offer.validTill
+    },
+    discountAmount: result.discountAmount
+  });
+});
+
+/* =========================
    CUSTOMER ORDERS
    ========================= */
 app.post('/api/orders', requireCustomer, async (req, res) => {
   const phone = normalizePhone(req.customer.phone);
   const village = normalizeVillage(req.customer.village);
-  const { name, address, paymentMethod, items, customerLocation } = req.body;
+  const { name, address, paymentMethod, items, customerLocation, couponCode } = req.body;
 
   if (!String(name || '').trim()) {
     return res.status(400).json({ message: 'Customer name required' });
@@ -954,9 +1252,37 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
   }
 
   const shipping = Number(getVillageDeliveryCharge(village) || 0);
-  const total = subtotal + shipping;
   const cleanPaymentMethod = String(paymentMethod || 'cod').trim().toLowerCase() === 'upi' ? 'UPI' : 'COD';
   const cleanCustomerLocation = sanitizeLocation(customerLocation);
+
+  let coupon = null;
+  let couponDiscount = 0;
+  const cleanCouponCode = normalizeCouponCode(couponCode);
+
+  if (cleanCouponCode) {
+    const offers = cleanupExpiredOffers();
+    const offer = offers.find((item) => normalizeCouponCode(item.code) === cleanCouponCode && item.isActive !== false);
+
+    if (!offer) {
+      return res.status(400).json({ message: 'Invalid or expired coupon code' });
+    }
+
+    const couponResult = calculateCouponDiscount(subtotal, offer);
+    if (!couponResult.valid) {
+      return res.status(400).json({ message: couponResult.message });
+    }
+
+    coupon = {
+      id: offer.id,
+      title: offer.title,
+      code: offer.code,
+      discountType: offer.discountType,
+      discountValue: offer.discountValue
+    };
+    couponDiscount = couponResult.discountAmount;
+  }
+
+  const total = Math.max(0, subtotal - couponDiscount) + shipping;
 
   const newOrder = {
     id: generateOrderId(),
@@ -968,6 +1294,9 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
     paymentStatus: cleanPaymentMethod === 'UPI' ? 'Payment Pending' : 'COD',
     items: finalItems,
     subtotal,
+    couponCode: cleanCouponCode || '',
+    couponDiscount,
+    coupon,
     shipping,
     total,
     status: 'Need Confirmation',
@@ -1183,7 +1512,6 @@ app.get('/api/delivery/orders', requireDelivery, async (req, res) => {
 
   let deliveryOrders = [];
 
-  /* old demo panel -> show all active orders */
   if (deliveryId === 'DB-DEMO-DELIVERY') {
     deliveryOrders = orders.filter((order) => ['Pending', 'Out for Delivery', 'Delivered'].includes(String(order.status || '')));
   } else {
@@ -1212,7 +1540,6 @@ async function handleDeliveryStatusUpdate(req, res) {
   const deliveryId = String(req.delivery.id || '').trim();
   const assignedId = String(orders[index].assignedDeliveryBoyId || orders[index].deliveryBoyId || '').trim();
 
-  /* old demo delivery panel ko allow karo */
   if (deliveryId !== 'DB-DEMO-DELIVERY' && assignedId !== deliveryId) {
     return res.status(403).json({ message: 'This order is not assigned to you' });
   }
