@@ -1834,40 +1834,42 @@ html[data-theme="dark"] .delivery-boy-call{
     max-width:calc(100% - 24px);
     margin:-8px auto 0;
     padding:12px 28px;
-    border-radius:22px 22px 18px 18px;
-    background:linear-gradient(180deg,#ffd64a 0%,#f4c51f 100%);
-    color:#1f2e47;
+    border-radius:24px 24px 18px 18px;
+    background:linear-gradient(180deg,#ffd64a 0%,#f3c41a 100%);
+    color:#24344a;
     font-weight:900;
     font-size:17px;
     letter-spacing:.4px;
-    box-shadow:none;
     position:relative;
     z-index:2;
+    box-shadow:none;
 }
 .offers-strip{
     display:flex;
     gap:14px;
     overflow-x:auto;
-    padding:14px 12px 14px;
-    background:linear-gradient(180deg,#e6b318 0%,#f0c32d 100%);
-    border-radius:0;
+    overflow-y:hidden;
+    padding:14px 14px 16px;
+    background:linear-gradient(180deg,#e1b115 0%,#efc22a 100%);
+    margin:0 -14px 0;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
     scroll-snap-type:x proximity;
     animation:offersSlide .75s ease both;
-    margin:0 -14px 0;
 }
 .offers-strip::-webkit-scrollbar{display:none;}
 .offer-card{
-    min-width:320px;
-    max-width:320px;
+    min-width:calc(50% - 8px);
+    max-width:calc(50% - 8px);
     scroll-snap-align:start;
-    background:linear-gradient(180deg,#f8e9b0 0%,#f4e1a3 100%);
-    border:1px solid rgba(141,105,12,.12);
+    background:linear-gradient(180deg,#f8e7a7 0%,#f2dfa0 100%);
+    border:1px solid rgba(136,103,11,.10);
     border-radius:22px;
-    padding:16px 18px;
-    box-shadow:none;
+    padding:18px 18px;
     display:flex;
     align-items:center;
     gap:14px;
+    box-shadow:none;
     cursor:pointer;
 }
 .offer-top{
@@ -1886,7 +1888,6 @@ html[data-theme="dark"] .delivery-boy-call{
     justify-content:center;
     font-size:28px;
     background:rgba(255,255,255,.55);
-    box-shadow:none;
     overflow:hidden;
 }
 .offer-icon img{
@@ -1902,14 +1903,14 @@ html[data-theme="dark"] .delivery-boy-call{
 .offer-title{
     font-size:18px;
     font-weight:900;
-    color:#25364c;
+    color:#24344a;
     line-height:1.2;
     margin:0;
 }
 .offer-desc{
     margin-top:4px;
     font-size:15px;
-    color:#374151;
+    color:#313131;
     line-height:1.35;
     font-weight:700;
 }
@@ -1920,67 +1921,21 @@ html[data-theme="dark"] .delivery-boy-call{
     padding:5px 10px;
     font-size:11px;
     font-weight:900;
-    background:#fff9db;
-    color:#8a6100;
-    border:1px solid rgba(138,97,0,.15);
+    background:#fff8dc;
+    color:#8b6300;
+    border:1px solid rgba(139,99,0,.12);
 }
-.offer-card{cursor:pointer;}
-.offers-strip.auto-scroll-active{scroll-behavior:smooth;}
 .offer-image-strip{display:none !important;}
-.offer-discount-section{display:none !important;}
-.offer-discount-section.open{display:block; animation:offersSlide .3s ease both;}
-.offer-discount-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-}
-.offer-discount-title{font-size:18px;font-weight:900;color:#1f2937;line-height:1.2;}
-.offer-discount-close{
-    border:none;
-    background:#fff;
-    color:#9a6300;
-    border-radius:10px;
-    padding:8px 12px;
-    font-weight:800;
-    cursor:pointer;
-}
-.offer-discount-desc{margin-top:8px;font-size:14px;color:#5b6470;line-height:1.55;font-weight:700;}
-.offer-discount-code{
-    display:inline-flex;
-    margin-top:12px;
-    border-radius:999px;
-    padding:8px 12px;
-    background:#fff;
-    color:#9a6300;
-    font-size:12px;
-    font-weight:900;
-}
-html[data-theme="dark"] .offer-image-card{
-    background:linear-gradient(180deg,#1d2432 0%, #162033 100%);
-    border-color:#3e4d68;
-    box-shadow:0 12px 28px rgba(0,0,0,.28);
-}
-html[data-theme="dark"] .offer-discount-section{
-    background:linear-gradient(180deg,#1d2432 0%, #162033 100%);
-    border-color:#3e4d68;
-    box-shadow:0 12px 28px rgba(0,0,0,.28);
-}
-html[data-theme="dark"] .offer-discount-title{color:#f8fafc;}
-html[data-theme="dark"] .offer-discount-desc{color:#cbd5e1;}
-html[data-theme="dark"] .offer-discount-code,
-html[data-theme="dark"] .offer-discount-close{
-    background:#0f172a;
-    color:#fde68a;
-    border:1px solid #475569;
-}
-@media (max-width:600px){
-    .offer-image-card{min-width:128px;max-width:128px;height:64px;border-radius:14px;}
-}
-
-@keyframes welcomeFloat{
-    0%{opacity:0;transform:translateY(18px) scale(.98)}
-    100%{opacity:1;transform:translateY(0) scale(1)}
+.offer-discount-section{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    height:0 !important;
+    overflow:hidden !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:none !important;
+    box-shadow:none !important;
 }
 @keyframes offersSlide{
     0%{opacity:0;transform:translateY(24px)}
@@ -3963,7 +3918,7 @@ function renderOffersFromServer(){
 
     strip.innerHTML = active.map(item => {
         const title = item.title || 'Special Offer';
-        const desc = item.subtitle || item.description || 'Coupon available now';
+        const desc = item.subtitle || item.description || '';
         const code = String(item.code || '').trim().toUpperCase();
         const image = item.image || '';
         const visual = image
@@ -3990,7 +3945,7 @@ function renderOffersFromServer(){
 async function applyOfferFromStrip(code){
     const cleanCode = String(code || '').trim().toUpperCase();
     if(!cleanCode) return;
-    const input = document.getElementById('couponInput');
+    const input = document.getElementById('couponCodeInput') || document.getElementById('couponInput');
     if(input) input.value = cleanCode;
     await applyCouponCode(cleanCode, true);
 }
@@ -4000,10 +3955,14 @@ async function fetchLiveOffers(){
         const res = await fetch('/api/offers');
         const data = await res.json().catch(()=>[]);
         serverOffers = Array.isArray(data) ? data : [];
+        closeOfferDiscount();
         renderOffersFromServer();
-        startOfferAutoScroll();
+        startOffersAutoScroll();
     }catch(error){
         console.error('Offers fetch failed', error);
+        serverOffers = [];
+        closeOfferDiscount();
+        renderOffersFromServer();
     }
 }
 
@@ -4104,25 +4063,20 @@ function startOffersAutoScroll(){
 
 function openOfferDiscount(key){
     selectedOfferKey = String(key || '');
-    const section = document.getElementById('offerDiscountSection');
-    const serverOffer = (serverOffers || []).find(item => String(item.id) === String(key));
-    if(serverOffer){
-        document.getElementById('offerDiscountTitle').textContent = serverOffer.title || 'Special Discount';
-        document.getElementById('offerDiscountDesc').textContent = `${serverOffer.subtitle || ''}${serverOffer.validTill ? ' · Valid till: ' + new Date(serverOffer.validTill).toLocaleString('en-IN') : ''}`.trim();
-        document.getElementById('offerDiscountCode').textContent = `CODE: ${serverOffer.code || 'SAVE'}`;
-        section?.classList.add('open');
-        return;
-    }
-    const data = offerDiscountData[key];
-    if(!data) return;
-    document.getElementById('offerDiscountTitle').textContent = data.title;
-    document.getElementById('offerDiscountDesc').textContent = data.desc;
-    document.getElementById('offerDiscountCode').textContent = data.code;
-    section?.classList.add('open');
+    closeOfferDiscount();
 }
 
 function closeOfferDiscount(){
-    document.getElementById('offerDiscountSection')?.classList.remove('open');
+    const section = document.getElementById('offerDiscountSection');
+    if(section){
+        section.classList.remove('open');
+        section.style.display = 'none';
+        section.style.visibility = 'hidden';
+        section.style.opacity = '0';
+        section.style.height = '0';
+        section.style.overflow = 'hidden';
+        section.innerHTML = '';
+    }
 }
 
 const THEME_KEY = "apnaMartThemeMode";
