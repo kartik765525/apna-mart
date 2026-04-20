@@ -251,11 +251,7 @@ async function unlockAdmin(){
         adminToken = data.token;
         localStorage.setItem(ADMIN_STORAGE_KEY, data.token);
         document.getElementById("lockScreen").style.display = "none";
-        try{
-            await loadAdmin();
-        }catch(loadError){
-            console.error("loadAdmin error:", loadError);
-        }
+        await loadAdmin();
     }catch(error){
         console.error("Admin login error:", error);
         alert("Backend login failed");
@@ -301,7 +297,6 @@ document.addEventListener("DOMContentLoaded", function(){
     const passwordInput = document.getElementById("adminPassword");
     const usernameInput = document.getElementById("adminUsername");
     [usernameInput, passwordInput].forEach(input => {
-        if(!input) return;
         input.addEventListener("keydown", function(e){
             if(e.key === "Enter") unlockAdmin();
         });
@@ -420,6 +415,7 @@ function getApprovedDeliveryOptions(selectedId = ""){
     `).join("");
 }
 
+async 
 function getAdminMapsLink(order){
     const lat = Number(order?.customerLocation?.latitude);
     const lng = Number(order?.customerLocation?.longitude);
@@ -427,7 +423,7 @@ function getAdminMapsLink(order){
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 }
 
-async function assignDeliveryBoy(orderId, deliveryBoyId){
+function assignDeliveryBoy(orderId, deliveryBoyId){
     if(!deliveryBoyId){
         alert("Select delivery boy");
         return;
@@ -613,18 +609,17 @@ function readFileAsDataURL(file){
         reader.readAsDataURL(file);
     });
 }
-<script>
 async function addOfferItem(){
     const title = document.getElementById("offerTitle").value.trim();
     const subtitle = document.getElementById("offerSubtitle").value.trim();
     const discount = Number(document.getElementById("offerDiscount").value || 0);
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
-    const validTill = document.getElementById("offerValidTill").value;
+    const validTillRaw = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
 
     if(!title){ alert("Offer title required"); return; }
     if(!code){ alert("Coupon code required"); return; }
-    if(!validTill){ alert("Valid till required"); return; }
+    if(!validTillRaw){ alert("Valid till required"); return; }
     if(!file){ alert("Offer image required"); return; }
     if(!discount || discount <= 0){ alert("Valid discount required"); return; }
 
@@ -637,13 +632,14 @@ async function addOfferItem(){
             headers: getAuthHeaders(false),
             body: formData
         });
-
         const uploadData = await uploadRes.json().catch(() => ({}));
 
         if(!uploadRes.ok || !uploadData.imageUrl){
             alert(uploadData.message || "Image upload failed");
             return;
         }
+
+        const validTillIso = new Date(validTillRaw).toISOString();
 
         const res = await fetch("/api/admin/offers", {
             method: "POST",
@@ -656,7 +652,7 @@ async function addOfferItem(){
                 discountValue: discount,
                 minOrderAmount: 0,
                 maxDiscount: 0,
-                validTill,
+                validTill: validTillIso,
                 image: uploadData.imageUrl
             })
         });
@@ -664,7 +660,7 @@ async function addOfferItem(){
         const data = await res.json().catch(() => ({}));
 
         if(!res.ok){
-            alert(data.message || "Offer save failed");
+            alert(data.message || "Offer add failed");
             return;
         }
 
@@ -674,23 +670,24 @@ async function addOfferItem(){
         document.getElementById("offerCode").value = "";
         document.getElementById("offerValidTill").value = "";
         document.getElementById("offerImage").value = "";
-        document.getElementById("offerImageStatus").textContent = "No offer image selected";
+        const statusEl = document.getElementById("offerImageStatus");
+        if(statusEl) statusEl.textContent = "No offer image selected";
 
         await fetchOffers();
         renderOffers();
-
         alert("Offer added successfully");
     }catch(error){
         console.error("Offer add error:", error);
-        alert("Offer add failed: backend ya upload problem");
+        alert("Offer add failed");
     }
-}
-</script>
 }
 async function deleteOfferItem(id){
     if(!confirm("Delete this offer?")) return;
     try{
-        const res = await fetch(`/api/admin/offers/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
+        const res = await fetch(`/api/admin/offers/${id}`, {
+            method:'DELETE',
+            headers:getAuthHeaders(false)
+        });
         const data = await res.json().catch(()=>({}));
         if(!res.ok){ alert(data.message || 'Delete failed'); return; }
         await fetchOffers();
@@ -708,10 +705,10 @@ function renderOffers(){
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                 <img src="${item.image}" style="width:120px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
                 <div style="flex:1;min-width:180px;">
-                    <div style="font-weight:700;">${item.title}</div>
-                    <div style="font-size:13px;color:#666;margin-top:4px;">${item.subtitle || ""}</div>
+                    <div style="font-weight:700;">${item.title || ""}</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">${item.description || item.subtitle || ""}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">Code: ${item.code || ''}</div>
-                    <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discount || 0}%</div>
+                    <div style="font-size:13px;color:#666;margin-top:4px;">Discount: ${item.discountValue || item.discount || 0}${(item.discountType || 'percentage') === 'flat' ? '' : '%'}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">Valid till: ${item.validTill ? new Date(item.validTill).toLocaleString('en-IN') : ''}</div>
                 </div>
                 <button onclick="deleteOfferItem('${item.id}')" class="action-btn red">Delete</button>
@@ -745,7 +742,7 @@ async function addCouponItem(){
         alert('Coupon save failed');
     }
 }
-async function deleteCouponItem(id){
+async async function deleteCouponItem(id){
     if(!confirm("Delete this coupon?")) return;
     try{
         const res = await fetch(`/api/admin/coupons/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
