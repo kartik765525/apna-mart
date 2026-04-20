@@ -41,6 +41,7 @@ const ordersFile = path.join(dataDir, 'orders.json');
 const deliveryUsersFile = path.join(dataDir, 'delivery-users.json');
 const voiceOrdersFile = path.join(dataDir, 'voice-orders.json');
 const offersFile = path.join(dataDir, 'offers.json');
+const couponsFile = path.join(dataDir, 'coupons.json');
 
 const otpStore = new Map();
 
@@ -97,6 +98,7 @@ ensureFile(ordersFile);
 ensureFile(deliveryUsersFile);
 ensureFile(voiceOrdersFile);
 ensureFile(offersFile);
+ensureFile(couponsFile);
 
 app.use('/uploads', express.static(uploadsDir));
 app.use('/voice-uploads', express.static(voiceUploadsDir));
@@ -155,6 +157,10 @@ function generateVoiceOrderId() {
 
 function generateOfferId() {
   return 'OFF' + Date.now();
+}
+
+function generateCouponId() {
+  return 'CPN' + Date.now();
 }
 
 function sanitizeLocation(location) {
@@ -234,6 +240,14 @@ function writeOffers(offers) {
   writeJson(offersFile, offers);
 }
 
+function readCoupons() {
+  return readJson(couponsFile, []);
+}
+
+function writeCoupons(coupons) {
+  writeJson(couponsFile, coupons);
+}
+
 function parseOfferDate(value) {
   if (!value) return null;
   const date = new Date(value);
@@ -269,14 +283,30 @@ function sanitizeOfferForResponse(offer) {
   return {
     ...offer,
     code: normalizeCouponCode(offer.code),
-    isExpired: isOfferExpired(offer)
+    isExpired: isOfferExpired(offer),
+    subtitle: offer.description || offer.subtitle || ''
   };
+}
+
+function isCouponExpired(coupon) {
+  const validTill = parseOfferDate(coupon.validTill);
+  if (!validTill) return false;
+  return validTill.getTime() < Date.now();
+}
+
+function cleanupExpiredCoupons() {
+  const coupons = readCoupons();
+  const activeCoupons = coupons.filter((coupon) => !isCouponExpired(coupon));
+  if (activeCoupons.length !== coupons.length) {
+    writeCoupons(activeCoupons);
+  }
+  return activeCoupons;
 }
 
 function calculateCouponDiscount(subtotal, offer) {
   const numericSubtotal = Number(subtotal || 0);
-  const discountType = String(offer.discountType || 'percentage').trim().toLowerCase();
-  const discountValue = Number(offer.discountValue || offer.discount || 0);
+  const discountType = String(offer.discountType || offer.type || 'percentage').trim().toLowerCase();
+  const discountValue = Number(offer.discountValue ?? offer.discount ?? 0);
   const maxDiscount = Number(offer.maxDiscount || 0);
   const minOrderAmount = Number(offer.minOrderAmount || 0);
 
@@ -1014,18 +1044,19 @@ app.post('/api/admin/offers', requireAdmin, (req, res) => {
   const image = String(req.body.image || '').trim();
   const title = String(req.body.title || '').trim();
   const code = normalizeCouponCode(req.body.code);
-  const discountType = String(req.body.discountType || 'percentage').trim().toLowerCase();
+  const discountTypeRaw = String(req.body.discountType || req.body.type || 'percentage').trim().toLowerCase();
+  const discountType = ['flat', 'percentage', 'percent'].includes(discountTypeRaw)
+    ? (discountTypeRaw === 'percent' ? 'percentage' : discountTypeRaw)
+    : 'percentage';
   const discountValue = Number(req.body.discountValue ?? req.body.discount ?? 0);
   const minOrderAmount = Number(req.body.minOrderAmount || 0);
   const maxDiscount = Number(req.body.maxDiscount || 0);
   const validTill = String(req.body.validTill || '').trim();
+  const description = String(req.body.description || req.body.subtitle || '').trim();
 
   if (!image) return res.status(400).json({ message: 'Offer image required' });
   if (!title) return res.status(400).json({ message: 'Offer title required' });
   if (!code) return res.status(400).json({ message: 'Coupon code required' });
-  if (!['percentage', 'flat'].includes(discountType)) {
-    return res.status(400).json({ message: 'Valid discount type required' });
-  }
   if (!Number.isFinite(discountValue) || discountValue <= 0) {
     return res.status(400).json({ message: 'Valid discount value required' });
   }
@@ -1045,10 +1076,12 @@ app.post('/api/admin/offers', requireAdmin, (req, res) => {
     id: generateOfferId(),
     image,
     title,
-    description: String(req.body.description || '').trim(),
+    description,
+    subtitle: description,
     code,
     discountType,
     discountValue,
+    discount: discountValue,
     minOrderAmount: Number.isFinite(minOrderAmount) ? minOrderAmount : 0,
     maxDiscount: Number.isFinite(maxDiscount) ? maxDiscount : 0,
     validTill: validTillDate.toISOString(),
@@ -1082,9 +1115,10 @@ app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
   const duplicate = offers.find((offer, i) => i !== index && normalizeCouponCode(offer.code) === nextCode);
   if (duplicate) return res.status(400).json({ message: 'Coupon code already exists' });
 
-  const nextDiscountType = req.body.discountType !== undefined
-    ? String(req.body.discountType || '').trim().toLowerCase()
+  const nextDiscountTypeRaw = req.body.discountType !== undefined || req.body.type !== undefined
+    ? String(req.body.discountType || req.body.type || '').trim().toLowerCase()
     : oldOffer.discountType;
+  const nextDiscountType = nextDiscountTypeRaw === 'percent' ? 'percentage' : nextDiscountTypeRaw;
 
   if (!['percentage', 'flat'].includes(nextDiscountType)) {
     return res.status(400).json({ message: 'Valid discount type required' });
@@ -1092,7 +1126,7 @@ app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
 
   const nextDiscountValue = req.body.discountValue !== undefined || req.body.discount !== undefined
     ? Number(req.body.discountValue ?? req.body.discount)
-    : Number(oldOffer.discountValue || 0);
+    : Number(oldOffer.discountValue || oldOffer.discount || 0);
 
   if (!Number.isFinite(nextDiscountValue) || nextDiscountValue <= 0) {
     return res.status(400).json({ message: 'Valid discount value required' });
@@ -1102,14 +1136,20 @@ app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
   const validTillDate = parseOfferDate(nextValidTill);
   if (!validTillDate) return res.status(400).json({ message: 'Valid expiry date required' });
 
+  const nextDescription = req.body.description !== undefined || req.body.subtitle !== undefined
+    ? String(req.body.description || req.body.subtitle || '').trim()
+    : oldOffer.description;
+
   const updatedOffer = {
     ...oldOffer,
     image: req.body.image !== undefined ? String(req.body.image || '').trim() : oldOffer.image,
     title: req.body.title !== undefined ? String(req.body.title || '').trim() : oldOffer.title,
-    description: req.body.description !== undefined ? String(req.body.description || '').trim() : oldOffer.description,
+    description: nextDescription,
+    subtitle: nextDescription,
     code: nextCode,
     discountType: nextDiscountType,
     discountValue: nextDiscountValue,
+    discount: nextDiscountValue,
     minOrderAmount: req.body.minOrderAmount !== undefined ? Number(req.body.minOrderAmount || 0) : Number(oldOffer.minOrderAmount || 0),
     maxDiscount: req.body.maxDiscount !== undefined ? Number(req.body.maxDiscount || 0) : Number(oldOffer.maxDiscount || 0),
     validTill: validTillDate.toISOString(),
@@ -1145,7 +1185,81 @@ app.delete('/api/admin/offers/:id', requireAdmin, (req, res) => {
   res.json({ message: 'Offer deleted successfully' });
 });
 
-/* coupon validate */
+/* admin coupons list */
+app.get('/api/admin/coupons', requireAdmin, (req, res) => {
+  const coupons = cleanupExpiredCoupons();
+  res.json(coupons);
+});
+
+/* add coupon */
+app.post('/api/admin/coupons', requireAdmin, (req, res) => {
+  const coupons = cleanupExpiredCoupons();
+
+  const code = normalizeCouponCode(req.body.code);
+  const discount = Number(req.body.discount ?? req.body.discountValue ?? 0);
+  const maxUsers = Number(req.body.maxUsers || 0);
+  const typeRaw = String(req.body.type || req.body.discountType || 'flat').trim().toLowerCase();
+  const type = typeRaw === 'percentage' ? 'percent' : typeRaw;
+  const validTill = String(req.body.validTill || '').trim();
+
+  if (!code) return res.status(400).json({ message: 'Coupon code required' });
+  if (!Number.isFinite(discount) || discount <= 0) return res.status(400).json({ message: 'Valid discount required' });
+  if (!Number.isFinite(maxUsers) || maxUsers <= 0) return res.status(400).json({ message: 'Valid max users required' });
+  if (!['flat', 'percent'].includes(type)) {
+    return res.status(400).json({ message: 'Type must be flat or percent' });
+  }
+
+  const exists = coupons.find((item) => normalizeCouponCode(item.code) === code);
+  if (exists) {
+    return res.status(400).json({ message: 'Coupon code already exists' });
+  }
+
+  const validTillDate = parseOfferDate(validTill);
+  if (!validTillDate) {
+    return res.status(400).json({ message: 'Valid expiry date required' });
+  }
+  if (validTillDate.getTime() <= Date.now()) {
+    return res.status(400).json({ message: 'Expiry date must be in the future' });
+  }
+
+  const coupon = {
+    id: generateCouponId(),
+    code,
+    discount,
+    discountValue: discount,
+    maxUsers,
+    usedUsers: 0,
+    type,
+    discountType: type === 'percent' ? 'percentage' : 'flat',
+    validTill: validTillDate.toISOString(),
+    createdAt: getISTDateTime(),
+    updatedAt: getISTDateTime()
+  };
+
+  coupons.unshift(coupon);
+  writeCoupons(coupons);
+
+  res.status(201).json({
+    message: 'Coupon saved successfully',
+    coupon
+  });
+});
+
+/* delete coupon */
+app.delete('/api/admin/coupons/:id', requireAdmin, (req, res) => {
+  const coupons = cleanupExpiredCoupons();
+  const couponId = String(req.params.id || '').trim();
+  const coupon = coupons.find((item) => String(item.id) === couponId);
+
+  if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
+
+  const filtered = coupons.filter((item) => String(item.id) !== couponId);
+  writeCoupons(filtered);
+
+  res.json({ message: 'Coupon deleted successfully' });
+});
+
+/* coupon validate from offers */
 app.post('/api/coupons/validate', (req, res) => {
   const subtotal = Number(req.body.subtotal || req.body.total || 0);
   const code = normalizeCouponCode(req.body.code);
@@ -1186,6 +1300,44 @@ app.post('/api/coupons/validate', (req, res) => {
       validTill: offer.validTill
     },
     discountAmount: result.discountAmount
+  });
+});
+
+/* coupon validate from coupons */
+app.post('/api/admin/coupons/validate', requireAdmin, (req, res) => {
+  const subtotal = Number(req.body.subtotal || req.body.total || 0);
+  const code = normalizeCouponCode(req.body.code);
+
+  if (!code) return res.status(400).json({ message: 'Coupon code required' });
+  if (!Number.isFinite(subtotal) || subtotal <= 0) {
+    return res.status(400).json({ message: 'Valid subtotal required' });
+  }
+
+  const coupons = cleanupExpiredCoupons();
+  const coupon = coupons.find((item) => normalizeCouponCode(item.code) === code);
+
+  if (!coupon) {
+    return res.status(404).json({ valid: false, message: 'Invalid or expired coupon' });
+  }
+
+  if (Number(coupon.usedUsers || 0) >= Number(coupon.maxUsers || 0)) {
+    return res.status(400).json({ valid: false, message: 'Coupon usage limit reached' });
+  }
+
+  let discountAmount = 0;
+  if (coupon.type === 'percent') {
+    discountAmount = (subtotal * Number(coupon.discount || 0)) / 100;
+  } else {
+    discountAmount = Number(coupon.discount || 0);
+  }
+
+  discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
+
+  res.json({
+    valid: true,
+    message: 'Coupon applied successfully',
+    coupon,
+    discountAmount
   });
 });
 
@@ -1264,22 +1416,52 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
     const offer = offers.find((item) => normalizeCouponCode(item.code) === cleanCouponCode && item.isActive !== false);
 
     if (!offer) {
-      return res.status(400).json({ message: 'Invalid or expired coupon code' });
-    }
+      const coupons = cleanupExpiredCoupons();
+      const altCoupon = coupons.find((item) => normalizeCouponCode(item.code) === cleanCouponCode);
 
-    const couponResult = calculateCouponDiscount(subtotal, offer);
-    if (!couponResult.valid) {
-      return res.status(400).json({ message: couponResult.message });
-    }
+      if (!altCoupon) {
+        return res.status(400).json({ message: 'Invalid or expired coupon code' });
+      }
 
-    coupon = {
-      id: offer.id,
-      title: offer.title,
-      code: offer.code,
-      discountType: offer.discountType,
-      discountValue: offer.discountValue
-    };
-    couponDiscount = couponResult.discountAmount;
+      if (Number(altCoupon.usedUsers || 0) >= Number(altCoupon.maxUsers || 0)) {
+        return res.status(400).json({ message: 'Coupon usage limit reached' });
+      }
+
+      if (altCoupon.type === 'percent') {
+        couponDiscount = Math.max(0, Math.min((subtotal * Number(altCoupon.discount || 0)) / 100, subtotal));
+      } else {
+        couponDiscount = Math.max(0, Math.min(Number(altCoupon.discount || 0), subtotal));
+      }
+
+      coupon = {
+        id: altCoupon.id,
+        title: altCoupon.code,
+        code: altCoupon.code,
+        discountType: altCoupon.type === 'percent' ? 'percentage' : 'flat',
+        discountValue: altCoupon.discount
+      };
+
+      const couponIndex = coupons.findIndex((item) => String(item.id) === String(altCoupon.id));
+      if (couponIndex !== -1) {
+        coupons[couponIndex].usedUsers = Number(coupons[couponIndex].usedUsers || 0) + 1;
+        coupons[couponIndex].updatedAt = getISTDateTime();
+        writeCoupons(coupons);
+      }
+    } else {
+      const couponResult = calculateCouponDiscount(subtotal, offer);
+      if (!couponResult.valid) {
+        return res.status(400).json({ message: couponResult.message });
+      }
+
+      coupon = {
+        id: offer.id,
+        title: offer.title,
+        code: offer.code,
+        discountType: offer.discountType,
+        discountValue: offer.discountValue
+      };
+      couponDiscount = couponResult.discountAmount;
+    }
   }
 
   const total = Math.max(0, subtotal - couponDiscount) + shipping;
