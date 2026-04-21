@@ -232,69 +232,69 @@ function deleteVoiceByUrl(audioUrl) {
    OFFERS / COUPONS HELPERS
    ========================= */
 async function readOffers() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('offers').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.data().id || doc.id
-      }));
-    } catch (error) {
-      console.error('Firestore readOffers error:', error.message);
-    }
-  }
-  return readJson(offersFile, []);
+  const jsonData = readJson(offersFile, []);
+
+  return withFirestore(async () => {
+    const snapshot = await db.collection('offers').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.data().id || doc.id
+    }));
+  }, jsonData, 'Firestore readOffers');
 }
 
 async function writeOffers(offers) {
   writeJson(offersFile, offers);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('offers');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      offers.forEach((offer) => batch.set(ref.doc(String(offer.id)), offer));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('offers');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeOffers error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    offers.forEach((offer) => batch.set(ref.doc(String(offer.id)), offer));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeOffers error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeOffers');
     }
   }
 }
 
 async function readCoupons() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('coupons').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.data().id || doc.id
-      }));
-    } catch (error) {
-      console.error('Firestore readCoupons error:', error.message);
-    }
-  }
-  return readJson(couponsFile, []);
+  const jsonData = readJson(couponsFile, []);
+
+  return withFirestore(async () => {
+    const snapshot = await db.collection('coupons').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.data().id || doc.id
+    }));
+  }, jsonData, 'Firestore readCoupons');
 }
 
 async function writeCoupons(coupons) {
   writeJson(couponsFile, coupons);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('coupons');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      coupons.forEach((coupon) => batch.set(ref.doc(String(coupon.id)), coupon));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('coupons');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeCoupons error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    coupons.forEach((coupon) => batch.set(ref.doc(String(coupon.id)), coupon));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeCoupons error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeCoupons');
     }
   }
 }
@@ -396,8 +396,12 @@ function calculateCouponDiscount(subtotal, offer) {
 /* =========================
    FIREBASE OPTIONAL
    ========================= */
+/* =========================
+   FIREBASE OPTIONAL
+   ========================= */
 let serviceAccount = null;
 let db = null;
+let firestoreEnabled = false;
 
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
@@ -420,21 +424,39 @@ try {
     }
 
     db = admin.firestore();
+    firestoreEnabled = true;
 
     console.log('Firebase Firestore connected');
     console.log('Project:', serviceAccount.project_id);
-
-    // initializeFirestoreDefaults().catch((error) => {
-    //   console.error('Firestore init error:', error.message);
-    // });
+    console.log('Database:', '(default)');
   } else {
     console.log('Firebase service account not found, using JSON backup only');
   }
 } catch (error) {
   console.error('Firebase init failed:', error.message);
   db = null;
+  firestoreEnabled = false;
 }
 
+function disableFirestore(error, label = 'Firestore') {
+  console.error(`${label} disabled:`, error?.message || error);
+  db = null;
+  firestoreEnabled = false;
+}
+
+async function withFirestore(action, fallbackValue, label) {
+  if (!db || !firestoreEnabled) return fallbackValue;
+
+  try {
+    return await action();
+  } catch (error) {
+    console.error(`${label} error:`, error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, label);
+    }
+    return fallbackValue;
+  }
+}
 async function initializeFirestoreDefaults() {
   if (!db) return;
 
@@ -532,137 +554,136 @@ async function initializeFirestoreDefaults() {
    DATA READ/WRITE
    ========================= */
 async function readProducts() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('products').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: Number(doc.data().id ?? doc.id)
-      }));
-    } catch (error) {
-      console.error('Firestore readProducts error:', error.message);
-    }
-  }
-  return readJson(productsFile, []);
+  const jsonData = readJson(productsFile, []);
+
+  return withFirestore(async () => {
+    const snapshot = await db.collection('products').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: Number(doc.data().id ?? doc.id)
+    }));
+  }, jsonData, 'Firestore readProducts');
 }
 
 async function writeProducts(products) {
   writeJson(productsFile, products);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('products');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      products.forEach((product) => batch.set(ref.doc(String(product.id)), product));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('products');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeProducts error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    products.forEach((product) => batch.set(ref.doc(String(product.id)), product));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeProducts error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeProducts');
     }
   }
 }
 
 async function readOrders() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('orders').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.data().id || doc.id
-      }));
-    } catch (error) {
-      console.error('Firestore readOrders error:', error.message);
-    }
-  }
-  return readJson(ordersFile, []);
+  const jsonData = readJson(ordersFile, []);
+
+  return withFirestore(async () => {
+    const snapshot = await db.collection('orders').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.data().id || doc.id
+    }));
+  }, jsonData, 'Firestore readOrders');
 }
 
 async function writeOrders(orders) {
   writeJson(ordersFile, orders);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('orders');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      orders.forEach((order) => batch.set(ref.doc(String(order.id)), order));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('orders');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeOrders error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    orders.forEach((order) => batch.set(ref.doc(String(order.id)), order));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeOrders error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeOrders');
     }
   }
 }
 
 async function readVoiceOrders() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('voiceOrders').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.data().id || doc.id
-      }));
-    } catch (error) {
-      console.error('Firestore readVoiceOrders error:', error.message);
-    }
-  }
-  return readJson(voiceOrdersFile, []);
+  const jsonData = readJson(voiceOrdersFile, []);
+
+  return withFirestore(async () => {
+    const snapshot = await db.collection('voiceOrders').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.data().id || doc.id
+    }));
+  }, jsonData, 'Firestore readVoiceOrders');
 }
 
 async function writeVoiceOrders(voiceOrders) {
   writeJson(voiceOrdersFile, voiceOrders);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('voiceOrders');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      voiceOrders.forEach((item) => batch.set(ref.doc(String(item.id)), item));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('voiceOrders');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeVoiceOrders error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    voiceOrders.forEach((item) => batch.set(ref.doc(String(item.id)), item));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeVoiceOrders error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeVoiceOrders');
     }
   }
 }
 
 async function readDeliveryUsers() {
-  if (db) {
-    try {
-      const snapshot = await db.collection('deliveryUsers').get();
-      return snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.data().id || doc.id
-      }));
-    } catch (error) {
-      console.error('Firestore readDeliveryUsers error:', error.message);
-    }
-  }
-  return readJson(deliveryUsersFile, []);
-}
+  const jsonData = readJson(deliveryUsersFile, []);
 
+  return withFirestore(async () => {
+    const snapshot = await db.collection('deliveryUsers').get();
+    return snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.data().id || doc.id
+    }));
+  }, jsonData, 'Firestore readDeliveryUsers');
+}
 async function writeDeliveryUsers(users) {
   writeJson(deliveryUsersFile, users);
 
-  if (db) {
-    try {
-      const batch = db.batch();
-      const ref = db.collection('deliveryUsers');
-      const current = await ref.get();
+  if (!db || !firestoreEnabled) return;
 
-      current.docs.forEach((doc) => batch.delete(doc.ref));
-      users.forEach((user) => batch.set(ref.doc(String(user.id)), user));
+  try {
+    const batch = db.batch();
+    const ref = db.collection('deliveryUsers');
+    const current = await ref.get();
 
-      await batch.commit();
-    } catch (error) {
-      console.error('Firestore writeDeliveryUsers error:', error.message);
+    current.docs.forEach((doc) => batch.delete(doc.ref));
+    users.forEach((user) => batch.set(ref.doc(String(user.id)), user));
+
+    await batch.commit();
+  } catch (error) {
+    console.error('Firestore writeDeliveryUsers error:', error.message);
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Firestore writeDeliveryUsers');
     }
   }
 }
@@ -2154,39 +2175,68 @@ app.delete('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
 
 app.get('/test-firebase', async (req, res) => {
   try {
-    if (!db) {
+    const jsonStatus = {
+      productsFileExists: fs.existsSync(productsFile),
+      ordersFileExists: fs.existsSync(ordersFile),
+      offersFileExists: fs.existsSync(offersFile),
+      couponsFileExists: fs.existsSync(couponsFile)
+    };
+
+    if (!db || !firestoreEnabled) {
       return res.json({
-        ok: false,
-        message: 'Firestore not initialized'
+        ok: true,
+        mode: 'JSON backup only',
+        firestoreConnected: false,
+        projectId: serviceAccount?.project_id || '',
+        jsonStatus
       });
     }
 
-    const ref = db.collection('test').doc('check');
-
-    await ref.set(
-      {
-        message: 'hello',
-        checkedAt: new Date().toISOString()
-      },
-      { merge: true }
-    );
-
-    const snap = await ref.get();
+    const productsSnap = await db.collection('products').limit(1).get();
+    const ordersSnap = await db.collection('orders').limit(1).get();
+    const offersSnap = await db.collection('offers').limit(1).get();
+    const couponsSnap = await db.collection('coupons').limit(1).get();
 
     return res.json({
       ok: true,
-      data: snap.exists ? snap.data() : null
+      mode: 'Firestore + JSON backup',
+      firestoreConnected: true,
+      projectId: serviceAccount?.project_id || '',
+      databaseId: '(default)',
+      collections: {
+        productsReadable: true,
+        ordersReadable: true,
+        offersReadable: true,
+        couponsReadable: true,
+        productsHasDocs: !productsSnap.empty,
+        ordersHasDocs: !ordersSnap.empty,
+        offersHasDocs: !offersSnap.empty,
+        couponsHasDocs: !couponsSnap.empty
+      },
+      jsonStatus
     });
   } catch (error) {
-    console.error('test-firebase error full:', error);
-    return res.json({
+    console.error('Test Firebase route error:', error.message);
+
+    if (String(error.message || '').includes('5 NOT_FOUND')) {
+      disableFirestore(error, 'Test Firebase route');
+      return res.json({
+        ok: true,
+        mode: 'JSON backup only (Firestore auto-disabled)',
+        firestoreConnected: false,
+        projectId: serviceAccount?.project_id || '',
+        message: 'Firestore returned NOT_FOUND, app switched to JSON backup safely.'
+      });
+    }
+
+    return res.status(500).json({
       ok: false,
       message: error.message,
-      code: error.code || null
+      code: error.code || ''
     });
   }
 });
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Mode: ${db ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
+  console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
 });
