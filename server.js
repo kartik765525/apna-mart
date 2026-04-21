@@ -2303,3 +2303,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
 });
+app.get('/delivery-login-test', (req, res) => {
+  res.json({ ok: true, message: 'delivery login route ready' });
+});
