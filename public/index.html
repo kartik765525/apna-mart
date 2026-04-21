@@ -2191,6 +2191,10 @@ html[data-theme="dark"] .place-order-loader-sub{
 }
 
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
 <script>
@@ -2616,6 +2620,162 @@ let latestOrders = [];
 let currentOpenOrderId = null;
 let otpSent = false;
 
+let firebaseCartDb = null;
+let firebaseCartReady = false;
+let cartSyncInProgress = false;
+
+(function initFirebaseCart(){
+    try{
+        if(typeof firebase === "undefined"){
+            console.warn("Firebase SDK not loaded");
+            return;
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDchSi4Cf6ehyd0GVII50iAb-MX9TbWX-u",
+            authDomain: "apnamart-new.firebaseapp.com",
+            projectId: "apnamart-new",
+            storageBucket: "apnamart-new.firebasestorage.app",
+            messagingSenderId: "522514455031",
+            appId: "1:522514455031:web:8938b4d970c81b7b6176f2",
+            measurementId: "G-PSL6NFBGK4"
+        };
+
+        if(!firebase.apps.length){
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        firebaseCartDb = firebase.firestore();
+        firebaseCartReady = true;
+    }catch(error){
+        console.error("Firebase cart init failed:", error);
+        firebaseCartDb = null;
+        firebaseCartReady = false;
+    }
+})();
+
+function getCurrentCartPhone(){
+    const profile = getSavedProfile() || {};
+    return normalizePhone(profile.phone || "");
+}
+
+function sanitizeCartItem(item){
+    if(!item || typeof item !== "object") return null;
+
+    const rawId = item.id;
+    let normalizedId = rawId;
+
+    if(typeof rawId === "string" && rawId.trim() !== "" && !Number.isNaN(Number(rawId))){
+        normalizedId = Number(rawId);
+    }
+
+    const normalizedPrice = Number(item.price || 0);
+    const normalizedOriginal = Number(item.original || item.originalPrice || normalizedPrice || 0);
+    const normalizedStock = Number(item.stock || 0);
+    const normalizedQty = Math.max(1, Number(item.qty || 1));
+
+    return {
+        ...item,
+        id: normalizedId,
+        name: String(item.name || "").trim(),
+        image: typeof item.image === "string" ? item.image : "",
+        category: typeof item.category === "string" ? item.category : "",
+        price: Number.isFinite(normalizedPrice) ? normalizedPrice : 0,
+        original: Number.isFinite(normalizedOriginal) ? normalizedOriginal : (Number.isFinite(normalizedPrice) ? normalizedPrice : 0),
+        stock: Number.isFinite(normalizedStock) ? normalizedStock : 0,
+        qty: normalizedQty,
+        active: item.active !== false
+    };
+}
+
+function sanitizeCartItems(items){
+    if(!Array.isArray(items)) return [];
+    return items.map(sanitizeCartItem).filter(Boolean);
+}
+
+function normalizeCartWithProducts(){
+    if(!Array.isArray(cart)) cart = [];
+    if(!Array.isArray(products) || !products.length){
+        cart = sanitizeCartItems(cart);
+        return;
+    }
+
+    cart = sanitizeCartItems(cart).map((item) => {
+        const product = products.find((p) => String(p.id) === String(item.id));
+        if(!product) return item;
+
+        const qty = Math.max(1, Math.min(Number(item.qty || 1), Number(product.stock || item.qty || 1)));
+        return {
+            ...product,
+            qty
+        };
+    }).filter((item) => item && item.active !== false && Number(item.qty || 0) > 0);
+}
+
+async function loadCartFromFirebase(phone){
+    const cleanPhone = normalizePhone(phone);
+    if(!firebaseCartReady || !firebaseCartDb || !cleanPhone){
+        cart = [];
+        return [];
+    }
+
+    try{
+        const doc = await firebaseCartDb.collection("carts").doc(cleanPhone).get();
+        const data = doc.exists ? (doc.data() || {}) : {};
+        const items = sanitizeCartItems(data.items || []);
+        cart = items;
+        normalizeCartWithProducts();
+        return cart;
+    }catch(error){
+        console.error("Cart load failed:", error);
+        return cart;
+    }
+}
+
+async function saveCartToFirebase(){
+    const cleanPhone = getCurrentCartPhone();
+    if(!firebaseCartReady || !firebaseCartDb || !cleanPhone || cartSyncInProgress){
+        return false;
+    }
+
+    try{
+        cartSyncInProgress = true;
+        normalizeCartWithProducts();
+        await firebaseCartDb.collection("carts").doc(cleanPhone).set({
+            phone: cleanPhone,
+            updatedAt: new Date().toISOString(),
+            items: sanitizeCartItems(cart).map((item) => ({
+                id: item.id,
+                name: item.name || "",
+                price: Number(item.price || 0),
+                original: Number(item.original || item.originalPrice || item.price || 0),
+                image: item.image || "",
+                category: item.category || "",
+                stock: Number(item.stock || 0),
+                qty: Math.max(1, Number(item.qty || 1)),
+                active: item.active !== false
+            }))
+        }, { merge: true });
+        return true;
+    }catch(error){
+        console.error("Cart save failed:", error);
+        return false;
+    }finally{
+        cartSyncInProgress = false;
+    }
+}
+
+async function refreshCartFromFirebase(){
+    const cleanPhone = getCurrentCartPhone();
+    if(!cleanPhone){
+        cart = [];
+        update();
+        return;
+    }
+    await loadCartFromFirebase(cleanPhone);
+    update();
+}
+
 function getProfileDisplayInfo(){
     const profile = getSavedProfile() || {};
     const name = profile.name || profile.phone || "Guest User";
@@ -2907,7 +3067,12 @@ function getVillageDeliveryCharge(village){
 }
 
 function getSavedProfile(){
-    return JSON.parse(localStorage.getItem("apnaMartProfile")) || null;
+    try{
+        return JSON.parse(localStorage.getItem("apnaMartProfile")) || null;
+    }catch(error){
+        console.error("Profile parse error:", error);
+        return null;
+    }
 }
 
 function getDefaultProfileImage() {
@@ -3041,6 +3206,8 @@ async function saveProfile(){
 
     localStorage.setItem("apnaMartProfile", JSON.stringify(profile));
     document.getElementById("profileImageInput").value = "";
+    await refreshCartFromFirebase();
+    await saveCartToFirebase();
     showToast("Profile saved successfully", "success");
     renderSavedProfile();
     renderTopProfile();
@@ -3119,10 +3286,12 @@ async function checkCustomerLogin(){
         const village = data.customer?.village || "";
         const oldProfile = getSavedProfile() || {};
         localStorage.setItem("apnaMartProfile", JSON.stringify({ ...oldProfile, phone, village }));
+        await loadCartFromFirebase(phone);
         loadProfileForm();
         renderSavedProfile();
         renderTopProfile();
         updateCartDeliveryBox();
+        update();
         return true;
     }catch(error){
         console.error(error);
@@ -3205,7 +3374,9 @@ async function verifyOtp(){
 function logoutCustomer(showAlert=true){
     localStorage.removeItem(CUSTOMER_TOKEN_KEY);
     customerToken = "";
+    cart = [];
     closeAllPanels(true);
+    update();
     showLogin();
     if(showAlert) showToast("Logged out", "info");
 }
@@ -3257,8 +3428,9 @@ async function fetchProducts() {
     try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        products = data;
+        products = Array.isArray(data) ? data : [];
         filteredProducts = [...products];
+        normalizeCartWithProducts();
         loadProducts();
     } catch (error) {
         console.error(error);
@@ -3425,63 +3597,77 @@ document.getElementById("search").addEventListener("input", function (e) {
     loadProducts();
 });
 
-function add(id) {
-    const p = products.find(x => x.id === id);
+async function add(id) {
+    const p = products.find(x => String(x.id) === String(id));
     if (!p || p.active === false) return alert("Product unavailable");
     if (p.stock <= 0) return alert("Out of stock");
 
-    const existing = cart.find(i => i.id === id);
+    const existing = cart.find(i => String(i.id) === String(id));
 
     if (existing) {
         if (existing.qty < p.stock) existing.qty++;
-        else alert("Stock limit reached");
+        else {
+            alert("Stock limit reached");
+            return;
+        }
     } else {
         cart.push({ ...p, qty: 1 });
     }
 
+    normalizeCartWithProducts();
     update();
+    await saveCartToFirebase();
 }
 
-function inc(id) {
-    const cartItem = cart.find(i => i.id === id);
-    const product = products.find(p => p.id === id);
+async function inc(id) {
+    const cartItem = cart.find(i => String(i.id) === String(id));
+    const product = products.find(p => String(p.id) === String(id));
 
     if (cartItem && product && cartItem.qty < product.stock) {
         cartItem.qty++;
+        normalizeCartWithProducts();
         update();
+        await saveCartToFirebase();
     } else {
         showToast("No more stock available", "error");
     }
 }
 
-function dec(id) {
-    const item = cart.find(i => i.id === id);
+async function dec(id) {
+    const item = cart.find(i => String(i.id) === String(id));
     if (!item) return;
 
     if (item.qty > 1) item.qty--;
-    else cart = cart.filter(i => i.id !== id);
+    else cart = cart.filter(i => String(i.id) !== String(id));
 
+    normalizeCartWithProducts();
     update();
+    await saveCartToFirebase();
 }
 
 
-function setCartQty(id, qty) {
-    const item = cart.find(i => i.id === id);
-    const product = products.find(p => p.id === id);
+async function setCartQty(id, qty) {
+    const item = cart.find(i => String(i.id) === String(id));
+    const product = products.find(p => String(p.id) === String(id));
     const newQty = Number(qty);
 
     if(!item || !product || !newQty) return;
     item.qty = Math.min(newQty, product.stock || newQty);
+    normalizeCartWithProducts();
     update();
+    await saveCartToFirebase();
 }
 
-function removeItem(id) {
-    cart = cart.filter(i => i.id !== id);
+async function removeItem(id) {
+    cart = cart.filter(i => String(i.id) !== String(id));
+    normalizeCartWithProducts();
     update();
+    await saveCartToFirebase();
 }
 
 
 function update() {
+    normalizeCartWithProducts();
     const totalQty = cart.reduce((a, b) => a + b.qty, 0);
     document.getElementById("count").innerText = totalQty;
 
@@ -3648,6 +3834,7 @@ async function placeOrder() {
         if (payment === "cod") {
             cart = [];
             update();
+            await saveCartToFirebase();
             fetchProducts();
             hidePlaceOrderLoader();
             showSuccessScreen("Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.");
@@ -3657,6 +3844,7 @@ async function placeOrder() {
         if (payment === "upi") {
             cart = [];
             update();
+            await saveCartToFirebase();
             fetchProducts();
             hidePlaceOrderLoader();
             showSuccessScreen("Your order has been placed successfully. Once the admin confirms, the order information will be credited to your account.");
@@ -4099,7 +4287,7 @@ async function autoRefreshPanels(){
     try{
         await checkCustomerLogin();
         await fetchProducts();
-        update();
+        await refreshCartFromFirebase();
         renderSavedProfile();
         renderTopProfile();
         updateCartDeliveryBox();
@@ -4137,7 +4325,6 @@ function setLanguage(lang){
 async function initApp(){
     applyThemeMode();
     applyLanguage();
-    update();
     loadProfileForm();
     renderSavedProfile();
     renderTopProfile();
@@ -4145,6 +4332,7 @@ async function initApp(){
     await checkCustomerLogin();
     syncPanelWithHash();
     await fetchProducts();
+    await refreshCartFromFirebase();
     startAutoRefresh();
 }
 

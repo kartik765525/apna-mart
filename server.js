@@ -2358,6 +2358,56 @@ app.get('/get-profile', async (req, res) => {
     });
   }
 });
+app.post('/save-cart', async (req, res) => {
+  try {
+    if (!firestoreEnabled || !db) {
+      return res.status(500).json({ ok: false, message: 'Firebase not connected' });
+    }
+
+    const { phone, items } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ ok: false, message: 'phone required' });
+    }
+
+    await db.collection('carts').doc(String(phone)).set({
+      phone: String(phone),
+      items: Array.isArray(items) ? items : []
+    }, { merge: true });
+
+    res.json({ ok: true, message: 'Cart saved' });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error.message });
+  }
+});
+app.get('/get-cart', async (req, res) => {
+  try {
+    if (!firestoreEnabled || !db) {
+      return res.status(500).json({ ok: false, message: 'Firebase not connected' });
+    }
+
+    const { phone } = req.query;
+
+    if (!phone) {
+      return res.status(400).json({ ok: false, message: 'phone required' });
+    }
+
+    const doc = await db.collection('carts').doc(String(phone)).get();
+
+    if (!doc.exists) {
+      return res.json({ ok: true, items: [] });
+    }
+
+    const data = doc.data() || {};
+    res.json({
+      ok: true,
+      phone: data.phone || String(phone),
+      items: Array.isArray(data.items) ? data.items : []
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
