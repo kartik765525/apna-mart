@@ -398,9 +398,6 @@ function calculateCouponDiscount(subtotal, offer) {
 }
 
 /* =========================
-   FIREBASE OPTIONAL
-   ========================= */
-/* =========================
    FIREBASE
    ========================= */
 let serviceAccount = null;
@@ -434,7 +431,7 @@ try {
     console.log('Project:', serviceAccount.project_id);
     console.log('Database:', '(default)');
   } else {
-    console.log('Firebase service account not found');
+    console.log('Firebase service account not found, using JSON backup only');
   }
 } catch (error) {
   console.error('Firebase init failed:', error.message);
@@ -442,44 +439,17 @@ try {
   firestoreEnabled = false;
 }
 
+function isFirestoreNotFoundError(error) {
+  const msg = String(error?.message || '');
+  return error?.code === 5 || msg.includes('5 NOT_FOUND') || msg.includes('NOT_FOUND');
+}
+
 function disableFirestore(error, label = 'Firestore') {
   console.error(`${label} disabled:`, error?.message || error);
   db = null;
   firestoreEnabled = false;
 }
-async function testFirestoreConnection() {
-  if (!db || !firestoreEnabled) {
-    return { ok: false, message: 'Firestore not initialized' };
-  }
 
-  try {
-    const ref = db.collection('test').doc('check');
-
-    await ref.set(
-      {
-        message: 'hello',
-        updatedAt: new Date().toISOString()
-      },
-      { merge: true }
-    );
-
-    const snap = await ref.get();
-
-    return {
-      ok: true,
-      exists: snap.exists,
-      data: snap.exists ? snap.data() : null
-    };
-  } catch (error) {
-    console.error('Firestore test connection error FULL:', error);
-    return {
-      ok: false,
-      message: error.message,
-      code: error.code || '',
-      details: String(error)
-    };
-  }
-}
 async function withFirestore(action, fallbackValue, label) {
   if (!db || !firestoreEnabled) return fallbackValue;
 
@@ -487,121 +457,27 @@ async function withFirestore(action, fallbackValue, label) {
     return await action();
   } catch (error) {
     console.error(`${label} error:`, error.message);
-    if (String(error.message || '').includes('5 NOT_FOUND')) {
+    if (isFirestoreNotFoundError(error)) {
       disableFirestore(error, label);
     }
     return fallbackValue;
   }
 }
-async function initializeFirestoreDefaults() {
-  if (!db) return;
 
-  try {
-    const defaults = [
-      {
-        collection: 'products',
-        docId: 'init_product',
-        data: {
-          id: 1,
-          name: 'Sample Product',
-          price: 10,
-          originalPrice: 15,
-          stock: 1,
-          category: 'Grocery',
-          image: ''
-        }
-      },
-      {
-        collection: 'orders',
-        docId: 'init_order',
-        data: {
-          id: 'INIT_ORDER',
-          customerPhone: '0000000000',
-          items: [],
-          totalAmount: 0,
-          status: 'Pending',
-          paymentMethod: 'COD',
-          createdAt: new Date().toISOString()
-        }
-      },
-      {
-        collection: 'offers',
-        docId: 'init_offer',
-        data: {
-          id: 'INIT_OFFER',
-          title: 'Welcome Offer',
-          subtitle: 'First order discount',
-          code: 'WELCOME10',
-          discount: 10,
-          validTill: '2027-01-01',
-          image: ''
-        }
-      },
-      {
-        collection: 'coupons',
-        docId: 'init_coupon',
-        data: {
-          id: 'INIT_COUPON',
-          code: 'WELCOME10',
-          discount: 10,
-          type: 'percentage',
-          minOrderAmount: 100,
-          validTill: '2027-01-01'
-        }
-      },
-      {
-        collection: 'deliveryUsers',
-        docId: 'init_delivery',
-        data: {
-          id: 'INIT_DELIVERY',
-          name: 'Demo Delivery',
-          phone: '0000000000',
-          status: 'Pending Approval'
-        }
-      },
-      {
-        collection: 'voiceOrders',
-        docId: 'init_voice',
-        data: {
-          id: 'INIT_VOICE',
-          customerPhone: '0000000000',
-          audioUrl: '',
-          createdAt: new Date().toISOString()
-        }
-      }
-    ];
 
-    for (const item of defaults) {
-      const ref = db.collection(item.collection).doc(item.docId);
-      const snap = await ref.get();
-
-      if (!snap.exists) {
-        await ref.set(item.data);
-        console.log(`Created default doc in ${item.collection}`);
-      }
-    }
-
-    console.log('Firestore default setup complete');
-  } catch (error) {
-    console.error('Firestore init error:', error.message);
-  }
-}
 /* =========================
    DATA READ/WRITE
    ========================= */
 async function readProducts() {
-  if (!db || !firestoreEnabled) return readJson(productsFile, []);
+  const jsonData = readJson(productsFile, []);
 
-  try {
+  return withFirestore(async () => {
     const snapshot = await db.collection('products').get();
     return snapshot.docs.map((doc) => ({
       ...doc.data(),
       id: Number(doc.data().id ?? doc.id)
     }));
-  } catch (error) {
-    console.error('Firestore readProducts error:', error.message);
-    return readJson(productsFile, []);
-  }
+  }, jsonData, 'Firestore readProducts');
 }
 
 async function writeProducts(products) {
@@ -622,23 +498,23 @@ async function writeProducts(products) {
     await batch.commit();
   } catch (error) {
     console.error('Firestore writeProducts error:', error.message);
+    if (isFirestoreNotFoundError(error)) {
+      disableFirestore(error, 'Firestore writeProducts');
+    }
   }
 }
-
 async function readOrders() {
-  if (!db || !firestoreEnabled) return readJson(ordersFile, []);
+  const jsonData = readJson(ordersFile, []);
 
-  try {
+  return withFirestore(async () => {
     const snapshot = await db.collection('orders').get();
     return snapshot.docs.map((doc) => ({
       ...doc.data(),
       id: doc.data().id || doc.id
     }));
-  } catch (error) {
-    console.error('Firestore readOrders error:', error.message);
-    return readJson(ordersFile, []);
-  }
+  }, jsonData, 'Firestore readOrders');
 }
+
 async function writeOrders(orders) {
   writeJson(ordersFile, orders);
 
@@ -657,6 +533,9 @@ async function writeOrders(orders) {
     await batch.commit();
   } catch (error) {
     console.error('Firestore writeOrders error:', error.message);
+    if (isFirestoreNotFoundError(error)) {
+      disableFirestore(error, 'Firestore writeOrders');
+    }
   }
 }
 async function readVoiceOrders() {
@@ -687,12 +566,11 @@ async function writeVoiceOrders(voiceOrders) {
     await batch.commit();
   } catch (error) {
     console.error('Firestore writeVoiceOrders error:', error.message);
-    if (String(error.message || '').includes('5 NOT_FOUND')) {
+    if (isFirestoreNotFoundError(error)) {
       disableFirestore(error, 'Firestore writeVoiceOrders');
     }
   }
 }
-
 async function readDeliveryUsers() {
   const jsonData = readJson(deliveryUsersFile, []);
 
@@ -704,6 +582,7 @@ async function readDeliveryUsers() {
     }));
   }, jsonData, 'Firestore readDeliveryUsers');
 }
+
 async function writeDeliveryUsers(users) {
   writeJson(deliveryUsersFile, users);
 
@@ -720,12 +599,11 @@ async function writeDeliveryUsers(users) {
     await batch.commit();
   } catch (error) {
     console.error('Firestore writeDeliveryUsers error:', error.message);
-    if (String(error.message || '').includes('5 NOT_FOUND')) {
+    if (isFirestoreNotFoundError(error)) {
       disableFirestore(error, 'Firestore writeDeliveryUsers');
     }
   }
 }
-
 /* =========================
    TOKENS / AUTH
    ========================= */
@@ -2214,36 +2092,40 @@ app.delete('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
 app.get('/test-firebase', async (req, res) => {
   try {
     if (!db || !firestoreEnabled) {
-      return res.json({
+      return res.status(500).json({
         ok: false,
-        message: 'Firestore not initialized'
+        message: 'Firebase not connected',
+        firestoreConnected: false
       });
     }
 
-    const ok = await testFirestoreConnection();
+    const ref = db.collection('test').doc('check');
 
-    if (!ok) {
-      return res.json({
-        ok: false,
-        message: 'Firestore connected but read/write failed'
-      });
-    }
+    await ref.set({
+      message: 'Firebase connected',
+      time: new Date().toISOString()
+    }, { merge: true });
 
-    const snap = await db.collection('test').doc('check').get();
+    const snap = await ref.get();
 
     return res.json({
       ok: true,
       firestoreConnected: true,
       projectId: serviceAccount?.project_id || '',
-      databaseId: '(default)',
-      data: snap.data()
+      data: snap.exists ? snap.data() : null
     });
   } catch (error) {
-    console.error('Test Firebase route error:', error);
-    return res.json({
+    console.error('Firestore test connection error:', error.message);
+
+    if (isFirestoreNotFoundError(error)) {
+      disableFirestore(error, 'Firestore test route');
+    }
+
+    return res.status(500).json({
       ok: false,
-      message: error.message,
-      code: error.code || null
+      firestoreConnected: false,
+      message: error.message || 'Firestore test failed',
+      code: error.code || ''
     });
   }
 });
