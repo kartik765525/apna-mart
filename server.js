@@ -5,6 +5,11 @@ const path = require('path');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(express.json());
 
 /* =========================
    TOKENS / LOGIN SETTINGS
