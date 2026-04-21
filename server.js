@@ -2155,29 +2155,26 @@ app.delete('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
 app.get('/test-firebase', async (req, res) => {
   try {
     if (!db) {
-      return res.status(500).json({ ok: false, message: 'Firebase not connected' });
+      return res.json({ ok: false, message: 'Firestore not initialized' });
     }
 
-    const ref = db.collection('test').doc('check');
-
-    await ref.set({
-      message: 'Firebase connected',
-      time: new Date().toISOString()
+    const testRef = db.collection('test').doc('check');
+    await testRef.set({
+      message: 'hello',
+      checkedAt: new Date().toISOString()
     }, { merge: true });
 
-    const snap = await ref.get();
+    const snap = await testRef.get();
 
-    res.json({
+    return res.json({
       ok: true,
-      projectId: serviceAccount?.project_id || '',
-      databaseId: db.databaseId || '(default)',
       data: snap.exists ? snap.data() : null
     });
   } catch (error) {
-    res.status(500).json({
+    return res.json({
       ok: false,
       message: error.message,
-      code: error.code || ''
+      code: error.code || null
     });
   }
 });
