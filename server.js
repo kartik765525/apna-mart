@@ -424,9 +424,9 @@ try {
     console.log('Firebase Firestore connected');
     console.log('Project:', serviceAccount.project_id);
 
-    initializeFirestoreDefaults().catch((error) => {
-      console.error('Firestore init error:', error.message);
-    });
+    // initializeFirestoreDefaults().catch((error) => {
+    //   console.error('Firestore init error:', error.message);
+    // });
   } else {
     console.log('Firebase service account not found, using JSON backup only');
   }
