@@ -2236,26 +2236,32 @@ app.get('/test-firebase', async (req, res) => {
 });
 app.get('/get-orders', async (req, res) => {
   try {
-    const snapshot = await db.collection('orders').get();
+    if (!firestoreEnabled || !db) {
+      return res.status(500).json({
+        ok: false,
+        message: 'Firebase not connected'
+      });
+    }
 
-    let orders = [];
+    const snapshot = await db.collection('orders').get();
+    const orders = [];
 
     snapshot.forEach(doc => {
       orders.push({
-        id: doc.id,
+        docId: doc.id,
         ...doc.data()
       });
     });
 
     res.json({
       ok: true,
-      data: orders
+      count: orders.length,
+      orders
     });
-
   } catch (error) {
-    res.json({
+    res.status(500).json({
       ok: false,
-      error: error.message
+      message: error.message
     });
   }
 });
