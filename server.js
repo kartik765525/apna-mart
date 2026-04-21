@@ -448,10 +448,13 @@ function disableFirestore(error, label = 'Firestore') {
   firestoreEnabled = false;
 }
 async function testFirestoreConnection() {
-  if (!db || !firestoreEnabled) return false;
+  if (!db || !firestoreEnabled) {
+    return { ok: false, message: 'Firestore not initialized' };
+  }
 
   try {
     const ref = db.collection('test').doc('check');
+
     await ref.set(
       {
         message: 'hello',
@@ -461,10 +464,20 @@ async function testFirestoreConnection() {
     );
 
     const snap = await ref.get();
-    return snap.exists;
+
+    return {
+      ok: true,
+      exists: snap.exists,
+      data: snap.exists ? snap.data() : null
+    };
   } catch (error) {
-    console.error('Firestore test connection error:', error.message);
-    return false;
+    console.error('Firestore test connection error FULL:', error);
+    return {
+      ok: false,
+      message: error.message,
+      code: error.code || '',
+      details: String(error)
+    };
   }
 }
 async function withFirestore(action, fallbackValue, label) {
@@ -2207,30 +2220,21 @@ app.get('/test-firebase', async (req, res) => {
       });
     }
 
-    const ok = await testFirestoreConnection();
-
-    if (!ok) {
-      return res.json({
-        ok: false,
-        message: 'Firestore connected but read/write failed'
-      });
-    }
-
-    const snap = await db.collection('test').doc('check').get();
+    const result = await testFirestoreConnection();
 
     return res.json({
-      ok: true,
-      firestoreConnected: true,
+      firebaseConnected: true,
       projectId: serviceAccount?.project_id || '',
       databaseId: '(default)',
-      data: snap.data()
+      ...result
     });
   } catch (error) {
-    console.error('Test Firebase route error:', error);
-    return res.json({
+    console.error('Test Firebase route error FULL:', error);
+    return res.status(500).json({
       ok: false,
       message: error.message,
-      code: error.code || null
+      code: error.code || '',
+      details: String(error)
     });
   }
 });
