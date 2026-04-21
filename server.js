@@ -429,7 +429,7 @@ try {
     console.log('Firebase Firestore connected');
     console.log('Project:', serviceAccount.project_id);
     console.log('Database:', '(default)');
-    initializeFirestoreDefaults();
+   
   } else {
     console.log('Firebase service account not found, using JSON backup only');
   }
