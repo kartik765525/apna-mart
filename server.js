@@ -2155,32 +2155,34 @@ app.delete('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
 app.get('/test-firebase', async (req, res) => {
   try {
     if (!db) {
-      return res.json({ ok: false, message: 'Firestore not initialized' });
+      return res.json({
+        ok: false,
+        message: 'Firestore not initialized'
+      });
     }
 
-    // SIMPLE TEST (NO COMPLEX PATH)
     const ref = db.collection('test').doc('check');
 
-    // write
-    await ref.set({
-      message: 'hello',
-      time: new Date().toISOString()
-    });
+    await ref.set(
+      {
+        message: 'hello',
+        checkedAt: new Date().toISOString()
+      },
+      { merge: true }
+    );
 
-    // read
     const snap = await ref.get();
 
     return res.json({
       ok: true,
-      data: snap.data()
+      data: snap.exists ? snap.data() : null
     });
-
   } catch (error) {
-    console.error(error);
+    console.error('test-firebase error full:', error);
     return res.json({
       ok: false,
       message: error.message,
-      code: error.code
+      code: error.code || null
     });
   }
 });
