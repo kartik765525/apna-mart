@@ -2158,23 +2158,29 @@ app.get('/test-firebase', async (req, res) => {
       return res.json({ ok: false, message: 'Firestore not initialized' });
     }
 
-    const testRef = db.collection('test').doc('check');
-    await testRef.set({
-      message: 'hello',
-      checkedAt: new Date().toISOString()
-    }, { merge: true });
+    // SIMPLE TEST (NO COMPLEX PATH)
+    const ref = db.collection('test').doc('check');
 
-    const snap = await testRef.get();
+    // write
+    await ref.set({
+      message: 'hello',
+      time: new Date().toISOString()
+    });
+
+    // read
+    const snap = await ref.get();
 
     return res.json({
       ok: true,
-      data: snap.exists ? snap.data() : null
+      data: snap.data()
     });
+
   } catch (error) {
+    console.error(error);
     return res.json({
       ok: false,
       message: error.message,
-      code: error.code || null
+      code: error.code
     });
   }
 });
