@@ -2265,6 +2265,40 @@ app.get('/get-orders', async (req, res) => {
     });
   }
 });
+app.post('/delivery-login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const snapshot = await db.collection('deliveryUsers')
+      .where('username', '==', username)
+      .where('password', '==', password)
+      .where('active', '==', true)
+      .get();
+
+    if (snapshot.empty) {
+      return res.json({
+        ok: false,
+        message: "Invalid login"
+      });
+    }
+
+    let user;
+    snapshot.forEach(doc => {
+      user = doc.data();
+    });
+
+    res.json({
+      ok: true,
+      user
+    });
+
+  } catch (error) {
+    res.json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
