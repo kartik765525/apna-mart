@@ -2299,6 +2299,65 @@ app.post('/delivery-login', async (req, res) => {
     });
   }
 });
+app.post('/save-profile', async (req, res) => {
+  try {
+    const { phone, name, village, image } = req.body;
+
+    if (!phone) {
+      return res.json({ ok: false, message: 'Phone required' });
+    }
+
+    await db.collection('users').doc(String(phone)).set(
+      {
+        phone: String(phone),
+        name: String(name || ''),
+        village: String(village || ''),
+        image: String(image || ''),
+        active: true,
+        updatedAt: new Date().toISOString()
+      },
+      { merge: true }
+    );
+
+    res.json({
+      ok: true,
+      message: 'Profile saved successfully'
+    });
+  } catch (error) {
+    res.json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+app.get('/get-profile', async (req, res) => {
+  try {
+    const { phone } = req.query;
+
+    if (!phone) {
+      return res.json({ ok: false, message: 'Phone required' });
+    }
+
+    const doc = await db.collection('users').doc(String(phone)).get();
+
+    if (!doc.exists) {
+      return res.json({
+        ok: false,
+        message: 'Profile not found'
+      });
+    }
+
+    res.json({
+      ok: true,
+      profile: doc.data()
+    });
+  } catch (error) {
+    res.json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
