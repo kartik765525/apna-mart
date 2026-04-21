@@ -2220,21 +2220,30 @@ app.get('/test-firebase', async (req, res) => {
       });
     }
 
-    const result = await testFirestoreConnection();
+    const ok = await testFirestoreConnection();
+
+    if (!ok) {
+      return res.json({
+        ok: false,
+        message: 'Firestore connected but read/write failed'
+      });
+    }
+
+    const snap = await db.collection('test').doc('check').get();
 
     return res.json({
-      firebaseConnected: true,
+      ok: true,
+      firestoreConnected: true,
       projectId: serviceAccount?.project_id || '',
       databaseId: '(default)',
-      ...result
+      data: snap.data()
     });
   } catch (error) {
-    console.error('Test Firebase route error FULL:', error);
-    return res.status(500).json({
+    console.error('Test Firebase route error:', error);
+    return res.json({
       ok: false,
       message: error.message,
-      code: error.code || '',
-      details: String(error)
+      code: error.code || null
     });
   }
 });
