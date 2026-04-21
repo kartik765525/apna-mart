@@ -7,7 +7,7 @@
     "emoji": "🛒",
     "image": "http://localhost:5000/uploads/1776236859862-Screenshot_4-12-2025_203029_www-flipkart.jpg",
     "category": "jhj",
-    "stock": 535,
+    "stock": 534,
     "active": true
   },
   {
@@ -18,7 +18,7 @@
     "emoji": "🛒",
     "image": "http://localhost:5000/uploads/1776237793466-Screenshot_15-4-2026_125240_www-bing-com.jpeg",
     "category": "grocery",
-    "stock": 32,
+    "stock": 31,
     "active": true
   }
 ]

@@ -5,7 +5,6 @@ const path = require('path');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -232,20 +231,72 @@ function deleteVoiceByUrl(audioUrl) {
 /* =========================
    OFFERS / COUPONS HELPERS
    ========================= */
-function readOffers() {
+async function readOffers() {
+  if (db) {
+    try {
+      const snapshot = await db.collection('offers').get();
+      return snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.data().id || doc.id
+      }));
+    } catch (error) {
+      console.error('Firestore readOffers error:', error.message);
+    }
+  }
   return readJson(offersFile, []);
 }
 
-function writeOffers(offers) {
+async function writeOffers(offers) {
   writeJson(offersFile, offers);
+
+  if (db) {
+    try {
+      const batch = db.batch();
+      const ref = db.collection('offers');
+      const current = await ref.get();
+
+      current.docs.forEach((doc) => batch.delete(doc.ref));
+      offers.forEach((offer) => batch.set(ref.doc(String(offer.id)), offer));
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Firestore writeOffers error:', error.message);
+    }
+  }
 }
 
-function readCoupons() {
+async function readCoupons() {
+  if (db) {
+    try {
+      const snapshot = await db.collection('coupons').get();
+      return snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.data().id || doc.id
+      }));
+    } catch (error) {
+      console.error('Firestore readCoupons error:', error.message);
+    }
+  }
   return readJson(couponsFile, []);
 }
 
-function writeCoupons(coupons) {
+async function writeCoupons(coupons) {
   writeJson(couponsFile, coupons);
+
+  if (db) {
+    try {
+      const batch = db.batch();
+      const ref = db.collection('coupons');
+      const current = await ref.get();
+
+      current.docs.forEach((doc) => batch.delete(doc.ref));
+      coupons.forEach((coupon) => batch.set(ref.doc(String(coupon.id)), coupon));
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Firestore writeCoupons error:', error.message);
+    }
+  }
 }
 
 function parseOfferDate(value) {
@@ -260,8 +311,8 @@ function isOfferExpired(offer) {
   return validTill.getTime() < Date.now();
 }
 
-function cleanupExpiredOffers() {
-  const offers = readOffers();
+async function cleanupExpiredOffers() {
+  const offers = await readOffers();
   const activeOffers = [];
 
   for (const offer of offers) {
@@ -273,7 +324,7 @@ function cleanupExpiredOffers() {
   }
 
   if (activeOffers.length !== offers.length) {
-    writeOffers(activeOffers);
+    await writeOffers(activeOffers);
   }
 
   return activeOffers;
@@ -294,11 +345,11 @@ function isCouponExpired(coupon) {
   return validTill.getTime() < Date.now();
 }
 
-function cleanupExpiredCoupons() {
-  const coupons = readCoupons();
+async function cleanupExpiredCoupons() {
+  const coupons = await readCoupons();
   const activeCoupons = coupons.filter((coupon) => !isCouponExpired(coupon));
   if (activeCoupons.length !== coupons.length) {
-    writeCoupons(activeCoupons);
+    await writeCoupons(activeCoupons);
   }
   return activeCoupons;
 }
@@ -342,7 +393,6 @@ function calculateCouponDiscount(subtotal, offer) {
     discountAmount: Math.round(discountAmount * 100) / 100
   };
 }
-
 /* =========================
    FIREBASE OPTIONAL
    ========================= */
@@ -352,21 +402,132 @@ let db = null;
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  } else if (fs.existsSync(path.join(appDir, 'firebase-service-account.json'))) {
-    serviceAccount = require(path.join(appDir, 'firebase-service-account.json'));
+    console.log('Using FIREBASE_SERVICE_ACCOUNT from environment');
+  } else {
+    const keyPath = path.join(appDir, 'firebase-service-account.json');
+    if (fs.existsSync(keyPath)) {
+      serviceAccount = require(keyPath);
+      console.log('Using LOCAL firebase-service-account.json');
+    }
   }
 
-  if (serviceAccount && !admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+  if (serviceAccount) {
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: serviceAccount.project_id
+      });
+    }
+
     db = admin.firestore();
+
+    console.log('Firebase Firestore connected');
+    console.log('Project:', serviceAccount.project_id);
+
+    initializeFirestoreDefaults().catch((error) => {
+      console.error('Firestore init error:', error.message);
+    });
+  } else {
+    console.log('Firebase service account not found, using JSON backup only');
   }
 } catch (error) {
-  console.error('Firebase init failed, falling back to local JSON:', error.message);
+  console.error('Firebase init failed:', error.message);
   db = null;
 }
 
+async function initializeFirestoreDefaults() {
+  if (!db) return;
+
+  try {
+    const defaults = [
+      {
+        collection: 'products',
+        docId: 'init_product',
+        data: {
+          id: 1,
+          name: 'Sample Product',
+          price: 10,
+          originalPrice: 15,
+          stock: 1,
+          category: 'Grocery',
+          image: ''
+        }
+      },
+      {
+        collection: 'orders',
+        docId: 'init_order',
+        data: {
+          id: 'INIT_ORDER',
+          customerPhone: '0000000000',
+          items: [],
+          totalAmount: 0,
+          status: 'Pending',
+          paymentMethod: 'COD',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'offers',
+        docId: 'init_offer',
+        data: {
+          id: 'INIT_OFFER',
+          title: 'Welcome Offer',
+          subtitle: 'First order discount',
+          code: 'WELCOME10',
+          discount: 10,
+          validTill: '2027-01-01',
+          image: ''
+        }
+      },
+      {
+        collection: 'coupons',
+        docId: 'init_coupon',
+        data: {
+          id: 'INIT_COUPON',
+          code: 'WELCOME10',
+          discount: 10,
+          type: 'percentage',
+          minOrderAmount: 100,
+          validTill: '2027-01-01'
+        }
+      },
+      {
+        collection: 'deliveryUsers',
+        docId: 'init_delivery',
+        data: {
+          id: 'INIT_DELIVERY',
+          name: 'Demo Delivery',
+          phone: '0000000000',
+          status: 'Pending Approval'
+        }
+      },
+      {
+        collection: 'voiceOrders',
+        docId: 'init_voice',
+        data: {
+          id: 'INIT_VOICE',
+          customerPhone: '0000000000',
+          audioUrl: '',
+          createdAt: new Date().toISOString()
+        }
+      }
+    ];
+
+    for (const item of defaults) {
+      const ref = db.collection(item.collection).doc(item.docId);
+      const snap = await ref.get();
+
+      if (!snap.exists) {
+        await ref.set(item.data);
+        console.log(`Created default doc in ${item.collection}`);
+      }
+    }
+
+    console.log('Firestore default setup complete');
+  } catch (error) {
+    console.error('Firestore init error:', error.message);
+  }
+}
 /* =========================
    DATA READ/WRITE
    ========================= */
@@ -438,20 +599,72 @@ async function writeOrders(orders) {
   }
 }
 
-function readVoiceOrders() {
+async function readVoiceOrders() {
+  if (db) {
+    try {
+      const snapshot = await db.collection('voiceOrders').get();
+      return snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.data().id || doc.id
+      }));
+    } catch (error) {
+      console.error('Firestore readVoiceOrders error:', error.message);
+    }
+  }
   return readJson(voiceOrdersFile, []);
 }
 
-function writeVoiceOrders(voiceOrders) {
+async function writeVoiceOrders(voiceOrders) {
   writeJson(voiceOrdersFile, voiceOrders);
+
+  if (db) {
+    try {
+      const batch = db.batch();
+      const ref = db.collection('voiceOrders');
+      const current = await ref.get();
+
+      current.docs.forEach((doc) => batch.delete(doc.ref));
+      voiceOrders.forEach((item) => batch.set(ref.doc(String(item.id)), item));
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Firestore writeVoiceOrders error:', error.message);
+    }
+  }
 }
 
-function readDeliveryUsers() {
+async function readDeliveryUsers() {
+  if (db) {
+    try {
+      const snapshot = await db.collection('deliveryUsers').get();
+      return snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.data().id || doc.id
+      }));
+    } catch (error) {
+      console.error('Firestore readDeliveryUsers error:', error.message);
+    }
+  }
   return readJson(deliveryUsersFile, []);
 }
 
-function writeDeliveryUsers(users) {
+async function writeDeliveryUsers(users) {
   writeJson(deliveryUsersFile, users);
+
+  if (db) {
+    try {
+      const batch = db.batch();
+      const ref = db.collection('deliveryUsers');
+      const current = await ref.get();
+
+      current.docs.forEach((doc) => batch.delete(doc.ref));
+      users.forEach((user) => batch.set(ref.doc(String(user.id)), user));
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Firestore writeDeliveryUsers error:', error.message);
+    }
+  }
 }
 
 /* =========================
@@ -667,7 +880,7 @@ app.get('/api/admin/me', requireAdmin, (req, res) => {
    DELIVERY AUTH
    Supports BOTH old + new panel
    ========================= */
-app.post('/api/delivery/request-access', (req, res) => {
+app.post('/api/delivery/request-access', async (req, res) => {
   const name = String(req.body.name || '').trim();
   const phone = normalizePhone(req.body.phone);
 
@@ -675,7 +888,7 @@ app.post('/api/delivery/request-access', (req, res) => {
     return res.status(400).json({ message: 'Valid name and phone required' });
   }
 
-  const deliveryUsers = readDeliveryUsers();
+  const deliveryUsers = await readDeliveryUsers();
   const existing = deliveryUsers.find((user) => normalizePhone(user.phone) === phone);
 
   if (existing) {
@@ -704,7 +917,7 @@ app.post('/api/delivery/request-access', (req, res) => {
   };
 
   deliveryUsers.unshift(newUser);
-  writeDeliveryUsers(deliveryUsers);
+  await writeDeliveryUsers(deliveryUsers);
 
   res.status(201).json({
     message: 'Request sent to admin for approval',
@@ -712,14 +925,14 @@ app.post('/api/delivery/request-access', (req, res) => {
   });
 });
 
-app.post('/api/delivery/login', (req, res) => {
+app.post('/api/delivery/login', async (req, res) => {
   const rawPhone = normalizePhone(req.body.phone);
   const deviceId = String(req.body.deviceId || '').trim();
 
   const username = String(req.body.username || '').trim();
   const password = String(req.body.password || '').trim();
 
-  const deliveryUsers = readDeliveryUsers();
+  const deliveryUsers = await readDeliveryUsers();
 
   if (username || password) {
     if (username === DELIVERY_DEMO_USERNAME && password === DELIVERY_DEMO_PASSWORD) {
@@ -741,7 +954,7 @@ app.post('/api/delivery/login', (req, res) => {
           image: ''
         };
         deliveryUsers.unshift(demoUser);
-        writeDeliveryUsers(deliveryUsers);
+        await writeDeliveryUsers(deliveryUsers);
       }
 
       demoUser.lastLoginAt = getISTDateTime();
@@ -750,7 +963,7 @@ app.post('/api/delivery/login', (req, res) => {
       const idx = deliveryUsers.findIndex((u) => String(u.id) === demoUser.id);
       if (idx !== -1) {
         deliveryUsers[idx] = demoUser;
-        writeDeliveryUsers(deliveryUsers);
+        await writeDeliveryUsers(deliveryUsers);
       }
 
       return res.json({
@@ -800,7 +1013,7 @@ app.post('/api/delivery/login', (req, res) => {
   deliveryUsers[index].lastLoginAt = getISTDateTime();
   deliveryUsers[index].updatedAt = getISTDateTime();
 
-  writeDeliveryUsers(deliveryUsers);
+  await writeDeliveryUsers(deliveryUsers);
 
   const approvedUser = deliveryUsers[index];
 
@@ -817,8 +1030,8 @@ app.post('/api/delivery/login', (req, res) => {
   });
 });
 
-app.get('/api/delivery/me', requireDelivery, (req, res) => {
-  const deliveryUsers = readDeliveryUsers();
+app.get('/api/delivery/me', requireDelivery, async (req, res) => {
+  const deliveryUsers = await readDeliveryUsers();
   const deliveryUser = deliveryUsers.find((user) => String(user.id) === String(req.delivery.id));
 
   if (!deliveryUser && String(req.delivery.id) === 'DB-DEMO-DELIVERY') {
@@ -851,12 +1064,12 @@ app.get('/api/delivery/me', requireDelivery, (req, res) => {
 /* =========================
    DELIVERY ADMIN MANAGEMENT
    ========================= */
-app.get('/api/admin/delivery-users', requireAdmin, (req, res) => {
-  res.json(readDeliveryUsers());
+app.get('/api/admin/delivery-users', requireAdmin, async (req, res) => {
+  res.json(await readDeliveryUsers());
 });
 
-app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
-  const deliveryUsers = readDeliveryUsers();
+app.patch('/api/admin/delivery-users/:id', requireAdmin, async (req, res) => {
+  const deliveryUsers = await readDeliveryUsers();
   const userId = String(req.params.id);
   const index = deliveryUsers.findIndex((user) => String(user.id) === userId);
 
@@ -898,7 +1111,7 @@ app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
   if (resetDevice) deliveryUsers[index].deviceId = '';
   deliveryUsers[index].updatedAt = getISTDateTime();
 
-  writeDeliveryUsers(deliveryUsers);
+  await writeDeliveryUsers(deliveryUsers);
 
   res.json({
     message: 'Delivery ID updated successfully',
@@ -906,8 +1119,8 @@ app.patch('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
   });
 });
 
-app.delete('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
-  const deliveryUsers = readDeliveryUsers();
+app.delete('/api/admin/delivery-users/:id', requireAdmin, async (req, res) => {
+  const deliveryUsers = await readDeliveryUsers();
   const userId = String(req.params.id);
   const filtered = deliveryUsers.filter((user) => String(user.id) !== userId);
 
@@ -915,7 +1128,7 @@ app.delete('/api/admin/delivery-users/:id', requireAdmin, (req, res) => {
     return res.status(404).json({ message: 'Delivery ID not found' });
   }
 
-  writeDeliveryUsers(filtered);
+  await writeDeliveryUsers(filtered);
   res.json({ message: 'Delivery ID deleted successfully' });
 });
 
@@ -1030,8 +1243,8 @@ app.delete('/api/products/:id', requireAdmin, async (req, res) => {
    ========================= */
 
 /* customer active offers */
-app.get('/api/offers', (req, res) => {
-  const offers = cleanupExpiredOffers()
+app.get('/api/offers', async (req, res) => {
+  const offers = (await cleanupExpiredOffers())
     .filter((offer) => String(offer.isActive ?? true) !== 'false')
     .map(sanitizeOfferForResponse);
 
@@ -1039,14 +1252,14 @@ app.get('/api/offers', (req, res) => {
 });
 
 /* admin all offers */
-app.get('/api/admin/offers', requireAdmin, (req, res) => {
-  const offers = cleanupExpiredOffers().map(sanitizeOfferForResponse);
+app.get('/api/admin/offers', requireAdmin, async (req, res) => {
+  const offers = (await cleanupExpiredOffers()).map(sanitizeOfferForResponse);
   res.json(offers);
 });
 
 /* add offer */
-app.post('/api/admin/offers', requireAdmin, (req, res) => {
-  const offers = cleanupExpiredOffers();
+app.post('/api/admin/offers', requireAdmin, async (req, res) => {
+  const offers = await cleanupExpiredOffers();
 
   const image = String(req.body.image || '').trim();
   const title = String(req.body.title || '').trim();
@@ -1098,7 +1311,7 @@ app.post('/api/admin/offers', requireAdmin, (req, res) => {
   };
 
   offers.unshift(offer);
-  writeOffers(offers);
+  await writeOffers(offers);
 
   return res.status(201).json({
     message: 'Offer created successfully',
@@ -1107,8 +1320,8 @@ app.post('/api/admin/offers', requireAdmin, (req, res) => {
 });
 
 /* update offer */
-app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
-  const offers = cleanupExpiredOffers();
+app.put('/api/admin/offers/:id', requireAdmin, async (req, res) => {
+  const offers = await cleanupExpiredOffers();
   const offerId = String(req.params.id || '').trim();
   const index = offers.findIndex((offer) => String(offer.id) === offerId);
 
@@ -1168,7 +1381,7 @@ app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
   if (!updatedOffer.title) return res.status(400).json({ message: 'Offer title required' });
 
   offers[index] = updatedOffer;
-  writeOffers(offers);
+  await writeOffers(offers);
 
   res.json({
     message: 'Offer updated successfully',
@@ -1177,8 +1390,8 @@ app.put('/api/admin/offers/:id', requireAdmin, (req, res) => {
 });
 
 /* delete offer */
-app.delete('/api/admin/offers/:id', requireAdmin, (req, res) => {
-  const offers = cleanupExpiredOffers();
+app.delete('/api/admin/offers/:id', requireAdmin, async (req, res) => {
+  const offers = await cleanupExpiredOffers();
   const offerId = String(req.params.id || '').trim();
   const offer = offers.find((item) => String(item.id) === offerId);
 
@@ -1187,20 +1400,20 @@ app.delete('/api/admin/offers/:id', requireAdmin, (req, res) => {
   if (offer.image) deleteImageByUrl(offer.image);
 
   const filtered = offers.filter((item) => String(item.id) !== offerId);
-  writeOffers(filtered);
+  await writeOffers(filtered);
 
   res.json({ message: 'Offer deleted successfully' });
 });
 
 /* admin coupons list */
-app.get('/api/admin/coupons', requireAdmin, (req, res) => {
-  const coupons = cleanupExpiredCoupons();
+app.get('/api/admin/coupons', requireAdmin, async (req, res) => {
+  const coupons = await cleanupExpiredCoupons();
   res.json(coupons);
 });
 
 /* add coupon */
-app.post('/api/admin/coupons', requireAdmin, (req, res) => {
-  const coupons = cleanupExpiredCoupons();
+app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
+  const coupons = await cleanupExpiredCoupons();
 
   const code = normalizeCouponCode(req.body.code);
   const discount = Number(req.body.discount ?? req.body.discountValue ?? 0);
@@ -1243,7 +1456,7 @@ app.post('/api/admin/coupons', requireAdmin, (req, res) => {
   };
 
   coupons.unshift(coupon);
-  writeCoupons(coupons);
+  await writeCoupons(coupons);
 
   res.status(201).json({
     message: 'Coupon saved successfully',
@@ -1252,21 +1465,21 @@ app.post('/api/admin/coupons', requireAdmin, (req, res) => {
 });
 
 /* delete coupon */
-app.delete('/api/admin/coupons/:id', requireAdmin, (req, res) => {
-  const coupons = cleanupExpiredCoupons();
+app.delete('/api/admin/coupons/:id', requireAdmin, async (req, res) => {
+  const coupons = await cleanupExpiredCoupons();
   const couponId = String(req.params.id || '').trim();
   const coupon = coupons.find((item) => String(item.id) === couponId);
 
   if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
 
   const filtered = coupons.filter((item) => String(item.id) !== couponId);
-  writeCoupons(filtered);
+  await writeCoupons(filtered);
 
   res.json({ message: 'Coupon deleted successfully' });
 });
 
 /* coupon validate from offers */
-app.post('/api/coupons/validate', (req, res) => {
+app.post('/api/coupons/validate', async (req, res) => {
   const subtotal = Number(req.body.subtotal || req.body.total || 0);
   const code = normalizeCouponCode(req.body.code);
 
@@ -1275,7 +1488,7 @@ app.post('/api/coupons/validate', (req, res) => {
     return res.status(400).json({ message: 'Valid subtotal required' });
   }
 
-  const offers = cleanupExpiredOffers();
+  const offers = await cleanupExpiredOffers();
   const offer = offers.find((item) => normalizeCouponCode(item.code) === code && item.isActive !== false);
 
   if (!offer) {
@@ -1310,7 +1523,7 @@ app.post('/api/coupons/validate', (req, res) => {
 });
 
 /* coupon validate from coupons */
-app.post('/api/admin/coupons/validate', requireAdmin, (req, res) => {
+app.post('/api/admin/coupons/validate', requireAdmin, async (req, res) => {
   const subtotal = Number(req.body.subtotal || req.body.total || 0);
   const code = normalizeCouponCode(req.body.code);
 
@@ -1319,7 +1532,7 @@ app.post('/api/admin/coupons/validate', requireAdmin, (req, res) => {
     return res.status(400).json({ message: 'Valid subtotal required' });
   }
 
-  const coupons = cleanupExpiredCoupons();
+  const coupons = await cleanupExpiredCoupons();
   const coupon = coupons.find((item) => normalizeCouponCode(item.code) === code);
 
   if (!coupon) {
@@ -1418,11 +1631,11 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
   const cleanCouponCode = normalizeCouponCode(couponCode);
 
   if (cleanCouponCode) {
-    const offers = cleanupExpiredOffers();
+    const offers = await cleanupExpiredOffers();
     const offer = offers.find((item) => normalizeCouponCode(item.code) === cleanCouponCode && item.isActive !== false);
 
     if (!offer) {
-      const coupons = cleanupExpiredCoupons();
+      const coupons = await cleanupExpiredCoupons();
       const altCoupon = coupons.find((item) => normalizeCouponCode(item.code) === cleanCouponCode);
 
       if (!altCoupon) {
@@ -1451,7 +1664,7 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
       if (couponIndex !== -1) {
         coupons[couponIndex].usedUsers = Number(coupons[couponIndex].usedUsers || 0) + 1;
         coupons[couponIndex].updatedAt = getISTDateTime();
-        writeCoupons(coupons);
+        await writeCoupons(coupons);
       }
     } else {
       const couponResult = calculateCouponDiscount(subtotal, offer);
@@ -1622,7 +1835,7 @@ app.patch('/api/admin/orders/:id/confirm', requireAdmin, async (req, res) => {
 
 app.patch('/api/admin/orders/:id/assign-delivery', requireAdmin, async (req, res) => {
   const orders = await readOrders();
-  const deliveryUsers = readDeliveryUsers();
+  const deliveryUsers = await readDeliveryUsers();
   const orderId = String(req.params.id || '').trim();
   const deliveryBoyId = String(req.body.deliveryBoyId || '').trim();
 
@@ -1768,7 +1981,7 @@ app.put('/api/delivery/orders/:id/status', requireDelivery, handleDeliveryStatus
    VOICE ORDERS
    ========================= */
 app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
-  voiceUpload.single('audio')(req, res, (error) => {
+  voiceUpload.single('audio')(req, res, async (error) => {
     if (error) return res.status(400).json({ message: error.message || 'Voice upload failed' });
 
     const phone = normalizePhone(req.customer.phone);
@@ -1789,7 +2002,7 @@ app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'Audio file required' });
 
     const shipping = Number(getVillageDeliveryCharge(village) || 0);
-    const voiceOrders = readVoiceOrders();
+    const voiceOrders = await readVoiceOrders();
 
     const newVoiceOrder = {
       id: generateVoiceOrderId(),
@@ -1810,7 +2023,7 @@ app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
     };
 
     voiceOrders.unshift(newVoiceOrder);
-    writeVoiceOrders(voiceOrders);
+    await writeVoiceOrders(voiceOrders);
 
     res.status(201).json({
       message: 'Voice order sent successfully',
@@ -1819,7 +2032,7 @@ app.post('/api/customer/voice-order', requireCustomer, (req, res) => {
   });
 });
 
-app.post('/api/customer/voice-order-base64', requireCustomer, (req, res) => {
+app.post('/api/customer/voice-order-base64', requireCustomer, async (req, res) => {
   try {
     const phone = normalizePhone(req.customer.phone);
     const village = normalizeVillage(req.customer.village);
@@ -1860,7 +2073,7 @@ app.post('/api/customer/voice-order-base64', requireCustomer, (req, res) => {
     });
 
     const shipping = Number(getVillageDeliveryCharge(village) || 0);
-    const voiceOrders = readVoiceOrders();
+    const voiceOrders = await readVoiceOrders();
 
     const newVoiceOrder = {
       id: generateVoiceOrderId(),
@@ -1881,7 +2094,7 @@ app.post('/api/customer/voice-order-base64', requireCustomer, (req, res) => {
     };
 
     voiceOrders.unshift(newVoiceOrder);
-    writeVoiceOrders(voiceOrders);
+    await writeVoiceOrders(voiceOrders);
 
     res.status(201).json({
       message: 'Voice order sent successfully',
@@ -1893,12 +2106,12 @@ app.post('/api/customer/voice-order-base64', requireCustomer, (req, res) => {
   }
 });
 
-app.get('/api/admin/voice-orders', requireAdmin, (req, res) => {
-  res.json(readVoiceOrders());
+app.get('/api/admin/voice-orders', requireAdmin, async (req, res) => {
+  res.json(await readVoiceOrders());
 });
 
-app.patch('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
-  const voiceOrders = readVoiceOrders();
+app.patch('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
+  const voiceOrders = await readVoiceOrders();
   const voiceOrderId = String(req.params.id || '').trim();
   const index = voiceOrders.findIndex((item) => String(item.id) === voiceOrderId);
 
@@ -1916,7 +2129,7 @@ app.patch('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
   if (adminNote !== undefined) voiceOrders[index].adminNote = adminNote;
   voiceOrders[index].updatedAt = getISTDateTime();
 
-  writeVoiceOrders(voiceOrders);
+  await writeVoiceOrders(voiceOrders);
 
   res.json({
     message: 'Voice order updated successfully',
@@ -1924,8 +2137,8 @@ app.patch('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
   });
 });
 
-app.delete('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
-  const voiceOrders = readVoiceOrders();
+app.delete('/api/admin/voice-orders/:id', requireAdmin, async (req, res) => {
+  const voiceOrders = await readVoiceOrders();
   const voiceOrderId = String(req.params.id || '').trim();
   const voiceOrder = voiceOrders.find((item) => String(item.id) === voiceOrderId);
 
@@ -1934,11 +2147,40 @@ app.delete('/api/admin/voice-orders/:id', requireAdmin, (req, res) => {
   if (voiceOrder.audioUrl) deleteVoiceByUrl(voiceOrder.audioUrl);
 
   const filtered = voiceOrders.filter((item) => String(item.id) !== voiceOrderId);
-  writeVoiceOrders(filtered);
+  await writeVoiceOrders(filtered);
 
   res.json({ message: 'Voice order deleted successfully' });
 });
 
+app.get('/test-firebase', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ ok: false, message: 'Firebase not connected' });
+    }
+
+    const ref = db.collection('test').doc('check');
+
+    await ref.set({
+      message: 'Firebase connected',
+      time: new Date().toISOString()
+    }, { merge: true });
+
+    const snap = await ref.get();
+
+    res.json({
+      ok: true,
+      projectId: serviceAccount?.project_id || '',
+      databaseId: db.databaseId || '(default)',
+      data: snap.exists ? snap.data() : null
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      message: error.message,
+      code: error.code || ''
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${db ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
