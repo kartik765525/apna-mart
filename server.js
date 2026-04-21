@@ -2234,6 +2234,31 @@ app.get('/test-firebase', async (req, res) => {
     });
   }
 });
+app.get('/get-orders', async (req, res) => {
+  try {
+    const snapshot = await db.collection('orders').get();
+
+    let orders = [];
+
+    snapshot.forEach(doc => {
+      orders.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    res.json({
+      ok: true,
+      data: orders
+    });
+
+  } catch (error) {
+    res.json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
