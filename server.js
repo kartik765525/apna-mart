@@ -423,13 +423,13 @@ try {
         projectId: serviceAccount.project_id
       });
     }
-
     db = admin.firestore();
     firestoreEnabled = true;
 
     console.log('Firebase Firestore connected');
     console.log('Project:', serviceAccount.project_id);
     console.log('Database:', '(default)');
+    initializeFirestoreDefaults();
   } else {
     console.log('Firebase service account not found, using JSON backup only');
   }
@@ -437,6 +437,112 @@ try {
   console.error('Firebase init failed:', error.message);
   db = null;
   firestoreEnabled = false;
+}
+async function initializeFirestoreDefaults() {
+  if (!db || !firestoreEnabled) return;
+
+  try {
+    const defaults = [
+      {
+        collection: 'products',
+        docId: 'init_product',
+        data: {
+          id: 1,
+          name: 'test product',
+          price: 10,
+          originalPrice: 15,
+          stock: 5,
+          category: 'Grocery',
+          image: '',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'orders',
+        docId: 'init_order',
+        data: {
+          id: 'INIT_ORDER',
+          customerPhone: '0000000000',
+          items: [],
+          totalAmount: 0,
+          status: 'Pending',
+          paymentMethod: 'COD',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'offers',
+        docId: 'init_offer',
+        data: {
+          id: 'INIT_OFFER',
+          title: 'Welcome Offer',
+          subtitle: 'First order discount',
+          code: 'WELCOME10',
+          discount: 10,
+          validTill: '2027-01-01',
+          image: '',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'coupons',
+        docId: 'init_coupon',
+        data: {
+          id: 'INIT_COUPON',
+          code: 'WELCOME10',
+          discount: 10,
+          type: 'percentage',
+          minOrderAmount: 100,
+          validTill: '2027-01-01',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'deliveryUsers',
+        docId: 'init_delivery',
+        data: {
+          id: 'INIT_DELIVERY',
+          name: 'Demo Delivery Boy',
+          phone: '0000000000',
+          password: '1234',
+          status: 'Pending Approval',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'voiceOrders',
+        docId: 'init_voice',
+        data: {
+          id: 'INIT_VOICE',
+          customerPhone: '0000000000',
+          audioUrl: '',
+          createdAt: new Date().toISOString()
+        }
+      },
+      {
+        collection: 'test',
+        docId: 'check',
+        data: {
+          message: 'hello',
+          createdAt: new Date().toISOString()
+        }
+      }
+    ];
+
+    for (const item of defaults) {
+      const ref = db.collection(item.collection).doc(item.docId);
+      const snap = await ref.get();
+
+      if (!snap.exists) {
+        await ref.set(item.data);
+        console.log(`Created default doc: ${item.collection}/${item.docId}`);
+      }
+    }
+
+    console.log('Firestore default setup complete');
+  } catch (error) {
+    console.error('Firestore init error:', error.message);
+  }
 }
 
 function isFirestoreNotFoundError(error) {
