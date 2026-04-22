@@ -3942,10 +3942,16 @@ async function applyCheckoutCoupon(){
 
     checkoutCouponDiscount = 0;
     checkoutCouponCode = "";
-    if(msg){ msg.className = "checkout-msg"; msg.textContent = ""; }
+    if(msg){
+        msg.className = "checkout-msg";
+        msg.textContent = "";
+    }
 
     if(!code){
-        if(msg){ msg.classList.add("error"); msg.textContent = "Coupon code likho"; }
+        if(msg){
+            msg.classList.add("error");
+            msg.textContent = "Coupon code likho";
+        }
         updateCheckoutSummary();
         return;
     }
@@ -3953,7 +3959,7 @@ async function applyCheckoutCoupon(){
     const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
 
     try{
-        const res = await fetch(`${API_BASE}/api/coupons/validate`, {
+        const res = await fetch("/api/coupons/validate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code, subtotal })
@@ -3964,12 +3970,22 @@ async function applyCheckoutCoupon(){
         if(res.ok && data.valid){
             checkoutCouponDiscount = Number(data.discountAmount || 0);
             checkoutCouponCode = code;
-            if(msg){ msg.classList.add("success"); msg.textContent = data.message || `Coupon applied: ₹${checkoutCouponDiscount} off`; }
+            if(msg){
+                msg.classList.add("success");
+                msg.textContent = data.message || `Coupon applied: ₹${checkoutCouponDiscount} off`;
+            }
         }else{
-            if(msg){ msg.classList.add("error"); msg.textContent = data.message || "Invalid coupon code"; }
+            if(msg){
+                msg.classList.add("error");
+                msg.textContent = data.message || "Invalid coupon code";
+            }
         }
     }catch(error){
-        if(msg){ msg.classList.add("error"); msg.textContent = "Coupon apply failed"; }
+        console.error("Coupon apply error:", error);
+        if(msg){
+            msg.classList.add("error");
+            msg.textContent = "Coupon apply failed";
+        }
     }
 
     updateCheckoutSummary();
@@ -3980,11 +3996,14 @@ function removeCheckoutCoupon(){
     checkoutCouponCode = "";
     const input = document.getElementById("checkoutCouponInput");
     const msg = document.getElementById("checkoutCouponMsg");
+
     if(input) input.value = "";
+
     if(msg){
         msg.className = "checkout-msg success";
         msg.textContent = "Coupon removed";
     }
+
     updateCheckoutSummary();
 }
 
