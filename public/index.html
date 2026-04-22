@@ -2417,6 +2417,7 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
             <div class="checkout-coupon-row">
                 <input type="text" id="checkoutCouponInput" class="form-input" placeholder="Enter coupon code">
                 <button class="main-btn green-btn checkout-apply-btn" onclick="applyCheckoutCoupon()">Apply</button>
+                <button class="main-btn checkout-apply-btn" style="background:#dc2626;color:#fff;" onclick="removeCheckoutCoupon()">Remove</button>
             </div>
             <div id="checkoutCouponMsg" class="checkout-msg"></div>
         </div>
@@ -3963,6 +3964,19 @@ function applyCheckoutCoupon(){
         if(msg){ msg.classList.add("error"); msg.textContent = "Invalid coupon code"; }
     }
 
+    updateCheckoutSummary();
+}
+
+function removeCheckoutCoupon(){
+    checkoutCouponDiscount = 0;
+    checkoutCouponCode = "";
+    const input = document.getElementById("checkoutCouponInput");
+    const msg = document.getElementById("checkoutCouponMsg");
+    if(input) input.value = "";
+    if(msg){
+        msg.className = "checkout-msg success";
+        msg.textContent = "Coupon removed";
+    }
     updateCheckoutSummary();
 }
 
