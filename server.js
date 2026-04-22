@@ -2500,7 +2500,7 @@ app.post('/api/apply-coupon', async (req, res) => {
     res.json({ ok: false, message: err.message });
   }
 });
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Mode: ${firestoreEnabled ? 'Firestore + JSON backup' : 'Local JSON fallback'}`);
 });
