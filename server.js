@@ -1761,18 +1761,7 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
   orders.unshift(newOrder);
   await writeProducts(products);
   await writeOrders(orders);
-  if (couponCodeUsed) {
-  const couponRef = db.collection('coupons').doc(String(couponCodeUsed).toUpperCase());
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(couponRef);
-    if (snap.exists) {
-      const data = snap.data() || {};
-      tx.update(couponRef, {
-        usedCount: Number(data.usedCount || 0) + 1
-      });
-    }
-  });
-}
+ 
 
   res.status(201).json({
     message: 'Order placed successfully',
