@@ -1766,6 +1766,18 @@ app.post('/api/orders', requireCustomer, async (req, res) => {
   orders.unshift(newOrder);
   await writeProducts(products);
   await writeOrders(orders);
+  if (couponCodeUsed) {
+  const couponRef = db.collection('coupons').doc(String(couponCodeUsed).toUpperCase());
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(couponRef);
+    if (snap.exists) {
+      const data = snap.data() || {};
+      tx.update(couponRef, {
+        usedCount: Number(data.usedCount || 0) + 1
+      });
+    }
+  });
+}
 
   res.status(201).json({
     message: 'Order placed successfully',
@@ -2406,6 +2418,86 @@ app.get('/get-cart', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ ok: false, message: error.message });
+  }
+});
+app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
+  try {
+    const { code, type, discount, minOrder, usageLimit, expiryAt, active, title } = req.body;
+
+    if (!code) {
+      return res.json({ ok: false, message: 'Coupon code required' });
+    }
+
+    await db.collection('coupons').doc(String(code).toUpperCase()).set({
+      code: String(code).toUpperCase(),
+      type: String(type || 'flat'),
+      discount: Number(discount || 0),
+      minOrder: Number(minOrder || 0),
+      usageLimit: Number(usageLimit || 0),
+      usedCount: 0,
+      expiryAt: expiryAt || '',
+      active: active !== false,
+      title: String(title || '')
+    }, { merge: true });
+
+    res.json({ ok: true, message: 'Coupon saved' });
+  } catch (err) {
+    res.json({ ok: false, message: err.message });
+  }
+});
+app.post('/api/apply-coupon', async (req, res) => {
+  try {
+    const { code, subtotal } = req.body;
+    const couponCode = String(code || '').trim().toUpperCase();
+
+    if (!couponCode) {
+      return res.json({ ok: false, message: 'Coupon code required' });
+    }
+
+    const doc = await db.collection('coupons').doc(couponCode).get();
+
+    if (!doc.exists) {
+      return res.json({ ok: false, message: 'Invalid coupon' });
+    }
+
+    const coupon = doc.data();
+
+    if (!coupon.active) {
+      return res.json({ ok: false, message: 'Coupon inactive' });
+    }
+
+    if (coupon.expiryAt && new Date(coupon.expiryAt).getTime() < Date.now()) {
+      return res.json({ ok: false, message: 'Coupon expired' });
+    }
+
+    if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {
+      return res.json({ ok: false, message: 'Coupon limit reached' });
+    }
+
+    if (Number(subtotal || 0) < Number(coupon.minOrder || 0)) {
+      return res.json({ ok: false, message: `Minimum order ₹${coupon.minOrder}` });
+    }
+
+    let discountAmount = 0;
+
+    if (coupon.type === 'percent') {
+      discountAmount = Math.floor((Number(subtotal) * Number(coupon.discount)) / 100);
+    } else {
+      discountAmount = Number(coupon.discount || 0);
+    }
+
+    if (discountAmount > Number(subtotal)) {
+      discountAmount = Number(subtotal);
+    }
+
+    res.json({
+      ok: true,
+      code: coupon.code,
+      discountAmount,
+      coupon
+    });
+  } catch (err) {
+    res.json({ ok: false, message: err.message });
   }
 });
 app.listen(PORT, () => {

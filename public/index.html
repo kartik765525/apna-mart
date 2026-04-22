@@ -3935,7 +3935,7 @@ function updateCheckoutSummary(){
     setText("checkoutOriginalTotal", originalEstimate);
 }
 
-function applyCheckoutCoupon(){
+async function applyCheckoutCoupon(){
     const input = document.getElementById("checkoutCouponInput");
     const msg = document.getElementById("checkoutCouponMsg");
     const code = String(input?.value || "").trim().toUpperCase();
@@ -3952,16 +3952,24 @@ function applyCheckoutCoupon(){
 
     const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
 
-    if(code === "SAVE50"){
-        checkoutCouponDiscount = Math.min(50, subtotal);
-        checkoutCouponCode = code;
-        if(msg){ msg.classList.add("success"); msg.textContent = "₹50 coupon applied"; }
-    }else if(code === "FIRST10"){
-        checkoutCouponDiscount = Math.min(Math.round(subtotal * 0.10), 100);
-        checkoutCouponCode = code;
-        if(msg){ msg.classList.add("success"); msg.textContent = "10% coupon applied"; }
-    }else{
-        if(msg){ msg.classList.add("error"); msg.textContent = "Invalid coupon code"; }
+    try{
+        const res = await fetch(`${API_BASE}/api/coupons/validate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, subtotal })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if(res.ok && data.valid){
+            checkoutCouponDiscount = Number(data.discountAmount || 0);
+            checkoutCouponCode = code;
+            if(msg){ msg.classList.add("success"); msg.textContent = data.message || `Coupon applied: ₹${checkoutCouponDiscount} off`; }
+        }else{
+            if(msg){ msg.classList.add("error"); msg.textContent = data.message || "Invalid coupon code"; }
+        }
+    }catch(error){
+        if(msg){ msg.classList.add("error"); msg.textContent = "Coupon apply failed"; }
     }
 
     updateCheckoutSummary();
