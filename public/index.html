@@ -4367,3 +4367,73 @@ initApp();
 
 </body>
 </html>
+
+<!-- ===== CHECKOUT SYSTEM ADDED ===== -->
+<div id="checkoutPanel" class="side-panel">
+    <div class="panel-top">
+        <h3>🧾 Checkout</h3>
+        <button class="close-btn" onclick="closeCheckout()">×</button>
+    </div>
+
+    <div class="summary-box">
+        <h4>📍 Delivery Address</h4>
+        <div id="checkoutLocation">Detecting location...</div>
+    </div>
+
+    <div class="summary-box">
+        <h4>🎟 Coupon</h4>
+        <input id="couponInput" class="form-input" placeholder="Enter Coupon">
+        <button class="main-btn green-btn" onclick="applyCoupon()">Apply</button>
+        <div id="couponMsg"></div>
+    </div>
+
+    <div class="summary-box">
+        <h4>💳 Payment</h4>
+        <label><input type="radio" name="pay" value="cod" checked> COD</label><br>
+        <label><input type="radio" name="pay" value="upi"> UPI</label>
+    </div>
+
+    <div class="summary-box">
+        <h4>Total ₹<span id="coTotal">0</span></h4>
+    </div>
+
+    <button class="main-btn green-btn" onclick="confirmOrder()">Confirm Order</button>
+</div>
+
+<script>
+let appliedDiscount=0;
+
+function openCheckout(){
+document.getElementById("checkoutPanel").classList.add("open");
+updateTotal();
+detectLocationFast();
+}
+
+function closeCheckout(){
+document.getElementById("checkoutPanel").classList.remove("open");
+}
+
+function updateTotal(){
+let subtotal=(window.cart||[]).reduce((t,i)=>t+i.price*i.qty,0);
+document.getElementById("coTotal").innerText=subtotal-appliedDiscount;
+}
+
+function applyCoupon(){
+let code=document.getElementById("couponInput").value.toUpperCase();
+if(code==="SAVE50"){appliedDiscount=50;couponMsg.innerText="Applied";}
+else{appliedDiscount=0;couponMsg.innerText="Invalid";}
+updateTotal();
+}
+
+async function detectLocationFast(){
+try{
+let res=await fetch("https://ipapi.co/json/");
+let d=await res.json();
+checkoutLocation.innerText=d.city+", "+d.region;
+}catch{checkoutLocation.innerText="Location failed";}
+}
+
+function confirmOrder(){
+alert("Order Successful");
+}
+</script>
