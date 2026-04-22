@@ -2190,6 +2190,47 @@ html[data-theme="dark"] .place-order-loader-sub{
     color:#94a3b8;
 }
 
+
+
+/* CHECKOUT PANEL ADDON */
+#cartPanel .cart-payment-box,
+#savedProfileBox{display:none !important;}
+.checkout-panel{background:#f5f6f8;padding:0 !important;z-index:1005 !important;}
+.checkout-panel .checkout-header{background:#fff;padding:18px 16px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;}
+.checkout-panel .checkout-title{font-size:20px;font-weight:700;color:#111827;}
+.checkout-body{padding:0 0 120px 0;background:#f5f6f8;}
+.checkout-card{background:#fff;margin:10px 0;padding:16px;border-top:1px solid #eceff3;border-bottom:1px solid #eceff3;}
+.checkout-card h4{font-size:16px;margin-bottom:10px;color:#111827;}
+.checkout-location-line{font-size:15px;color:#374151;line-height:1.5;}
+.checkout-location-sub{margin-top:6px;color:#6b7280;font-size:14px;line-height:1.5;}
+.checkout-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0;color:#374151;font-size:15px;gap:12px;}
+.checkout-coupon-row{display:flex;gap:10px;align-items:center;}
+.checkout-coupon-row .form-input{margin-top:0;flex:1;}
+.checkout-apply-btn{width:auto;margin-top:0;padding:11px 14px;white-space:nowrap;}
+.checkout-payment-option{display:flex;align-items:center;gap:8px;margin:10px 0;font-weight:600;color:#374151;}
+.checkout-bottom{position:sticky;bottom:0;background:#fff;border-top:1px solid #eceff3;padding:12px 14px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px;}
+.checkout-bottom-price{min-width:0;flex:1;}
+.checkout-bottom-price .small{color:#9ca3af;text-decoration:line-through;font-size:15px;}
+.checkout-bottom-price .big{color:#111827;font-size:17px;font-weight:800;}
+.checkout-confirm-btn{min-width:170px;border:none;border-radius:10px;background:#facc15;color:#111827;padding:16px 20px;font-size:18px;font-weight:800;cursor:pointer;}
+.checkout-msg{margin-top:8px;font-size:13px;font-weight:700;}
+.checkout-msg.success{color:#15803d;}
+.checkout-msg.error{color:#dc2626;}
+html[data-theme="dark"] .checkout-panel,
+html[data-theme="dark"] .checkout-body{background:#0f172a !important;}
+html[data-theme="dark"] .checkout-header,
+html[data-theme="dark"] .checkout-card,
+html[data-theme="dark"] .checkout-bottom{background:#111827 !important;color:#e5e7eb !important;border-color:#263244 !important;}
+html[data-theme="dark"] .checkout-title,
+html[data-theme="dark"] .checkout-card h4,
+html[data-theme="dark"] .checkout-bottom-price .big{color:#e5e7eb !important;}
+html[data-theme="dark"] .checkout-location-sub,
+html[data-theme="dark"] .checkout-row,
+html[data-theme="dark"] .checkout-location-line,
+html[data-theme="dark"] .checkout-payment-option{color:#94a3b8 !important;}
+html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !important;color:#e5e7eb !important;border-color:#263244 !important;}
+@media (max-width:600px){.checkout-confirm-btn{min-width:145px;padding:15px 16px;font-size:17px;}}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -2356,6 +2397,53 @@ html[data-theme="dark"] .place-order-loader-sub{
             <button onclick="placeOrder()" id="placeOrderBtn" class="cart-place-order-btn">Place order</button>
         </div>
     </div>
+
+<div class="side-panel checkout-panel" id="checkoutPanel">
+    <div class="checkout-header">
+        <button class="close-btn" onclick="closeCheckoutPanel()">←</button>
+        <div class="checkout-title">Checkout</div>
+    </div>
+
+    <div class="checkout-body">
+        <div class="checkout-card">
+            <h4>📍 Delivery Address</h4>
+            <div class="checkout-location-line" id="checkoutNameLine">Deliver to: Guest User</div>
+            <div class="checkout-location-sub" id="checkoutAddressLine">Detecting address...</div>
+            <button class="change-address-btn" style="margin-top:12px;" onclick="openProfilePage()">Change</button>
+        </div>
+
+        <div class="checkout-card">
+            <h4>🎟 Apply Coupon</h4>
+            <div class="checkout-coupon-row">
+                <input type="text" id="checkoutCouponInput" class="form-input" placeholder="Enter coupon code">
+                <button class="main-btn green-btn checkout-apply-btn" onclick="applyCheckoutCoupon()">Apply</button>
+            </div>
+            <div id="checkoutCouponMsg" class="checkout-msg"></div>
+        </div>
+
+        <div class="checkout-card">
+            <h4>💳 Payment Option</h4>
+            <label class="checkout-payment-option"><input type="radio" name="checkoutPayment" value="cod" checked> Cash on Delivery</label>
+            <label class="checkout-payment-option"><input type="radio" name="checkoutPayment" value="upi"> Prepaid / UPI</label>
+        </div>
+
+        <div class="checkout-card">
+            <h4>💰 Price Details</h4>
+            <div class="checkout-row"><span>Subtotal</span><strong>₹<span id="checkoutSubtotal">0</span></strong></div>
+            <div class="checkout-row"><span>Shipping</span><strong>₹<span id="checkoutShipping">0</span></strong></div>
+            <div class="checkout-row"><span>Coupon Discount</span><strong>-₹<span id="checkoutDiscount">0</span></strong></div>
+            <div class="checkout-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #eceff3;font-size:16px;"><span><strong>Total Pay</strong></span><strong>₹<span id="checkoutGrandTotal">0</span></strong></div>
+        </div>
+    </div>
+
+    <div class="checkout-bottom">
+        <div class="checkout-bottom-price">
+            <div class="small">₹<span id="checkoutOriginalTotal">0</span></div>
+            <div class="big">₹<span id="checkoutBottomGrand">0</span></div>
+        </div>
+        <button class="checkout-confirm-btn" onclick="submitCheckoutOrder()">Confirm Order</button>
+    </div>
+</div>
 
     
 <div class="side-panel" id="ordersPanel">
@@ -3446,6 +3534,7 @@ function closeAllPanels(clearHash = false) {
     document.getElementById("supportPanel")?.classList.remove("open");
     document.getElementById("languagePanel")?.classList.remove("open");
     document.getElementById("profilePage")?.classList.remove("open");
+    document.getElementById("checkoutPanel")?.classList.remove("open");
 
     if (clearHash && location.hash) {
         history.replaceState({}, "", location.pathname + location.search);
@@ -3489,6 +3578,10 @@ function syncPanelWithHash(){
         document.getElementById("profilePage")?.classList.add("open");
         loadProfileForm();
         showProfileView();
+        return;
+    }
+    if(hash === "checkout"){
+        document.getElementById("checkoutPanel")?.classList.add("open");
         return;
     }
 
@@ -3777,7 +3870,107 @@ function getCurrentOrderLocation() {
     });
 }
 
-async function placeOrder() {
+let checkoutCouponDiscount = 0;
+let checkoutCouponCode = "";
+
+function openCheckoutPanel(addToHistory = true){
+    if (cart.length === 0) {
+        showToast("Cart is empty!", "error");
+        return;
+    }
+    closeAllPanels(false);
+    document.getElementById("checkoutPanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("checkout");
+    loadCheckoutDetails();
+}
+
+function closeCheckoutPanel(){
+    closeAllPanels(true);
+}
+
+async function loadCheckoutDetails(){
+    const profile = getSavedProfile() || {};
+    const strongName = (profile.name || "Guest User") + (profile.village ? ", " + String(profile.village).toUpperCase() : "");
+    const addressText = profile.address ? `${profile.address}${profile.landmark ? ", " + profile.landmark : ""}` : "Detecting address...";
+    const nameEl = document.getElementById("checkoutNameLine");
+    const addrEl = document.getElementById("checkoutAddressLine");
+    if(nameEl) nameEl.innerHTML = `Deliver to: <strong>${strongName}</strong>`;
+    if(addrEl) addrEl.textContent = addressText;
+
+    try{
+        const fast = await detectCheckoutLocationFast();
+        if(fast && addrEl && (!profile.address || !String(profile.address).trim())){
+            addrEl.textContent = fast;
+        }
+    }catch(e){}
+
+    updateCheckoutSummary();
+}
+
+async function detectCheckoutLocationFast(){
+    try{
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        const parts = [data.city, data.region, data.postal].filter(Boolean);
+        return parts.join(", ") || null;
+    }catch(error){
+        return null;
+    }
+}
+
+function updateCheckoutSummary(){
+    const profile = getSavedProfile();
+    const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+    const shipping = profile ? (getVillageDeliveryCharge(profile.village) ?? 0) : 0;
+    const originalEstimate = estimateOriginalTotal(subtotal, shipping);
+    const finalTotal = Math.max(0, subtotal + shipping - checkoutCouponDiscount);
+
+    const setText = (id, value) => { const el = document.getElementById(id); if(el) el.innerText = value; };
+    setText("checkoutSubtotal", subtotal);
+    setText("checkoutShipping", shipping);
+    setText("checkoutDiscount", checkoutCouponDiscount);
+    setText("checkoutGrandTotal", finalTotal);
+    setText("checkoutBottomGrand", finalTotal);
+    setText("checkoutOriginalTotal", originalEstimate);
+}
+
+function applyCheckoutCoupon(){
+    const input = document.getElementById("checkoutCouponInput");
+    const msg = document.getElementById("checkoutCouponMsg");
+    const code = String(input?.value || "").trim().toUpperCase();
+
+    checkoutCouponDiscount = 0;
+    checkoutCouponCode = "";
+    if(msg){ msg.className = "checkout-msg"; msg.textContent = ""; }
+
+    if(!code){
+        if(msg){ msg.classList.add("error"); msg.textContent = "Coupon code likho"; }
+        updateCheckoutSummary();
+        return;
+    }
+
+    const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+
+    if(code === "SAVE50"){
+        checkoutCouponDiscount = Math.min(50, subtotal);
+        checkoutCouponCode = code;
+        if(msg){ msg.classList.add("success"); msg.textContent = "₹50 coupon applied"; }
+    }else if(code === "FIRST10"){
+        checkoutCouponDiscount = Math.min(Math.round(subtotal * 0.10), 100);
+        checkoutCouponCode = code;
+        if(msg){ msg.classList.add("success"); msg.textContent = "10% coupon applied"; }
+    }else{
+        if(msg){ msg.classList.add("error"); msg.textContent = "Invalid coupon code"; }
+    }
+
+    updateCheckoutSummary();
+}
+
+async function placeOrder(){
+    openCheckoutPanel(true);
+}
+
+async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
     if(!isLoggedIn){
         showToast("Pehle OTP login karo", "error");
@@ -3792,7 +3985,7 @@ async function placeOrder() {
         return;
     }
 
-    const payment = document.querySelector('input[name="payment"]:checked').value;
+    const payment = document.querySelector('input[name="checkoutPayment"]:checked')?.value || 'cod';
 
     if (cart.length === 0) {
         showToast("Cart is empty!", "error");
@@ -3819,7 +4012,9 @@ async function placeOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
-                customerLocation: currentLocation
+                customerLocation: currentLocation,
+                couponCode: checkoutCouponCode || '',
+                couponDiscount: checkoutCouponDiscount || 0
             })
         });
 
@@ -3833,6 +4028,9 @@ async function placeOrder() {
 
         if (payment === "cod") {
             cart = [];
+            checkoutCouponDiscount = 0;
+            checkoutCouponCode = "";
+            closeCheckoutPanel();
             update();
             await saveCartToFirebase();
             fetchProducts();
@@ -3843,6 +4041,9 @@ async function placeOrder() {
 
         if (payment === "upi") {
             cart = [];
+            checkoutCouponDiscount = 0;
+            checkoutCouponCode = "";
+            closeCheckoutPanel();
             update();
             await saveCartToFirebase();
             fetchProducts();
@@ -4367,73 +4568,3 @@ initApp();
 
 </body>
 </html>
-
-<!-- ===== CHECKOUT SYSTEM ADDED ===== -->
-<div id="checkoutPanel" class="side-panel">
-    <div class="panel-top">
-        <h3>🧾 Checkout</h3>
-        <button class="close-btn" onclick="closeCheckout()">×</button>
-    </div>
-
-    <div class="summary-box">
-        <h4>📍 Delivery Address</h4>
-        <div id="checkoutLocation">Detecting location...</div>
-    </div>
-
-    <div class="summary-box">
-        <h4>🎟 Coupon</h4>
-        <input id="couponInput" class="form-input" placeholder="Enter Coupon">
-        <button class="main-btn green-btn" onclick="applyCoupon()">Apply</button>
-        <div id="couponMsg"></div>
-    </div>
-
-    <div class="summary-box">
-        <h4>💳 Payment</h4>
-        <label><input type="radio" name="pay" value="cod" checked> COD</label><br>
-        <label><input type="radio" name="pay" value="upi"> UPI</label>
-    </div>
-
-    <div class="summary-box">
-        <h4>Total ₹<span id="coTotal">0</span></h4>
-    </div>
-
-    <button class="main-btn green-btn" onclick="confirmOrder()">Confirm Order</button>
-</div>
-
-<script>
-let appliedDiscount=0;
-
-function openCheckout(){
-document.getElementById("checkoutPanel").classList.add("open");
-updateTotal();
-detectLocationFast();
-}
-
-function closeCheckout(){
-document.getElementById("checkoutPanel").classList.remove("open");
-}
-
-function updateTotal(){
-let subtotal=(window.cart||[]).reduce((t,i)=>t+i.price*i.qty,0);
-document.getElementById("coTotal").innerText=subtotal-appliedDiscount;
-}
-
-function applyCoupon(){
-let code=document.getElementById("couponInput").value.toUpperCase();
-if(code==="SAVE50"){appliedDiscount=50;couponMsg.innerText="Applied";}
-else{appliedDiscount=0;couponMsg.innerText="Invalid";}
-updateTotal();
-}
-
-async function detectLocationFast(){
-try{
-let res=await fetch("https://ipapi.co/json/");
-let d=await res.json();
-checkoutLocation.innerText=d.city+", "+d.region;
-}catch{checkoutLocation.innerText="Location failed";}
-}
-
-function confirmOrder(){
-alert("Order Successful");
-}
-</script>
