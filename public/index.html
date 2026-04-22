@@ -1960,6 +1960,127 @@ html[data-theme="dark"] .offer-icon{background:#0f172a;color:#facc15;}
     .offers-heading{font-size:13px;padding:9px 14px;}
 }
 
+
+/* COMMERCE LOADER */
+.commerce-loader{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eaf4fb;
+    z-index:1000003;
+    opacity:1;
+    transition:opacity .28s ease, visibility .28s ease;
+    padding:24px;
+}
+.commerce-loader.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+.commerce-loader-box{
+    width:100%;
+    max-width:360px;
+    text-align:center;
+}
+.commerce-loader-visual{
+    width:220px;
+    height:220px;
+    margin:0 auto 18px;
+    position:relative;
+}
+.commerce-loader-ring{
+    position:absolute;
+    inset:22px;
+    border:3px solid rgba(255,255,255,.95);
+    border-radius:50%;
+}
+.commerce-loader-cart{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    font-size:72px;
+    color:#1696d2;
+    animation:loaderPulse 1.4s ease-in-out infinite;
+}
+.commerce-loader-device{
+    position:absolute;
+    color:#1696d2;
+    animation:loaderFloat 2.2s ease-in-out infinite;
+}
+.commerce-loader-device.phone{
+    right:8px;
+    top:8px;
+    font-size:64px;
+}
+.commerce-loader-device.pos{
+    left:6px;
+    bottom:28px;
+    font-size:58px;
+    animation-delay:.3s;
+}
+.commerce-loader-device.card{
+    left:26px;
+    top:62px;
+    font-size:34px;
+    animation-delay:.6s;
+}
+.commerce-loader-device.tap{
+    right:42px;
+    bottom:24px;
+    font-size:36px;
+    animation-delay:.9s;
+}
+.commerce-loader-dot{
+    position:absolute;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,.9);
+    animation:loaderBlink 1.6s ease-in-out infinite;
+}
+.commerce-loader-dot.dot1{top:24px;left:30px;}
+.commerce-loader-dot.dot2{top:120px;left:8px;animation-delay:.25s;}
+.commerce-loader-dot.dot3{right:18px;top:94px;animation-delay:.5s;}
+.commerce-loader-dot.dot4{right:56px;bottom:8px;animation-delay:.75s;}
+.commerce-loader-title{
+    font-size:22px;
+    font-weight:800;
+    color:#175a78;
+}
+.commerce-loader-sub{
+    margin-top:8px;
+    font-size:14px;
+    line-height:1.6;
+    color:#5f7e8d;
+}
+@keyframes loaderPulse{
+    0%,100%{transform:translate(-50%,-50%) scale(1);}
+    50%{transform:translate(-50%,-50%) scale(1.08);}
+}
+@keyframes loaderFloat{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-7px);}
+}
+@keyframes loaderBlink{
+    0%,100%{opacity:.35;}
+    50%{opacity:1;}
+}
+html[data-theme="dark"] .commerce-loader{
+    background:#10202a;
+}
+html[data-theme="dark"] .commerce-loader-ring{
+    border-color:rgba(255,255,255,.14);
+}
+html[data-theme="dark"] .commerce-loader-title{
+    color:#e0f2fe;
+}
+html[data-theme="dark"] .commerce-loader-sub{
+    color:#94a3b8;
+}
+
 /* CUSTOM TOAST + SUCCESS SCREEN */
 .app-toast{
     position:fixed;
@@ -2279,6 +2400,26 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
     }catch(e){}
 })();
 </script>
+
+
+<div id="appStartLoader" class="commerce-loader">
+    <div class="commerce-loader-box">
+        <div class="commerce-loader-visual">
+            <div class="commerce-loader-ring"></div>
+            <div class="commerce-loader-cart">🛒</div>
+            <div class="commerce-loader-device phone">📱</div>
+            <div class="commerce-loader-device pos">🏧</div>
+            <div class="commerce-loader-device card">💳</div>
+            <div class="commerce-loader-device tap">✅</div>
+            <div class="commerce-loader-dot dot1"></div>
+            <div class="commerce-loader-dot dot2"></div>
+            <div class="commerce-loader-dot dot3"></div>
+            <div class="commerce-loader-dot dot4"></div>
+        </div>
+        <div class="commerce-loader-title">Loading products...</div>
+        <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
+    </div>
+</div>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
@@ -2629,12 +2770,24 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
 <div id="appToast" class="app-toast"></div>
 
 
-<div id="placeOrderLoader" class="place-order-loader">
-    <div class="place-order-loader-box">
-        <div class="place-order-loader-spinner"></div>
-        <div class="place-order-loader-title">Placing Order...</div>
-        <div class="place-order-loader-sub">Please wait, aapka order place ho raha hai.</div>
+<div id="placeOrderLoader" class="commerce-loader hidden">
+    <div class="commerce-loader-box">
+        <div class="commerce-loader-visual">
+            <div class="commerce-loader-ring"></div>
+            <div class="commerce-loader-cart">🛒</div>
+            <div class="commerce-loader-device phone">📱</div>
+            <div class="commerce-loader-device pos">🏧</div>
+            <div class="commerce-loader-device card">💳</div>
+            <div class="commerce-loader-device tap">✅</div>
+            <div class="commerce-loader-dot dot1"></div>
+            <div class="commerce-loader-dot dot2"></div>
+            <div class="commerce-loader-dot dot3"></div>
+            <div class="commerce-loader-dot dot4"></div>
+        </div>
+        <div class="commerce-loader-title">Placing order...</div>
+        <div class="commerce-loader-sub">Please wait, aapka order place ho raha hai.</div>
     </div>
+</div>
 </div>
 
 <div id="successScreen" class="success-screen">
@@ -2675,15 +2828,13 @@ window.alert = function(message){
 function showPlaceOrderLoader(){
     const loader = document.getElementById("placeOrderLoader");
     if(!loader) return;
-    loader.style.display = "flex";
-    requestAnimationFrame(() => loader.classList.add("show"));
+    loader.classList.remove("hidden");
 }
 
 function hidePlaceOrderLoader(){
     const loader = document.getElementById("placeOrderLoader");
     if(!loader) return;
-    loader.classList.remove("show");
-    setTimeout(() => { loader.style.display = "none"; }, 250);
+    loader.classList.add("hidden");
 }
 
 function showSuccessScreen(customMessage){
@@ -3522,6 +3673,18 @@ function getSmallProductImageSrc(image){
 
     return fallback;
 }
+
+function hideAppStartLoader(){
+    const loader = document.getElementById("appStartLoader");
+    if(!loader) return;
+    loader.classList.add("hidden");
+    setTimeout(() => {
+        if(loader && loader.parentNode){
+            loader.parentNode.removeChild(loader);
+        }
+    }, 320);
+}
+
 async function fetchProducts() {
     try {
         const res = await fetch("/api/products");
@@ -3533,6 +3696,8 @@ async function fetchProducts() {
     } catch (error) {
         console.error(error);
         alert("Products load nahi hue");
+    } finally {
+        hideAppStartLoader();
     }
 }
 
@@ -3673,7 +3838,14 @@ function loadProducts() {
 }
 
 function normalizeCategory(value){
-    return String(value || "").trim().toLowerCase();
+    const v = String(value || "").trim().toLowerCase();
+    if(["vegetable","vegetables","vegitable","vegitable","vegitables","sabzi","sabziyan"].includes(v)) return "vegetables";
+    if(["drink","drinks","beverage","beverages","juice","juices","cold drink","cold drinks"].includes(v)) return "drink";
+    if(["grocery","groceries","kirana"].includes(v)) return "grocery";
+    if(["dairy","milk","bread & eggs","bread and eggs"].includes(v)) return "dairy";
+    if(["bakery","biscuit","biscuits"].includes(v)) return "bakery";
+    if(["fast food","fastfood","fast-food","snacks"].includes(v)) return "fast food";
+    return v;
 }
 
 function filterCategory(cat, el) {
