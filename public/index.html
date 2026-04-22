@@ -3942,6 +3942,7 @@ async function applyCheckoutCoupon(){
 
     checkoutCouponDiscount = 0;
     checkoutCouponCode = "";
+
     if(msg){
         msg.className = "checkout-msg";
         msg.textContent = "";
@@ -4011,6 +4012,32 @@ async function placeOrder(){
     openCheckoutPanel(true);
 }
 
+
+async function getQuickCheckoutLocation(){
+    try{
+        const fastText = await Promise.race([
+            detectCheckoutLocationFast(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1200))
+        ]);
+        const gpsLocation = await Promise.race([
+            getCurrentOrderLocation(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1800))
+        ]);
+
+        if(gpsLocation && typeof gpsLocation === "object"){
+            return gpsLocation;
+        }
+
+        if(fastText){
+            return { latitude: "", longitude: "", accuracy: 0, addressText: fastText };
+        }
+
+        return null;
+    }catch(error){
+        return null;
+    }
+}
+
 async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
     if(!isLoggedIn){
@@ -4037,12 +4064,7 @@ async function submitCheckoutOrder() {
 
     showPlaceOrderLoader();
 
-    let currentLocation = null;
-    try {
-        currentLocation = await getCurrentOrderLocation();
-    } catch (error) {
-        currentLocation = null;
-    }
+    let currentLocation = await getQuickCheckoutLocation();
 
     try {
         const response = await fetch("/api/orders", {
@@ -4071,6 +4093,10 @@ async function submitCheckoutOrder() {
             cart = [];
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
+            const checkoutCouponInput = document.getElementById("checkoutCouponInput");
+            const checkoutCouponMsg = document.getElementById("checkoutCouponMsg");
+            if(checkoutCouponInput) checkoutCouponInput.value = "";
+            if(checkoutCouponMsg){ checkoutCouponMsg.className = "checkout-msg"; checkoutCouponMsg.textContent = ""; }
             closeCheckoutPanel();
             update();
             await saveCartToFirebase();
@@ -4084,6 +4110,10 @@ async function submitCheckoutOrder() {
             cart = [];
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
+            const checkoutCouponInput = document.getElementById("checkoutCouponInput");
+            const checkoutCouponMsg = document.getElementById("checkoutCouponMsg");
+            if(checkoutCouponInput) checkoutCouponInput.value = "";
+            if(checkoutCouponMsg){ checkoutCouponMsg.className = "checkout-msg"; checkoutCouponMsg.textContent = ""; }
             closeCheckoutPanel();
             update();
             await saveCartToFirebase();
