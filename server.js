@@ -1525,55 +1525,47 @@ app.post('/api/coupons/validate', async (req, res) => {
   const subtotal = Number(req.body.subtotal || req.body.total || 0);
   const code = normalizeCouponCode(req.body.code);
 
-  if (!code) return res.status(400).json({ message: 'Coupon code required' });
-  if (!Number.isFinite(subtotal) || subtotal <= 0) {
-    return res.status(400).json({ message: 'Valid subtotal required' });
+  if (!code) {
+    return res.status(400).json({ valid: false, message: 'Coupon code required' });
   }
 
+  if (!Number.isFinite(subtotal) || subtotal <= 0) {
+    return res.status(400).json({ valid: false, message: 'Valid subtotal required' });
+  }
+
+  // 1) pehle offers me check karo
   const offers = await cleanupExpiredOffers();
   const offer = offers.find((item) => normalizeCouponCode(item.code) === code && item.isActive !== false);
 
-  if (!offer) {
-    return res.status(404).json({ valid: false, message: 'Invalid or expired coupon' });
-  }
+  if (offer) {
+    const result = calculateCouponDiscount(subtotal, offer);
 
-  const result = calculateCouponDiscount(subtotal, offer);
+    if (!result.valid) {
+      return res.status(400).json({
+        valid: false,
+        message: result.message,
+        discountAmount: 0
+      });
+    }
 
-  if (!result.valid) {
-    return res.status(400).json({
-      valid: false,
+    return res.json({
+      valid: true,
       message: result.message,
-      discountAmount: 0
+      coupon: {
+        id: offer.id,
+        title: offer.title,
+        code: offer.code,
+        discountType: offer.discountType,
+        discountValue: offer.discountValue,
+        minOrderAmount: Number(offer.minOrderAmount || 0),
+        maxDiscount: Number(offer.maxDiscount || 0),
+        validTill: offer.validTill
+      },
+      discountAmount: result.discountAmount
     });
   }
 
-  res.json({
-    valid: true,
-    message: result.message,
-    coupon: {
-      id: offer.id,
-      title: offer.title,
-      code: offer.code,
-      discountType: offer.discountType,
-      discountValue: offer.discountValue,
-      minOrderAmount: Number(offer.minOrderAmount || 0),
-      maxDiscount: Number(offer.maxDiscount || 0),
-      validTill: offer.validTill
-    },
-    discountAmount: result.discountAmount
-  });
-});
-
-/* coupon validate from coupons */
-app.post('/api/admin/coupons/validate', requireAdmin, async (req, res) => {
-  const subtotal = Number(req.body.subtotal || req.body.total || 0);
-  const code = normalizeCouponCode(req.body.code);
-
-  if (!code) return res.status(400).json({ message: 'Coupon code required' });
-  if (!Number.isFinite(subtotal) || subtotal <= 0) {
-    return res.status(400).json({ message: 'Valid subtotal required' });
-  }
-
+  // 2) agar offers me na mile to real coupons me check karo
   const coupons = await cleanupExpiredCoupons();
   const coupon = coupons.find((item) => normalizeCouponCode(item.code) === code);
 
@@ -1586,6 +1578,7 @@ app.post('/api/admin/coupons/validate', requireAdmin, async (req, res) => {
   }
 
   let discountAmount = 0;
+
   if (coupon.type === 'percent') {
     discountAmount = (subtotal * Number(coupon.discount || 0)) / 100;
   } else {
@@ -1594,13 +1587,15 @@ app.post('/api/admin/coupons/validate', requireAdmin, async (req, res) => {
 
   discountAmount = Math.max(0, Math.min(discountAmount, subtotal));
 
-  res.json({
+  return res.json({
     valid: true,
     message: 'Coupon applied successfully',
     coupon,
     discountAmount
   });
 });
+
+
 
 /* =========================
    CUSTOMER ORDERS
