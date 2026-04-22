@@ -1928,99 +1928,6 @@ html[data-theme="dark"] .offer-icon{background:#0f172a;color:#facc15;}
     .offers-heading{font-size:13px;padding:9px 14px;}
 }
 
-
-/* MOBILE CATEGORY EXPLORER */
-.mobile-category-explorer{
-    display:none;
-    padding:4px 14px 12px 14px;
-}
-.mobile-category-section{
-    margin-top:12px;
-}
-.mobile-category-title{
-    font-size:20px;
-    font-weight:900;
-    color:#243447;
-    margin:0 0 12px 0;
-}
-.mobile-category-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
-}
-.mobile-category-card{
-    border:none;
-    background:transparent;
-    text-align:center;
-    cursor:pointer;
-    padding:0;
-}
-.mobile-category-thumb{
-    width:100%;
-    aspect-ratio:1/1;
-    border-radius:18px;
-    background:#eaf3f1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.04);
-}
-.mobile-category-thumb img{
-    width:78%;
-    height:78%;
-    object-fit:contain;
-}
-.mobile-category-name{
-    margin-top:10px;
-    font-size:12px;
-    line-height:1.25;
-    font-weight:800;
-    color:#2d3748;
-    min-height:30px;
-}
-html[data-theme="dark"] .mobile-category-title{color:#f8fafc;}
-html[data-theme="dark"] .mobile-category-thumb{
-    background:#1a2436;
-    border:1px solid #31415d;
-}
-html[data-theme="dark"] .mobile-category-name{color:#e5e7eb;}
-@media (max-width:700px){
-    .mobile-category-explorer.show{display:block;}
-    .welcome-stack.mobile-hidden,
-    #products.mobile-hidden{display:none !important;}
-    .products{
-        grid-template-columns:repeat(2,1fr) !important;
-        gap:10px !important;
-        padding:0 8px 15px 8px !important;
-    }
-    .product-card{
-        padding:8px !important;
-        border-radius:12px !important;
-    }
-    .product-image{
-        height:130px !important;
-    }
-    .product-name{
-        font-size:14px !important;
-        min-height:auto !important;
-        display:block !important;
-        -webkit-line-clamp:unset !important;
-        -webkit-box-orient:unset !important;
-        line-clamp:unset !important;
-        overflow:visible !important;
-        margin:10px 0 5px !important;
-        line-height:1.3 !important;
-    }
-    .product-price{
-        font-size:15px !important;
-    }
-    .add-btn{
-        padding:8px !important;
-        font-size:13px !important;
-    }
-}
-
 /* CUSTOM TOAST + SUCCESS SCREEN */
 .app-toast{
     position:fixed;
@@ -2391,7 +2298,7 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
         <input type="text" id="search" placeholder="Search products...">
     </div>
 
-    <div class="mobile-category-explorer" id="mobileCategoryExplorer"></div>
+
 
     <div class="welcome-stack">
         <div class="welcome-banner">
@@ -3590,7 +3497,6 @@ async function fetchProducts() {
         products = Array.isArray(data) ? data : [];
         filteredProducts = [...products];
         normalizeCartWithProducts();
-        renderMobileCategoryExplorer();
         loadProducts();
     } catch (error) {
         console.error(error);
@@ -3694,118 +3600,6 @@ function calculateTotal() {
 }
 
 
-
-function isCompactMobile(){
-    return window.innerWidth <= 700;
-}
-
-function getProductImageSrcSafe(image){
-    try{
-        return getProductImageSrc(image);
-    }catch(e){
-        if(typeof image === "string" && image.trim()) return image.trim();
-        return "https://via.placeholder.com/120?text=IMG";
-    }
-}
-
-function getCategoryDisplayName(category){
-    const map = {
-        "vegetables": "Vegetables & Fruits",
-        "grocery": "Atta, Rice & Dal",
-        "dairy": "Dairy, Bread & Eggs",
-        "bakery": "Bakery & Biscuits",
-        "fast food": "Snacks & Fast Food",
-        "drink": "Drinks & Juices"
-    };
-    const key = String(category || "").trim().toLowerCase();
-    return map[key] || String(category || "Category");
-}
-
-function buildCategorySections(){
-    const categoryOrder = ["Vegetables","Grocery","Dairy","Bakery","Fast Food","Drink"];
-    const available = categoryOrder.filter(cat => products.some(p => normalizeCategory(p.category) === normalizeCategory(cat) && p.active !== false));
-    const remaining = [...new Set(products
-        .filter(p => p.active !== false)
-        .map(p => String(p.category || "").trim())
-        .filter(Boolean)
-        .filter(cat => !available.some(base => normalizeCategory(base) === normalizeCategory(cat)))
-    )];
-
-    const sections = [
-        {
-            title: "Grocery & Kitchen",
-            categories: available.filter(cat => ["Vegetables","Grocery","Dairy","Bakery"].some(x => normalizeCategory(x) === normalizeCategory(cat)))
-        },
-        {
-            title: "Snacks & Drinks",
-            categories: available.filter(cat => ["Fast Food","Drink"].some(x => normalizeCategory(x) === normalizeCategory(cat)))
-        }
-    ];
-
-    if(remaining.length){
-        sections.push({ title:"More Categories", categories: remaining });
-    }
-
-    return sections.filter(section => section.categories.length);
-}
-
-function renderMobileCategoryExplorer(){
-    const wrap = document.getElementById("mobileCategoryExplorer");
-    if(!wrap) return;
-
-    const sections = buildCategorySections();
-    if(!sections.length || !isCompactMobile()){
-        wrap.classList.remove("show");
-        wrap.innerHTML = "";
-        return;
-    }
-
-    wrap.innerHTML = sections.map(section => `
-        <div class="mobile-category-section">
-            <div class="mobile-category-title">${section.title}</div>
-            <div class="mobile-category-grid">
-                ${section.categories.map(category => {
-                    const firstProduct = products.find(p => normalizeCategory(p.category) === normalizeCategory(category) && p.active !== false);
-                    const image = getProductImageSrcSafe(firstProduct?.image || "");
-                    const safeCat = String(category).replace(/'/g, "\\'");
-                    return `
-                        <button class="mobile-category-card" onclick="selectMobileCategory('${safeCat}')">
-                            <div class="mobile-category-thumb">
-                                <img src="${image}" alt="${category}" onerror="this.src='https://via.placeholder.com/120?text=IMG'">
-                            </div>
-                            <div class="mobile-category-name">${getCategoryDisplayName(category)}</div>
-                        </button>
-                    `;
-                }).join("")}
-            </div>
-        </div>
-    `).join("");
-
-    wrap.classList.add("show");
-}
-
-function updateHomeViewState(selectedCategory){
-    const allSelected = normalizeCategory(selectedCategory || "all") === "all";
-    const showExplorer = isCompactMobile() && allSelected;
-    document.getElementById("mobileCategoryExplorer")?.classList.toggle("show", showExplorer);
-    document.getElementById("products")?.classList.toggle("mobile-hidden", showExplorer);
-    document.querySelector(".welcome-stack")?.classList.toggle("mobile-hidden", showExplorer);
-}
-
-function selectMobileCategory(category){
-    const targetBtn = Array.from(document.querySelectorAll(".cat")).find(btn => normalizeCategory(btn.textContent) === normalizeCategory(category));
-    if(targetBtn){
-        filterCategory(category, targetBtn);
-        targetBtn.scrollIntoView({ behavior:"smooth", inline:"center", block:"nearest" });
-    }
-}
-
-window.addEventListener("resize", () => {
-    renderMobileCategoryExplorer();
-    const active = document.querySelector(".cat.active");
-    updateHomeViewState(active ? active.textContent : "All");
-});
-
 function loadProducts() {
     document.getElementById("products").innerHTML =
         filteredProducts
@@ -3844,9 +3638,6 @@ function loadProducts() {
                     }
                 </div>`;
             }).join("");
-
-    const active = document.querySelector(".cat.active");
-    updateHomeViewState(active ? active.textContent : "All");
 }
 
 function normalizeCategory(value){
@@ -3869,14 +3660,12 @@ function filterCategory(cat, el) {
     }
 
     loadProducts();
-    renderMobileCategoryExplorer();
 }
 
 document.getElementById("search").addEventListener("input", function (e) {
     const value = e.target.value.toLowerCase();
     filteredProducts = products.filter(p => p.name.toLowerCase().includes(value));
     loadProducts();
-    updateHomeViewState("search");
 });
 
 async function add(id) {
