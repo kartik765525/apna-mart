@@ -58,6 +58,52 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
 @media (max-width: 1000px){.product-row{grid-template-columns:1fr;}.product-actions{flex-direction:row;flex-wrap:wrap;}}
 @media (max-width: 700px){.grid-two,.invoice-grid{grid-template-columns:1fr;}.invoice-meta{text-align:left;}}
 @media print{body *{visibility:hidden;}#invoicePrintArea, #invoicePrintArea *{visibility:visible;}#invoicePrintArea{position:absolute;left:0;top:0;width:100%;background:#fff;padding:0;margin:0;}}
+
+/* LIGHT ADMIN UI UPGRADE */
+body{background:#f4f7fb !important;color:#243447 !important;}
+.header{background:linear-gradient(135deg,#ff8c5a,#ffb088) !important;box-shadow:0 10px 24px rgba(255,107,53,.12);}
+.tabs{background:#fdfefe !important;border-bottom:1px solid #e7edf5 !important;}
+.tab-btn{background:#eef4fb !important;color:#3a5168 !important;border:1px solid #e3ebf5;}
+.tab-btn.active{background:linear-gradient(135deg,#ff8c5a,#ff6b35) !important;color:#fff !important;border-color:transparent !important;}
+.section-card{background:#ffffff !important;border:1px solid #e6edf5 !important;box-shadow:0 8px 24px rgba(17,24,39,.05) !important;}
+.order-search input,.search-box input,.admin-input{background:#fbfdff !important;border:1px solid #dce6f2 !important;}
+#newOrderPopup{background:linear-gradient(135deg,#ffffff,#f8fbff) !important;color:#1f3b57 !important;border:1px solid #d9e7f5;box-shadow:0 18px 40px rgba(15,23,42,.12) !important;border-radius:18px !important;min-width:300px !important;padding:16px 18px !important;}
+.popup-title{font-weight:800;font-size:16px;color:#ff6b35;}.popup-sub{margin-top:4px;font-size:13px;color:#64748b;font-weight:600;}
+.order-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.order-column{background:#f8fbff;border:1px solid #e5edf6;border-radius:18px;overflow:hidden;}
+.order-column-head{padding:14px 14px 12px;background:#fff;border-bottom:1px solid #e6edf5;display:flex;justify-content:space-between;align-items:center;}
+.order-column-title{font-size:16px;font-weight:800;color:#243447;}
+.order-count{min-width:30px;height:30px;border-radius:999px;padding:0 10px;display:flex;align-items:center;justify-content:center;background:#edf4fb;color:#3b556e;font-size:12px;font-weight:800;}
+.order-list{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:68vh;overflow:auto;}
+.order-mini-card{border:1px solid #e4ebf3;border-radius:14px;background:#fff;padding:12px;cursor:pointer;transition:.18s ease;}
+.order-mini-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(15,23,42,.06);}
+.order-mini-id{font-size:14px;font-weight:800;color:#203449;line-height:1.35;word-break:break-word;}
+.order-mini-status{margin-top:8px;}
+.order-empty-col{padding:24px 14px;text-align:center;color:#7b8ca0;font-size:14px;font-weight:600;}
+.status-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800;}
+.status-need{background:#fee2e2;color:#b91c1c;}.status-pending{background:#fff7d6;color:#b45309;}.status-delivered{background:#dcfce7;color:#15803d;}.status-out{background:#dbeafe;color:#1d4ed8;}
+.order-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.detail-soft-card{background:#f8fbff;border:1px solid #e5edf6;border-radius:14px;padding:14px;}
+.detail-soft-card h4{margin-bottom:10px;color:#243447;font-size:15px;}
+.detail-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e8eef6;font-size:14px;}
+.detail-line:last-child{border-bottom:none;}
+.detail-key{color:#6b7c8f;font-weight:700;}.detail-val{color:#1f2937;font-weight:700;text-align:right;}
+.detail-items{background:#fff;border:1px solid #e6edf5;border-radius:14px;overflow:hidden;}
+.detail-item{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #edf2f7;}
+.detail-item:last-child{border-bottom:none;}
+.detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+.action-btn{border-radius:12px !important;padding:10px 14px !important;box-shadow:0 8px 18px rgba(15,23,42,.06);}
+.soft-alert-modal .modal-card{width:min(420px,100%);border-radius:20px;}
+.soft-alert-body{padding:24px 20px 22px;text-align:center;}
+.soft-alert-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff1eb;color:#ff6b35;font-size:30px;}
+.soft-alert-title{font-size:22px;font-weight:800;color:#243447;}
+.soft-alert-text{margin-top:8px;color:#6b7c8f;line-height:1.6;font-size:14px;}
+.soft-alert-actions{display:flex;gap:10px;margin-top:18px;justify-content:center;}
+.soft-btn{border:none;border-radius:12px;padding:11px 16px;cursor:pointer;font-weight:800;}
+.soft-btn.cancel{background:#eef4fb;color:#3a5168;}.soft-btn.ok{background:linear-gradient(135deg,#ff8c5a,#ff6b35);color:#fff;}
+@media (max-width:980px){.order-board{grid-template-columns:1fr;}}
+@media (max-width:700px){.order-detail-grid{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body>
@@ -194,7 +240,32 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
     </div>
 </div>
 
-<div id="newOrderPopup" style="position:fixed; top:20px; right:20px; background:#16a34a; color:#fff; padding:14px 18px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.2); font-weight:700; z-index:12000; display:none; min-width:260px;">🔔 New order received!</div>
+
+<div class="modal" id="orderDetailModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Order Detail</h3>
+            <button onclick="closeOrderDetailModal()" class="close-btn">Close</button>
+        </div>
+        <div class="modal-body" id="orderDetailModalBody"></div>
+    </div>
+</div>
+
+<div class="modal soft-alert-modal" id="softAlertModal">
+    <div class="modal-card">
+        <div class="soft-alert-body">
+            <div class="soft-alert-icon" id="softAlertIcon">⚠️</div>
+            <div class="soft-alert-title" id="softAlertTitle">Alert</div>
+            <div class="soft-alert-text" id="softAlertText">Message</div>
+            <div class="soft-alert-actions">
+                <button class="soft-btn cancel" id="softAlertCancelBtn" onclick="closeSoftAlert(false)">Cancel</button>
+                <button class="soft-btn ok" id="softAlertOkBtn" onclick="closeSoftAlert(true)">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="newOrderPopup"  style="position:fixed; top:20px; right:20px; z-index:12000; display:none;"><div class="popup-title">🔔 New order received</div><div class="popup-sub">Orders section me check karo</div></div>
 
 <script>
 let products = [];
@@ -207,6 +278,8 @@ let offers = [];
 let coupons = [];
 let lastKnownOrderIds = [];
 let hasInitializedOrderWatcher = false;
+let currentOrderDetailId = null;
+let softAlertResolver = null;
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
 let adminToken = localStorage.getItem(ADMIN_STORAGE_KEY) || "";
 
@@ -217,8 +290,116 @@ function getAuthHeaders(includeJson = true){
     return headers;
 }
 
-function logoutAdmin(){
-    const confirmLogout = confirm("you want to logout");
+
+function showSoftAlert(message, title = "Alert", okText = "OK", icon = "⚠️"){
+    return new Promise(resolve => {
+        softAlertResolver = resolve;
+        document.getElementById("softAlertTitle").textContent = title;
+        document.getElementById("softAlertText").textContent = message;
+        document.getElementById("softAlertIcon").textContent = icon;
+        document.getElementById("softAlertCancelBtn").style.display = "none";
+        document.getElementById("softAlertOkBtn").textContent = okText;
+        document.getElementById("softAlertModal").classList.add("show");
+    });
+}
+function showSoftConfirm(message, title = "Please Confirm", okText = "Yes", cancelText = "Cancel", icon = "🧾"){
+    return new Promise(resolve => {
+        softAlertResolver = resolve;
+        document.getElementById("softAlertTitle").textContent = title;
+        document.getElementById("softAlertText").textContent = message;
+        document.getElementById("softAlertIcon").textContent = icon;
+        document.getElementById("softAlertCancelBtn").style.display = "inline-block";
+        document.getElementById("softAlertCancelBtn").textContent = cancelText;
+        document.getElementById("softAlertOkBtn").textContent = okText;
+        document.getElementById("softAlertModal").classList.add("show");
+    });
+}
+function closeSoftAlert(result){
+    document.getElementById("softAlertModal").classList.remove("show");
+    if(typeof softAlertResolver === "function"){
+        const fn = softAlertResolver;
+        softAlertResolver = null;
+        fn(result);
+    }
+}
+function getOrderSectionName(status){
+    const value = String(status || "").trim().toLowerCase();
+    if(value === "need confirmation") return "need";
+    if(value === "delivered") return "delivered";
+    return "pending";
+}
+function getOrderStatusChip(status){
+    const value = String(status || "Pending");
+    const lower = value.toLowerCase();
+    if(lower === "need confirmation") return '<span class="status-chip status-need">Need Confirmation</span>';
+    if(lower === "delivered") return '<span class="status-chip status-delivered">Delivered</span>';
+    if(lower === "out for delivery") return '<span class="status-chip status-out">Out for Delivery</span>';
+    return '<span class="status-chip status-pending">' + value + '</span>';
+}
+function closeOrderDetailModal(){
+    document.getElementById("orderDetailModal").classList.remove("show");
+    currentOrderDetailId = null;
+}
+async function openOrderDetail(orderId){
+    const order = orders.find(o => String(o.id) === String(orderId));
+    if(!order) return;
+    currentOrderDetailId = orderId;
+    document.getElementById("orderDetailModalBody").innerHTML = buildOrderDetailHtml(order);
+    document.getElementById("orderDetailModal").classList.add("show");
+}
+function buildOrderDetailHtml(order){
+    return `
+        <div class="order-detail-grid">
+            <div class="detail-soft-card">
+                <h4>Order Info</h4>
+                <div class="detail-line"><span class="detail-key">Order ID</span><span class="detail-val">${order.id || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Status</span><span class="detail-val">${order.status || "Pending"}</span></div>
+                <div class="detail-line"><span class="detail-key">Payment</span><span class="detail-val">${order.paymentStatus || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Payment Mode</span><span class="detail-val">${order.paymentMethod || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Total</span><span class="detail-val">₹${Number(order.total || 0).toFixed(2)}</span></div>
+            </div>
+            <div class="detail-soft-card">
+                <h4>Customer Info</h4>
+                <div class="detail-line"><span class="detail-key">Name</span><span class="detail-val">${order.name || order.customerName || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Phone</span><span class="detail-val">${order.phone || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Address</span><span class="detail-val">${order.address || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Date</span><span class="detail-val">${order.date || "N/A"}</span></div>
+                <div class="detail-line"><span class="detail-key">Delivery Boy</span><span class="detail-val">${order.assignedDeliveryBoyName || "Not assigned"}${order.assignedDeliveryBoyPhone ? ` · ${order.assignedDeliveryBoyPhone}` : ""}</span></div>
+            </div>
+        </div>
+
+        <div class="detail-soft-card">
+            <h4>Items</h4>
+            <div class="detail-items">
+                ${(order.items || []).length ? (order.items || []).map(item => `
+                    <div class="detail-item">
+                        <div><b>${item.name || "Item"}</b></div>
+                        <div>Qty ${item.qty || 0} · ₹${Number(item.price || 0).toFixed(2)}</div>
+                    </div>
+                `).join("") : '<div class="detail-item"><div>No items</div></div>'}
+            </div>
+
+            <div style="margin-top:16px;">
+                <div style="font-weight:800;margin-bottom:8px;color:#243447;">Assign Delivery Boy</div>
+                <select id="assignDeliveryModal-${order.id}" class="admin-input" style="margin-top:0;">
+                    ${getApprovedDeliveryOptions(order.assignedDeliveryBoyId || "")}
+                </select>
+            </div>
+
+            <div class="detail-actions">
+                ${String(order.status) === "Need Confirmation" ? `<button onclick="moveToPending('${order.id}', true)" class="action-btn orange">Confirm Order</button>` : ""}
+                ${String(order.paymentStatus) !== "Payment Confirmed" && String(order.paymentMethod || "").toUpperCase() === "UPI" ? `<button onclick="confirmPayment('${order.id}', true)" class="action-btn green">Confirm Payment</button>` : ""}
+                <button onclick="assignDeliveryBoy('${order.id}', document.getElementById('assignDeliveryModal-${order.id}').value, true)" class="action-btn blue">Assign Delivery Boy</button>
+                <button onclick="openInvoice('${order.id}')" class="action-btn gray">Print Bill</button>
+                <button onclick="deleteOrder('${order.id}', true)" class="action-btn red">Delete Order</button>
+                ${getAdminMapsLink(order) ? `<a href="${getAdminMapsLink(order)}" target="_blank" class="action-btn blue" style="display:inline-block;text-decoration:none;">Open in Maps</a>` : ""}
+            </div>
+        </div>
+    `;
+}
+
+async function logoutAdmin(){
+    const confirmLogout = await showSoftConfirm("You want to logout?", "Logout", "Logout", "Stay", "🔓");
     if(!confirmLogout) return;
     localStorage.removeItem(ADMIN_STORAGE_KEY);
     adminToken = "";
@@ -241,7 +422,7 @@ async function unlockAdmin(){
     const passwordInput = document.getElementById("adminPassword");
 
     if(!usernameInput || !passwordInput){
-        alert("Login inputs nahi mil rahe");
+        await showSoftAlert("Login inputs nahi mil rahe", "Admin Login", "OK", "🔐");
         return;
     }
 
@@ -249,7 +430,7 @@ async function unlockAdmin(){
     const password = passwordInput.value.trim();
 
     if(!username || !password){
-        alert("Username aur password dono dalo");
+        await showSoftAlert("Username aur password dono dalo", "Admin Login", "OK", "🔐");
         return;
     }
 
@@ -263,7 +444,7 @@ async function unlockAdmin(){
         const data = await res.json().catch(() => ({}));
 
         if(!res.ok || !data.token){
-            alert(data.message || "Login failed");
+            await showSoftAlert(data.message || "Login failed", "Admin Login", "OK", "🔐");
             return;
         }
 
@@ -280,7 +461,7 @@ async function unlockAdmin(){
         }
     }catch(error){
         console.error("Admin login error:", error);
-        alert("Backend login failed");
+        await showSoftAlert("Backend login failed", "Admin Login", "OK", "🔐");
     }
 }
 
@@ -466,9 +647,9 @@ function getAdminMapsLink(order){
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 }
 
-async function assignDeliveryBoy(orderId, deliveryBoyId){
+async function assignDeliveryBoy(orderId, deliveryBoyId, fromModal = false){
     if(!deliveryBoyId){
-        alert("Select delivery boy");
+        await showSoftAlert("Select delivery boy first", "Delivery Boy", "OK", "🚚");
         return;
     }
 
@@ -480,13 +661,14 @@ async function assignDeliveryBoy(orderId, deliveryBoyId){
 
     const data = await res.json().catch(() => ({}));
     if(!res.ok){
-        alert(data.message || "Assign failed");
+        await showSoftAlert(data.message || "Assign failed", "Delivery Boy", "OK", "🚚");
         return;
     }
 
     await fetchOrders();
     await fetchDeliveryUsers();
     renderOrders();
+    if(fromModal) await openOrderDetail(orderId);
 }
 
 function renderProducts(){
@@ -563,47 +745,34 @@ function renderOrders(){
         );
     }
 
-    container.innerHTML = filteredOrders.length === 0
-        ? "<p>No orders found</p>"
-        : filteredOrders.map(order => `
-            <div class="order-card">
-                <div><b>Order ID:</b> ${order.id}</div>
-                <div style="margin-top:4px;"><b>Name:</b> ${order.name || order.customerName || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Phone:</b> ${order.phone || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Address:</b> ${order.address || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Date:</b> ${order.date || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Total:</b> ₹${Number(order.total || 0).toFixed(2)}</div>
-                <div style="margin-top:4px;"><b>Payment Mode:</b> ${order.paymentMethod || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Payment Status:</b> ${order.paymentStatus || "N/A"}</div>
-                <div style="margin-top:4px;"><b>Delivery Boy:</b> ${order.assignedDeliveryBoyName || "Not assigned"}${order.assignedDeliveryBoyPhone ? ` · ${order.assignedDeliveryBoyPhone}` : ""}</div>
-                ${getAdminMapsLink(order) ? `<div style="margin-top:10px;"><a href="${getAdminMapsLink(order)}" target="_blank" class="action-btn blue" style="display:inline-block;text-decoration:none;">Open in Maps</a></div>` : ""}
-                <div style="margin-top:4px;"><b>Status:</b> 
-                    <span class="badge ${String(order.status) === "Need Confirmation" ? "badge-confirm" : String(order.status) === "Delivered" ? "badge-delivered" : String(order.status) === "Out for Delivery" ? "badge-out" : "badge-pending"}">${order.status || "N/A"}</span>
-                </div>
+    const needList = filteredOrders.filter(order => getOrderSectionName(order.status) === "need");
+    const pendingList = filteredOrders.filter(order => getOrderSectionName(order.status) === "pending");
+    const deliveredList = filteredOrders.filter(order => getOrderSectionName(order.status) === "delivered");
 
-                <div style="margin-top:10px;padding:10px;border:1px dashed #ddd;border-radius:10px;background:#fff;">
-                    <b>Items:</b>
-                    ${(order.items || []).map(item => `<div style="margin-top:4px;">${item.name} x ${item.qty}</div>`).join("") || "<div>No items</div>"}
-                </div>
-
-                <div class="invoice-note">Is order ka bill print karne ke liye neeche print button use karo.</div>
-
-                <div style="margin-top:12px;padding:12px;background:#fff;border:1px solid #eee;border-radius:10px;">
-                    <div style="font-weight:700;margin-bottom:8px;">Assign Delivery Boy</div>
-                    <select id="assignDelivery-${order.id}" class="admin-input" style="margin-top:0;">
-                        ${getApprovedDeliveryOptions(order.assignedDeliveryBoyId || "")}
-                    </select>
-                    <button onclick="assignDeliveryBoy('${order.id}', document.getElementById('assignDelivery-${order.id}').value)" class="action-btn blue">Assign Delivery Boy</button>
-                </div>
-
-                <div style="margin-top:12px;">
-                    ${String(order.status) === "Need Confirmation" ? `<button onclick="moveToPending('${order.id}')" class="action-btn orange">Confirm → Pending</button>` : ""}
-                    ${String(order.paymentStatus) !== "Payment Confirmed" && String(order.paymentMethod || "").toUpperCase() === "UPI" ? `<button onclick="confirmPayment('${order.id}')" class="action-btn green">Confirm Payment</button>` : ""}
-                    <button onclick="openInvoice('${order.id}')" class="action-btn blue">Print Bill</button>
-                    <button onclick="deleteOrder('${order.id}')" class="action-btn red">Delete Order</button>
-                </div>
+    const buildCol = (title, list) => `
+        <div class="order-column">
+            <div class="order-column-head">
+                <div class="order-column-title">${title}</div>
+                <div class="order-count">${list.length}</div>
             </div>
-        `).join("");
+            <div class="order-list">
+                ${list.length ? list.map(order => `
+                    <div class="order-mini-card" onclick="openOrderDetail('${order.id}')">
+                        <div class="order-mini-id">${order.id || "N/A"}</div>
+                        <div class="order-mini-status">${getOrderStatusChip(order.status)}</div>
+                    </div>
+                `).join("") : `<div class="order-empty-col">No orders</div>`}
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = `
+        <div class="order-board">
+            ${buildCol("Need Confirmation", needList)}
+            ${buildCol("Pending", pendingList)}
+            ${buildCol("Delivered", deliveredList)}
+        </div>
+    `;
 }
 
 function renderDeliveryUsers(){
@@ -659,10 +828,10 @@ async function addOfferItem(){
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
     const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
-    if(!title){ alert("Offer title required"); return; }
-    if(!code){ alert("Coupon code required"); return; }
-    if(!validTill){ alert("Valid till required"); return; }
-    if(!file){ alert("Offer image required"); return; }
+    if(!title){ await showSoftAlert("Offer title required", "Offers", "OK", "🎁"); return; }
+    if(!code){ await showSoftAlert("Coupon code required", "Offers", "OK", "🎁"); return; }
+    if(!validTill){ await showSoftAlert("Valid till required", "Offers", "OK", "🎁"); return; }
+    if(!file){ await showSoftAlert("Offer image required", "Offers", "OK", "🎁"); return; }
     try{
         const formData = new FormData();
         formData.append('image', file);
@@ -683,11 +852,11 @@ async function addOfferItem(){
         renderOffers();
     }catch(error){
         console.error(error);
-        alert('Offer add failed');
+        await showSoftAlert('Offer add failed', 'Offers', 'OK', '🎁');
     }
 }
 async function deleteOfferItem(id){
-    if(!confirm("Delete this offer?")) return;
+    if(!(await showSoftConfirm("Delete this offer?", "Offers", "Delete", "Cancel", "🎁"))) return;
     try{
         const res = await fetch(`/api/admin/offers/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
         const data = await res.json().catch(()=>({}));
@@ -724,10 +893,10 @@ async function addCouponItem(){
     const maxUsers = Number(document.getElementById("couponMaxUsers").value || 0);
     const type = document.getElementById("couponType").value.trim().toLowerCase() || "flat";
     const validTill = document.getElementById("couponValidTill").value;
-    if(!code){ alert("Coupon code required"); return; }
-    if(!discount){ alert("Discount required"); return; }
-    if(!maxUsers){ alert("Max users required"); return; }
-    if(!validTill){ alert("Valid till required"); return; }
+    if(!code){ await showSoftAlert("Coupon code required", "Offers", "OK", "🎁"); return; }
+    if(!discount){ await showSoftAlert("Discount required", "Coupon", "OK", "🏷️"); return; }
+    if(!maxUsers){ await showSoftAlert("Max users required", "Coupon", "OK", "🏷️"); return; }
+    if(!validTill){ await showSoftAlert("Valid till required", "Offers", "OK", "🎁"); return; }
     try{
         const res = await fetch('/api/admin/coupons', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ code, discount, maxUsers, type, validTill }) });
         const data = await res.json().catch(()=>({}));
@@ -741,11 +910,11 @@ async function addCouponItem(){
         renderCoupons();
     }catch(error){
         console.error(error);
-        alert('Coupon save failed');
+        await showSoftAlert('Coupon save failed', 'Coupon', 'OK', '🏷️');
     }
 }
 async function deleteCouponItem(id){
-    if(!confirm("Delete this coupon?")) return;
+    if(!(await showSoftConfirm("Delete this coupon?", "Coupon", "Delete", "Cancel", "🏷️"))) return;
     try{
         const res = await fetch(`/api/admin/coupons/${id}`, { method:'DELETE', headers:getAuthHeaders(false) });
         const data = await res.json().catch(()=>({}));
@@ -848,7 +1017,7 @@ function buildInvoiceHtml(order){
 
 function openInvoice(orderId){
     const order = orders.find(o => String(o.id) === String(orderId));
-    if(!order) return alert("Order not found");
+    if(!order) return showSoftAlert("Order not found", "Invoice", "OK", "🧾");
     currentInvoiceOrder = order;
     document.getElementById("invoicePrintArea").innerHTML = buildInvoiceHtml(order);
     document.getElementById("invoiceModal").classList.add("show");
@@ -871,7 +1040,7 @@ async function addNewProduct(){
     const imageFile = document.getElementById("newImage").files[0];
 
     if(!name || !price){
-        alert("Name aur price required hain");
+        await showSoftAlert("Name aur price required hain", "Add Product", "OK", "📦");
         return;
     }
 
@@ -887,7 +1056,7 @@ async function addNewProduct(){
             });
             const uploadData = await uploadRes.json().catch(() => ({}));
             if(!uploadRes.ok){
-                alert(uploadData.message || "Image upload failed");
+                await showSoftAlert(uploadData.message || "Image upload failed", "Add Product", "OK", "📦");
                 return;
             }
             imageUrl = uploadData.imageUrl || "";
@@ -908,7 +1077,7 @@ async function addNewProduct(){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Add product failed");
+            await showSoftAlert(data.message || "Add product failed", "Add Product", "OK", "📦");
             return;
         }
 
@@ -923,7 +1092,7 @@ async function addNewProduct(){
         await fetchProducts();
         renderProducts();
         renderDashboard();
-        alert("Product added successfully");
+        await showSoftAlert("Product added successfully", "Add Product", "OK", "✅");
     }catch(error){
         console.error("Add product error:", error);
         alert("Add product failed");
@@ -935,7 +1104,7 @@ async function saveProductChanges(productId){
     const categoryValue = document.getElementById(`category-${productId}`)?.value || "";
 
     const product = products.find(p => Number(p.id) === Number(productId));
-    if(!product) return alert("Product not found");
+    if(!product) return await showSoftAlert("Product not found", "Product", "OK", "📦");
 
     try{
         const res = await fetch(`/api/products/${productId}`, {
@@ -950,14 +1119,14 @@ async function saveProductChanges(productId){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Save failed");
+            await showSoftAlert(data.message || "Save failed", "Product", "OK", "📦");
             return;
         }
 
         await fetchProducts();
         renderProducts();
         renderDashboard();
-        alert("Product updated successfully");
+        await showSoftAlert("Product updated successfully", "Product", "OK", "✅");
     }catch(error){
         console.error("Save product error:", error);
         alert("Save failed");
@@ -965,7 +1134,7 @@ async function saveProductChanges(productId){
 }
 
 async function deleteProduct(productId){
-    const yes = confirm("Delete this product?");
+    const yes = await showSoftConfirm("Delete this product?", "Delete Product", "Delete", "Cancel", "📦");
     if(!yes) return;
 
     try{
@@ -976,7 +1145,7 @@ async function deleteProduct(productId){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Delete failed");
+            await showSoftAlert(data.message || "Delete failed", "Delete Order", "OK", "🗑️");
             return;
         }
 
@@ -986,11 +1155,11 @@ async function deleteProduct(productId){
         alert("Product deleted successfully");
     }catch(error){
         console.error("Delete product error:", error);
-        alert("Delete failed");
+        await showSoftAlert("Delete failed", "Delete", "OK", "🗑️");
     }
 }
 
-async function moveToPending(orderId){
+async function moveToPending(orderId, fromModal = false){
     try{
         const res = await fetch(`/api/admin/orders/${orderId}/status`, {
             method: "PATCH",
@@ -1000,20 +1169,22 @@ async function moveToPending(orderId){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Status update failed");
+            await showSoftAlert(data.message || "Status update failed", "Order Status", "OK", "⚠️");
             return;
         }
 
         await fetchOrders();
         renderOrders();
         renderDashboard();
+        if(fromModal) closeOrderDetailModal();
+        if(fromModal) await openOrderDetail(orderId);
     }catch(error){
         console.error("Move to pending error:", error);
         alert("Status update failed");
     }
 }
 
-async function confirmPayment(orderId){
+async function confirmPayment(orderId, fromModal = false){
     try{
         const res = await fetch(`/api/admin/orders/${orderId}/status`, {
             method: "PATCH",
@@ -1023,7 +1194,7 @@ async function confirmPayment(orderId){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Payment confirm failed");
+            await showSoftAlert(data.message || "Payment confirm failed", "Payment", "OK", "💳");
             return;
         }
 
@@ -1036,8 +1207,8 @@ async function confirmPayment(orderId){
     }
 }
 
-async function deleteOrder(orderId){
-    const yes = confirm("Delete this order?");
+async function deleteOrder(orderId, fromModal = false){
+    const yes = await showSoftConfirm("Delete this order?", "Delete Order", "Delete", "Cancel", "🗑️");
     if(!yes) return;
 
     try{
@@ -1048,7 +1219,7 @@ async function deleteOrder(orderId){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            alert(data.message || "Delete failed");
+            await showSoftAlert(data.message || "Delete failed", "Delete", "OK", "🗑️");
             return;
         }
 
@@ -1057,7 +1228,7 @@ async function deleteOrder(orderId){
         renderDashboard();
     }catch(error){
         console.error("Delete order error:", error);
-        alert("Delete failed");
+        await showSoftAlert("Delete failed", "Delete", "OK", "🗑️");
     }
 }
 
@@ -1068,7 +1239,7 @@ async function approveDeliveryUser(userId){
         body: JSON.stringify({ action: "approve" })
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Approval failed"); return; }
+    if(!res.ok){ await showSoftAlert(data.message || "Approval failed", "Delivery Boy", "OK", "🚚"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
@@ -1080,7 +1251,7 @@ async function rejectDeliveryUser(userId){
         body: JSON.stringify({ action: "reject" })
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Reject failed"); return; }
+    if(!res.ok){ await showSoftAlert(data.message || "Reject failed", "Delivery Boy", "OK", "🚚"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
@@ -1094,7 +1265,7 @@ async function saveDeliveryUser(userId){
         body: JSON.stringify({ name, phone })
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Save failed"); return; }
+    if(!res.ok){ await showSoftAlert(data.message || "Save failed", "Product", "OK", "📦"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
@@ -1106,19 +1277,19 @@ async function resetDeliveryDevice(userId){
         body: JSON.stringify({ resetDevice: true })
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Reset device failed"); return; }
+    if(!res.ok){ await showSoftAlert(data.message || "Reset device failed", "Delivery Boy", "OK", "🚚"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
 
 async function deleteDeliveryUser(userId){
-    if(!confirm("Delete this delivery ID?")) return;
+    if(!(await showSoftConfirm("Delete this delivery ID?", "Delivery Boy", "Delete", "Cancel", "🚚"))) return;
     const res = await fetch(`/api/admin/delivery-users/${userId}`, {
         method: "DELETE",
         headers: getAuthHeaders(false)
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Delete failed"); return; }
+    if(!res.ok){ await showSoftAlert(data.message || "Delete failed", "Delete", "OK", "🗑️"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
