@@ -59,50 +59,283 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
 @media (max-width: 700px){.grid-two,.invoice-grid{grid-template-columns:1fr;}.invoice-meta{text-align:left;}}
 @media print{body *{visibility:hidden;}#invoicePrintArea, #invoicePrintArea *{visibility:visible;}#invoicePrintArea{position:absolute;left:0;top:0;width:100%;background:#fff;padding:0;margin:0;}}
 
-/* LIGHT ADMIN UI UPGRADE */
-body{background:#f4f7fb !important;color:#243447 !important;}
-.header{background:linear-gradient(135deg,#ff8c5a,#ffb088) !important;box-shadow:0 10px 24px rgba(255,107,53,.12);}
-.tabs{background:#fdfefe !important;border-bottom:1px solid #e7edf5 !important;}
-.tab-btn{background:#eef4fb !important;color:#3a5168 !important;border:1px solid #e3ebf5;}
-.tab-btn.active{background:linear-gradient(135deg,#ff8c5a,#ff6b35) !important;color:#fff !important;border-color:transparent !important;}
-.section-card{background:#ffffff !important;border:1px solid #e6edf5 !important;box-shadow:0 8px 24px rgba(17,24,39,.05) !important;}
-.order-search input,.search-box input,.admin-input{background:#fbfdff !important;border:1px solid #dce6f2 !important;}
-#newOrderPopup{background:linear-gradient(135deg,#ffffff,#f8fbff) !important;color:#1f3b57 !important;border:1px solid #d9e7f5;box-shadow:0 18px 40px rgba(15,23,42,.12) !important;border-radius:18px !important;min-width:300px !important;padding:16px 18px !important;}
-.popup-title{font-weight:800;font-size:16px;color:#ff6b35;}.popup-sub{margin-top:4px;font-size:13px;color:#64748b;font-weight:600;}
-.order-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
-.order-column{background:#f8fbff;border:1px solid #e5edf6;border-radius:18px;overflow:hidden;}
-.order-column-head{padding:14px 14px 12px;background:#fff;border-bottom:1px solid #e6edf5;display:flex;justify-content:space-between;align-items:center;}
-.order-column-title{font-size:16px;font-weight:800;color:#243447;}
-.order-count{min-width:30px;height:30px;border-radius:999px;padding:0 10px;display:flex;align-items:center;justify-content:center;background:#edf4fb;color:#3b556e;font-size:12px;font-weight:800;}
-.order-list{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:68vh;overflow:auto;}
-.order-mini-card{border:1px solid #e4ebf3;border-radius:14px;background:#fff;padding:12px;cursor:pointer;transition:.18s ease;}
-.order-mini-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(15,23,42,.06);}
-.order-mini-id{font-size:14px;font-weight:800;color:#203449;line-height:1.35;word-break:break-word;}
-.order-mini-status{margin-top:8px;}
-.order-empty-col{padding:24px 14px;text-align:center;color:#7b8ca0;font-size:14px;font-weight:600;}
-.status-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800;}
-.status-need{background:#fee2e2;color:#b91c1c;}.status-pending{background:#fff7d6;color:#b45309;}.status-delivered{background:#dcfce7;color:#15803d;}.status-out{background:#dbeafe;color:#1d4ed8;}
-.order-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
-.detail-soft-card{background:#f8fbff;border:1px solid #e5edf6;border-radius:14px;padding:14px;}
-.detail-soft-card h4{margin-bottom:10px;color:#243447;font-size:15px;}
-.detail-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e8eef6;font-size:14px;}
+/* ENHANCED LIGHT ADMIN UI */
+body{
+    background:linear-gradient(180deg,#f7fbff 0%,#f3f7fb 100%) !important;
+    color:#243447 !important;
+}
+.header{
+    background:linear-gradient(135deg,#ff8b5c,#ff6b35) !important;
+    box-shadow:0 14px 34px rgba(255,107,53,.18);
+}
+.tabs{
+    background:rgba(255,255,255,.92) !important;
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid #e8eef5 !important;
+}
+.tab-btn{
+    background:#eef4fb !important;
+    color:#3f5468 !important;
+    border:1px solid #dce7f2;
+    transition:.18s ease;
+}
+.tab-btn:hover{transform:translateY(-1px);}
+.tab-btn.active{
+    background:linear-gradient(135deg,#ff8b5c,#ff6b35) !important;
+    color:#fff !important;
+    border-color:transparent !important;
+    box-shadow:0 8px 18px rgba(255,107,53,.18);
+}
+.section-card{
+    background:#fff !important;
+    border:1px solid #e6edf5 !important;
+    box-shadow:0 10px 28px rgba(15,23,42,.05) !important;
+}
+.section-title{color:#ff6b35 !important;}
+.admin-input,.search-box input,.order-search input{
+    background:#fbfdff !important;
+    border:1px solid #dbe6f2 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+.action-btn{
+    border-radius:12px !important;
+    padding:10px 14px !important;
+    box-shadow:0 8px 18px rgba(15,23,42,.06);
+}
+#newOrderPopup{
+    background:linear-gradient(135deg,#ffffff,#f8fbff) !important;
+    color:#21354b !important;
+    border:1px solid #d9e7f5;
+    box-shadow:0 18px 40px rgba(15,23,42,.12) !important;
+    border-radius:18px !important;
+    min-width:300px !important;
+    padding:16px 18px !important;
+}
+.popup-title{font-weight:800;font-size:16px;color:#ff6b35;}
+.popup-sub{margin-top:4px;font-size:13px;color:#64748b;font-weight:600;}
+
+.top-order-stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin-bottom:16px;
+}
+.top-order-stat{
+    background:linear-gradient(180deg,#fff,#f8fbff);
+    border:1px solid #e5edf6;
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 8px 20px rgba(15,23,42,.04);
+}
+.top-order-stat .label{
+    color:#6b7c8f;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+.top-order-stat .value{
+    font-size:30px;
+    font-weight:900;
+    color:#243447;
+}
+.top-order-stat.need .value{color:#b91c1c;}
+.top-order-stat.pending .value{color:#b45309;}
+.top-order-stat.delivered .value{color:#15803d;}
+
+.order-board{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+}
+.order-column{
+    background:#f8fbff;
+    border:1px solid #e5edf6;
+    border-radius:18px;
+    overflow:hidden;
+}
+.order-column-head{
+    padding:14px 14px 12px;
+    background:#fff;
+    border-bottom:1px solid #e6edf5;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.order-column-title{
+    font-size:16px;
+    font-weight:800;
+    color:#243447;
+}
+.order-count{
+    min-width:30px;
+    height:30px;
+    border-radius:999px;
+    padding:0 10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#edf4fb;
+    color:#3b556e;
+    font-size:12px;
+    font-weight:800;
+}
+.order-list{
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:68vh;
+    overflow:auto;
+}
+.order-mini-card{
+    border:1px solid #e4ebf3;
+    border-radius:14px;
+    background:#fff;
+    padding:12px;
+    cursor:pointer;
+    transition:.18s ease;
+}
+.order-mini-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(15,23,42,.06);
+}
+.order-mini-id{
+    font-size:14px;
+    font-weight:800;
+    color:#203449;
+    line-height:1.35;
+    word-break:break-word;
+}
+.order-mini-status{
+    margin-top:8px;
+}
+.order-empty-col{
+    padding:24px 14px;
+    text-align:center;
+    color:#7b8ca0;
+    font-size:14px;
+    font-weight:600;
+}
+.status-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+}
+.status-need{background:#fee2e2;color:#b91c1c;}
+.status-pending{background:#fff7d6;color:#b45309;}
+.status-delivered{background:#dcfce7;color:#15803d;}
+.status-out{background:#dbeafe;color:#1d4ed8;}
+
+.order-detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:16px;
+}
+.detail-soft-card{
+    background:#f8fbff;
+    border:1px solid #e5edf6;
+    border-radius:14px;
+    padding:14px;
+}
+.detail-soft-card h4{
+    margin-bottom:10px;
+    color:#243447;
+    font-size:15px;
+}
+.detail-line{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:7px 0;
+    border-bottom:1px solid #e8eef6;
+    font-size:14px;
+}
 .detail-line:last-child{border-bottom:none;}
-.detail-key{color:#6b7c8f;font-weight:700;}.detail-val{color:#1f2937;font-weight:700;text-align:right;}
-.detail-items{background:#fff;border:1px solid #e6edf5;border-radius:14px;overflow:hidden;}
-.detail-item{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #edf2f7;}
+.detail-key{color:#6b7c8f;font-weight:700;}
+.detail-val{color:#1f2937;font-weight:700;text-align:right;}
+.detail-items{
+    background:#fff;
+    border:1px solid #e6edf5;
+    border-radius:14px;
+    overflow:hidden;
+}
+.detail-item{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    border-bottom:1px solid #edf2f7;
+}
 .detail-item:last-child{border-bottom:none;}
-.detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
-.action-btn{border-radius:12px !important;padding:10px 14px !important;box-shadow:0 8px 18px rgba(15,23,42,.06);}
-.soft-alert-modal .modal-card{width:min(420px,100%);border-radius:20px;}
-.soft-alert-body{padding:24px 20px 22px;text-align:center;}
-.soft-alert-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff1eb;color:#ff6b35;font-size:30px;}
-.soft-alert-title{font-size:22px;font-weight:800;color:#243447;}
-.soft-alert-text{margin-top:8px;color:#6b7c8f;line-height:1.6;font-size:14px;}
-.soft-alert-actions{display:flex;gap:10px;margin-top:18px;justify-content:center;}
-.soft-btn{border:none;border-radius:12px;padding:11px 16px;cursor:pointer;font-weight:800;}
-.soft-btn.cancel{background:#eef4fb;color:#3a5168;}.soft-btn.ok{background:linear-gradient(135deg,#ff8c5a,#ff6b35);color:#fff;}
-@media (max-width:980px){.order-board{grid-template-columns:1fr;}}
-@media (max-width:700px){.order-detail-grid{grid-template-columns:1fr;}}
+.detail-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:16px;
+}
+.soft-alert-modal .modal-card{
+    width:min(420px,100%);
+    border-radius:20px;
+}
+.soft-alert-body{
+    padding:24px 20px 22px;
+    text-align:center;
+}
+.soft-alert-icon{
+    width:64px;
+    height:64px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff1eb;
+    color:#ff6b35;
+    font-size:30px;
+}
+.soft-alert-title{
+    font-size:22px;
+    font-weight:800;
+    color:#243447;
+}
+.soft-alert-text{
+    margin-top:8px;
+    color:#6b7c8f;
+    line-height:1.6;
+    font-size:14px;
+}
+.soft-alert-actions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    justify-content:center;
+}
+.soft-btn{
+    border:none;
+    border-radius:12px;
+    padding:11px 16px;
+    cursor:pointer;
+    font-weight:800;
+}
+.soft-btn.cancel{background:#eef4fb;color:#3a5168;}
+.soft-btn.ok{background:linear-gradient(135deg,#ff8c5a,#ff6b35);color:#fff;}
+.loading-line{
+    margin-top:10px;
+    color:#64748b;
+    font-size:13px;
+    font-weight:700;
+}
+@media (max-width: 980px){
+    .top-order-stats,.order-board{grid-template-columns:1fr;}
+}
+@media (max-width: 700px){
+    .order-detail-grid{grid-template-columns:1fr;}
+}
 
 </style>
 </head>
@@ -265,7 +498,7 @@ body{background:#f4f7fb !important;color:#243447 !important;}
     </div>
 </div>
 
-<div id="newOrderPopup"  style="position:fixed; top:20px; right:20px; z-index:12000; display:none;"><div class="popup-title">🔔 New order received</div><div class="popup-sub">Orders section me check karo</div></div>
+<div id="newOrderPopup" style="position:fixed; top:20px; right:20px; z-index:12000; display:none;"><div class="popup-title">🔔 New order received</div><div class="popup-sub">Orders section me check karo</div></div>
 
 <script>
 let products = [];
@@ -280,6 +513,7 @@ let lastKnownOrderIds = [];
 let hasInitializedOrderWatcher = false;
 let currentOrderDetailId = null;
 let softAlertResolver = null;
+let loadedTabs = { products:false, orders:false, delivery:false, offers:false, coupons:false };
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
 let adminToken = localStorage.getItem(ADMIN_STORAGE_KEY) || "";
 
@@ -528,7 +762,7 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 });
 
-function showSection(name){
+async function showSection(name){
     setActiveSection(name);
     document.getElementById("sectionAdd").classList.remove("active");
     document.getElementById("sectionStock").classList.remove("active");
@@ -567,6 +801,45 @@ function showSection(name){
     }else{
         document.getElementById("sectionOrders").classList.add("active");
         document.getElementById("tabOrdersBtn").classList.add("active");
+    }
+
+    if(name === "stock" && !loadedTabs.products){
+        document.getElementById("productManager").innerHTML = '<div class="loading-line">Loading products...</div>';
+        await fetchProducts();
+        renderProducts();
+        loadedTabs.products = true;
+    }
+    if(name === "dashboard" && (!loadedTabs.products || !loadedTabs.orders)){
+        await fetchProducts();
+        await fetchOrders();
+        loadedTabs.products = true;
+        loadedTabs.orders = true;
+        renderDashboard();
+    }
+    if(name === "orders" && !loadedTabs.orders){
+        document.getElementById("ordersManager").innerHTML = '<div class="loading-line">Loading orders...</div>';
+        await fetchOrders();
+        loadedTabs.orders = true;
+        renderOrders();
+        renderDashboard();
+    }
+    if(name === "delivery" && !loadedTabs.delivery){
+        document.getElementById("deliveryUsersManager").innerHTML = '<div class="loading-line">Loading delivery boys...</div>';
+        await fetchDeliveryUsers();
+        loadedTabs.delivery = true;
+        renderDeliveryUsers();
+    }
+    if(name === "offers" && !loadedTabs.offers){
+        document.getElementById("offersManager").innerHTML = '<div class="loading-line">Loading offers...</div>';
+        await fetchOffers();
+        loadedTabs.offers = true;
+        renderOffers();
+    }
+    if(name === "coupons" && !loadedTabs.coupons){
+        document.getElementById("couponsManager").innerHTML = '<div class="loading-line">Loading coupons...</div>';
+        await fetchCoupons();
+        loadedTabs.coupons = true;
+        renderCoupons();
     }
 }
 
@@ -667,6 +940,8 @@ async function assignDeliveryBoy(orderId, deliveryBoyId, fromModal = false){
 
     await fetchOrders();
     await fetchDeliveryUsers();
+    loadedTabs.orders = true;
+    loadedTabs.delivery = true;
     renderOrders();
     if(fromModal) await openOrderDetail(orderId);
 }
@@ -767,6 +1042,11 @@ function renderOrders(){
     `;
 
     container.innerHTML = `
+        <div class="top-order-stats">
+            <div class="top-order-stat need"><div class="label">Need Confirmation</div><div class="value">${needList.length}</div></div>
+            <div class="top-order-stat pending"><div class="label">Pending</div><div class="value">${pendingList.length}</div></div>
+            <div class="top-order-stat delivered"><div class="label">Delivered</div><div class="value">${deliveredList.length}</div></div>
+        </div>
         <div class="order-board">
             ${buildCol("Need Confirmation", needList)}
             ${buildCol("Pending", pendingList)}
@@ -1174,9 +1454,9 @@ async function moveToPending(orderId, fromModal = false){
         }
 
         await fetchOrders();
+        loadedTabs.orders = true;
         renderOrders();
         renderDashboard();
-        if(fromModal) closeOrderDetailModal();
         if(fromModal) await openOrderDetail(orderId);
     }catch(error){
         console.error("Move to pending error:", error);
@@ -1219,7 +1499,7 @@ async function deleteOrder(orderId, fromModal = false){
 
         const data = await res.json().catch(() => ({}));
         if(!res.ok){
-            await showSoftAlert(data.message || "Delete failed", "Delete", "OK", "🗑️");
+            alert(data.message || "Delete failed");
             return;
         }
 
@@ -1289,7 +1569,7 @@ async function deleteDeliveryUser(userId){
         headers: getAuthHeaders(false)
     });
     const data = await res.json().catch(() => ({}));
-    if(!res.ok){ await showSoftAlert(data.message || "Delete failed", "Delete", "OK", "🗑️"); return; }
+    if(!res.ok){ alert(data.message || "Delete failed"); return; }
     await fetchDeliveryUsers();
     renderDeliveryUsers();
 }
@@ -1323,18 +1603,39 @@ async function watchNewOrders(){
 }
 
 async function loadAdmin(){
-    await fetchProducts();
-    await fetchOrders();
-    await fetchDeliveryUsers();
-    try{ await fetchOffers(); }catch(error){ console.error("Offers fetch error:", error); }
-    try{ await fetchCoupons(); }catch(error){ console.error("Coupons fetch error:", error); }
-    renderProducts();
-    renderDashboard();
-    renderOrders();
-    renderDeliveryUsers();
-    renderOffers();
-    renderCoupons();
-    showSection(getActiveSection());
+    const active = getActiveSection();
+    showSection(active);
+
+    if(active === "add" || active === "stock"){
+        if(!loadedTabs.products){
+            await fetchProducts();
+            loadedTabs.products = true;
+        }
+        renderProducts();
+    }else if(active === "dashboard"){
+        if(!loadedTabs.products) await fetchProducts();
+        if(!loadedTabs.orders) await fetchOrders();
+        loadedTabs.products = true;
+        loadedTabs.orders = true;
+        renderDashboard();
+    }else if(active === "orders"){
+        if(!loadedTabs.orders) await fetchOrders();
+        loadedTabs.orders = true;
+        renderOrders();
+        renderDashboard();
+    }else if(active === "delivery"){
+        if(!loadedTabs.delivery) await fetchDeliveryUsers();
+        loadedTabs.delivery = true;
+        renderDeliveryUsers();
+    }else if(active === "offers"){
+        if(!loadedTabs.offers) await fetchOffers();
+        loadedTabs.offers = true;
+        renderOffers();
+    }else if(active === "coupons"){
+        if(!loadedTabs.coupons) await fetchCoupons();
+        loadedTabs.coupons = true;
+        renderCoupons();
+    }
 }
 
 (async function(){
