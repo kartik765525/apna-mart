@@ -3850,7 +3850,7 @@ function normalizeCategory(value){
 
 function filterCategory(cat, el) {
     document.querySelectorAll(".cat").forEach(c => c.classList.remove("active"));
-    el.classList.add("active");
+    if (el && el.classList) el.classList.add("active");
 
     const selected = normalizeCategory(cat);
 
