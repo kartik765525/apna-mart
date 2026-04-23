@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#f7fbff" id="themeColorMeta" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Supply Setu Mart</title>
@@ -2018,7 +2018,12 @@ html[data-theme="dark"] .offer-icon{background:#0f172a;color:#facc15;}
 .commerce-loader-device.pos{
     left:6px;
     bottom:28px;
-    font-size:58px;
+    width:58px;
+    height:58px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    box-shadow:0 10px 22px rgba(37,99,235,.18);
+    font-size:0;
     animation-delay:.3s;
 }
 .commerce-loader-device.card{
@@ -2345,52 +2350,6 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 
 
-
-/* FINAL FIXES */
-html,body{
-    touch-action:manipulation;
-}
-
-.commerce-loader-device.pos{
-    width:58px;
-    height:58px;
-    border-radius:14px;
-    background:linear-gradient(135deg,#2563eb,#1d4ed8);
-    box-shadow:0 10px 22px rgba(37,99,235,.22);
-    font-size:0 !important;
-    line-height:0 !important;
-    overflow:hidden;
-}
-.commerce-loader-device.pos::before,
-.commerce-loader-device.pos::after{
-    content:none !important;
-}
-
-/* cart bottom bar really at bottom */
-#cartPanel{
-    padding-bottom:96px !important;
-}
-.cart-bottom-bar{
-    position:fixed !important;
-    left:0 !important;
-    right:0 !important;
-    bottom:0 !important;
-    width:100% !important;
-    z-index:1007 !important;
-    align-items:center !important;
-}
-.cart-bottom-price{
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-}
-@media (min-width: 561px){
-    .cart-bottom-bar{
-        max-width:560px;
-        margin-left:auto;
-    }
-}
-
 /* CHECKOUT PANEL ADDON */
 #cartPanel .cart-payment-box,
 #savedProfileBox{display:none !important;}
@@ -2429,6 +2388,40 @@ html[data-theme="dark"] .checkout-location-line,
 html[data-theme="dark"] .checkout-payment-option{color:#94a3b8 !important;}
 html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !important;color:#e5e7eb !important;border-color:#263244 !important;}
 @media (max-width:600px){.checkout-confirm-btn{min-width:145px;padding:15px 16px;font-size:17px;}}
+
+
+/* PLACE ORDER POSITION FIX */
+.checkout-bottom{
+    position:sticky !important;
+    bottom:0 !important;
+    left:0;
+    right:0;
+    z-index:30;
+    width:100%;
+    justify-content:space-between;
+}
+.checkout-confirm-btn{
+    margin-left:auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+@media (max-width:600px){
+    .checkout-bottom{
+        gap:10px !important;
+        padding:12px 14px calc(12px + env(safe-area-inset-bottom)) !important;
+    }
+    .checkout-bottom-price{
+        flex:1 1 auto;
+        min-width:0;
+    }
+    .checkout-confirm-btn{
+        min-width:145px !important;
+        width:auto !important;
+        padding:15px 16px !important;
+        flex:0 0 auto;
+    }
+}
 
 </style>
 
@@ -2914,7 +2907,6 @@ let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 let latestOrders = [];
 let currentOpenOrderId = null;
 let otpSent = false;
-let searchDebounceTimer = null;
 
 let firebaseCartDb = null;
 let firebaseCartReady = false;
@@ -3845,17 +3837,16 @@ function calculateTotal() {
 
 
 function loadProducts() {
-    const activeProducts = filteredProducts.filter(p => p.active !== false);
-
     document.getElementById("products").innerHTML =
-        activeProducts
+        filteredProducts
+            .filter(p => p.active !== false)
             .map(p => {
                 const item = cart.find(i => i.id === p.id);
 
                 return `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="${getProductImageSrc(p.image)}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                        <img src="${getProductImageSrc(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
                     </div>
                     <div class="product-name">${p.name}</div>
                     <div class="product-price">
@@ -4501,7 +4492,7 @@ function renderOffersFromServer(){
                     <div class="offer-icon">🎁</div>
                     <div class="offer-copy">
                         <div class="offer-title">No live offers</div>
-                        <div class="offer-desc">No Offers For You</div>
+                        <div class="offer-desc">Admin se naya offer ya coupon aane par yahan dikhega</div>
                     </div>
                 </div>
             </div>
