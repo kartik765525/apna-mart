@@ -1108,19 +1108,31 @@ async function addOfferItem(){
     const code = document.getElementById("offerCode").value.trim().toUpperCase();
     const validTill = document.getElementById("offerValidTill").value;
     const file = document.getElementById("offerImage").files[0];
+
     if(!title){ await showSoftAlert("Offer title required", "Offers", "OK", "🎁"); return; }
     if(!code){ await showSoftAlert("Coupon code required", "Offers", "OK", "🎁"); return; }
     if(!validTill){ await showSoftAlert("Valid till required", "Offers", "OK", "🎁"); return; }
-    if(!file){ await showSoftAlert("Offer image required", "Offers", "OK", "🎁"); return; }
+
     try{
-        const formData = new FormData();
-        formData.append('image', file);
-        const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
-        const uploadData = await uploadRes.json().catch(()=>({}));
-        if(!uploadRes.ok || !uploadData.imageUrl) throw new Error(uploadData.message || 'Upload failed');
-        const res = await fetch('/api/admin/offers', { method:'POST', headers:getAuthHeaders(true), body:JSON.stringify({ title, subtitle, discount, code, validTill, image: uploadData.imageUrl }) });
+        let imageUrl = "emoji";
+
+        if(file){
+            const formData = new FormData();
+            formData.append('image', file);
+            const uploadRes = await fetch('/upload', { method:'POST', headers:getAuthHeaders(false), body:formData });
+            const uploadData = await uploadRes.json().catch(()=>({}));
+            if(!uploadRes.ok || !uploadData.imageUrl) throw new Error(uploadData.message || 'Upload failed');
+            imageUrl = uploadData.imageUrl;
+        }
+
+        const res = await fetch('/api/admin/offers', {
+            method:'POST',
+            headers:getAuthHeaders(true),
+            body:JSON.stringify({ title, subtitle, discount, code, validTill, image: imageUrl })
+        });
         const data = await res.json().catch(()=>({}));
         if(!res.ok){ alert(data.message || 'Offer add failed'); return; }
+
         document.getElementById("offerTitle").value = "";
         document.getElementById("offerSubtitle").value = "";
         document.getElementById("offerDiscount").value = "";
@@ -1128,8 +1140,10 @@ async function addOfferItem(){
         document.getElementById("offerValidTill").value = "";
         document.getElementById("offerImage").value = "";
         document.getElementById("offerImageStatus").textContent = "No offer image selected";
+
         await fetchOffers();
         renderOffers();
+        await showSoftAlert("Offer added successfully", "Offers", "OK", "✅");
     }catch(error){
         console.error(error);
         await showSoftAlert('Offer add failed', 'Offers', 'OK', '🎁');
@@ -1154,7 +1168,11 @@ function renderOffers(){
     box.innerHTML = offers.length ? offers.map(item => `
         <div class="order-card">
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-                <img src="${item.image}" style="width:120px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
+                ${
+                    !item.image || item.image === "emoji"
+                    ? `<div style="width:120px;height:58px;display:flex;align-items:center;justify-content:center;font-size:34px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;">🎁</div>`
+                    : `<img src="${item.image}" style="width:120px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #ddd;" onerror="this.outerHTML='<div style=&quot;width:120px;height:58px;display:flex;align-items:center;justify-content:center;font-size:34px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;&quot;>🎁</div>'">`
+                }
                 <div style="flex:1;min-width:180px;">
                     <div style="font-weight:700;">${item.title}</div>
                     <div style="font-size:13px;color:#666;margin-top:4px;">${item.subtitle || ""}</div>
