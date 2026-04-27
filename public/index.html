@@ -2650,6 +2650,45 @@ html[data-theme="dark"] .product-unit-line{color:#94a3b8 !important;}
     .category-product-row .product-card{flex-basis:142px;width:142px;min-height:230px;padding:9px;}
     .category-product-row .product-image{height:104px;}
 }
+
+
+/* ===== ADD BUTTON BLUE TONE FIX ===== */
+.add-btn,
+.category-product-row .add-btn{
+    background:#eef6ff !important;
+    color:#0b4f9c !important;
+    border:1px solid #0b4f9c !important;
+    box-shadow:0 4px 10px rgba(11,79,156,.12) !important;
+}
+.add-btn:hover,
+.add-btn:active,
+.category-product-row .add-btn:hover,
+.category-product-row .add-btn:active{
+    background:#0b4f9c !important;
+    color:#ffffff !important;
+}
+.category-product-row .qty-box{
+    background:#0b4f9c !important;
+    color:#fff !important;
+}
+.category-product-row .qty-box button{
+    background:transparent !important;
+    color:#fff !important;
+}
+html[data-theme="dark"] .add-btn,
+html[data-theme="dark"] .category-product-row .add-btn{
+    background:#10253f !important;
+    color:#dbeafe !important;
+    border-color:#60a5fa !important;
+}
+html[data-theme="dark"] .add-btn:hover,
+html[data-theme="dark"] .add-btn:active,
+html[data-theme="dark"] .category-product-row .add-btn:hover,
+html[data-theme="dark"] .category-product-row .add-btn:active{
+    background:#2563eb !important;
+    color:#ffffff !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -5178,7 +5217,7 @@ async function autoRefreshPanels(){
 
 function startAutoRefresh(){
     if(autoRefreshTimer) clearInterval(autoRefreshTimer);
-    autoRefreshTimer = setInterval(autoRefreshPanels, 5000);
+    autoRefreshTimer = setInterval(autoRefreshPanels, 30000);
 }
 
 function stopAutoRefresh(){
@@ -5236,6 +5275,27 @@ initApp();
   }else{
     watchPanels();
   }
+})();
+</script>
+
+
+<script>
+// ===== SAFE 30 SECOND AUTO REFRESH FIX =====
+(function(){
+    if(window.__supplySetuThirtySecRefresh) return;
+    window.__supplySetuThirtySecRefresh = true;
+    setInterval(function(){
+        try{
+            if(document.hidden) return;
+            if(typeof loadProducts === "function"){
+                loadProducts();
+            }else if(typeof autoRefreshPanels === "function"){
+                autoRefreshPanels();
+            }
+        }catch(e){
+            console.warn("Auto refresh skipped:", e);
+        }
+    }, 30000);
 })();
 </script>
 
