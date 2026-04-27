@@ -2652,41 +2652,75 @@ html[data-theme="dark"] .product-unit-line{color:#94a3b8 !important;}
 }
 
 
-/* ===== ADD BUTTON BLUE TONE FIX ===== */
-.add-btn,
-.category-product-row .add-btn{
-    background:#eef6ff !important;
-    color:#0b4f9c !important;
-    border:1px solid #0b4f9c !important;
-    box-shadow:0 4px 10px rgba(11,79,156,.12) !important;
+/* ===== USER FIX: SMALL PRODUCT CARDS + BLUE ADD BUTTON + 4 ITEMS FRONT ===== */
+.category-product-row{
+    gap:8px !important;
+    padding:0 10px 8px 10px !important;
 }
-.add-btn:hover,
-.add-btn:active,
-.category-product-row .add-btn:hover,
-.category-product-row .add-btn:active{
+.category-product-row .product-card{
+    flex:0 0 clamp(82px, calc((100vw - 52px) / 4), 140px) !important;
+    width:clamp(82px, calc((100vw - 52px) / 4), 140px) !important;
+    min-height:185px !important;
+    padding:7px !important;
+    border-radius:8px !important;
+}
+.category-product-row .product-image{
+    height:72px !important;
+    border-radius:6px !important;
+}
+.category-product-row .product-name{
+    font-size:10.5px !important;
+    line-height:1.25 !important;
+    min-height:28px !important;
+    margin:6px 0 6px 0 !important;
+    -webkit-line-clamp:2 !important;
+}
+.category-product-row .product-price{
+    font-size:11px !important;
+}
+.product-bottom-row{
+    gap:5px !important;
+}
+.category-product-row .add-btn,
+.add-btn{
     background:#0b4f9c !important;
+    border:1px solid #0b4f9c !important;
     color:#ffffff !important;
+    box-shadow:none !important;
+}
+.category-product-row .add-btn{
+    min-width:44px !important;
+    padding:6px 8px !important;
+    border-radius:6px !important;
+    font-size:10.5px !important;
 }
 .category-product-row .qty-box{
+    width:58px !important;
     background:#0b4f9c !important;
-    color:#fff !important;
 }
 .category-product-row .qty-box button{
-    background:transparent !important;
-    color:#fff !important;
+    width:17px !important;
+    height:17px !important;
 }
-html[data-theme="dark"] .add-btn,
-html[data-theme="dark"] .category-product-row .add-btn{
-    background:#10253f !important;
-    color:#dbeafe !important;
-    border-color:#60a5fa !important;
+.category-product-row .qty-box span{
+    font-size:10.5px !important;
 }
-html[data-theme="dark"] .add-btn:hover,
-html[data-theme="dark"] .add-btn:active,
-html[data-theme="dark"] .category-product-row .add-btn:hover,
-html[data-theme="dark"] .category-product-row .add-btn:active{
-    background:#2563eb !important;
-    color:#ffffff !important;
+.welcome-stack.offers-hidden{
+    display:none !important;
+}
+@media (max-width:600px){
+    .category-row-section{margin:12px 0 18px 0 !important;}
+    .category-row-head{padding:0 10px 9px 10px !important;}
+    .category-row-title{font-size:16px !important;}
+    .category-see-all{font-size:13px !important;}
+    .category-product-row .product-card{
+        flex-basis:calc((100vw - 52px) / 4) !important;
+        width:calc((100vw - 52px) / 4) !important;
+        min-height:178px !important;
+    }
+    .category-product-row .product-image{height:66px !important;}
+    .category-product-row .product-name{font-size:10px !important;}
+    .category-product-row .add-btn{font-size:10px !important; padding:5px 6px !important; min-width:40px !important;}
 }
 
 </style>
@@ -2769,7 +2803,7 @@ html[data-theme="dark"] .category-product-row .add-btn:active{
 
 
 
-    <div class="welcome-stack" id="offersSection" style="display:none;">
+    <div class="welcome-stack">
         <div class="welcome-banner">
             <div class="welcome-kicker">WELCOME</div>
             <div class="welcome-title">WELCOME</div>
@@ -4789,36 +4823,32 @@ let serverOffers = [];
 let offerAutoScrollTimer = null;
 
 function renderOffersFromServer(){
-    const section = document.getElementById('offersSection');
     const strip = document.getElementById('offersStrip');
+    const welcomeStack = document.querySelector('.welcome-stack');
     if(!strip) return;
 
     const active = (serverOffers || []).filter(item => !item.hidden && item.isActive !== false);
 
+    // Offer nahi hai to poora offer section hide rahega
     if(!active.length){
         strip.innerHTML = '';
-        if(section) section.style.display = 'none';
-        if(offerAutoScrollTimer){
-            clearInterval(offerAutoScrollTimer);
-            offerAutoScrollTimer = null;
-        }
+        if(welcomeStack) welcomeStack.classList.add('offers-hidden');
         return;
     }
 
-    if(section) section.style.display = 'block';
+    if(welcomeStack) welcomeStack.classList.remove('offers-hidden');
 
     strip.innerHTML = active.map(item => {
         const title = item.title || 'Special Offer';
         const desc = item.subtitle || item.description || '';
         const code = String(item.code || '').trim().toUpperCase();
         const image = item.image || '';
-        const safeCode = code.replace(/'/g, "\'");
         const visual = image
             ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
             : `<div class="offer-icon">🏷️</div>`;
 
         return `
-            <div class="offer-card" onclick="applyOfferFromStrip('${safeCode}')">
+            <div class="offer-card" onclick="applyOfferFromStrip('${code.replace(/'/g, "\'")}')">
                 <div class="offer-top">
                     ${visual}
                     <div class="offer-copy">
@@ -5275,27 +5305,6 @@ initApp();
   }else{
     watchPanels();
   }
-})();
-</script>
-
-
-<script>
-// ===== SAFE 30 SECOND AUTO REFRESH FIX =====
-(function(){
-    if(window.__supplySetuThirtySecRefresh) return;
-    window.__supplySetuThirtySecRefresh = true;
-    setInterval(function(){
-        try{
-            if(document.hidden) return;
-            if(typeof loadProducts === "function"){
-                loadProducts();
-            }else if(typeof autoRefreshPanels === "function"){
-                autoRefreshPanels();
-            }
-        }catch(e){
-            console.warn("Auto refresh skipped:", e);
-        }
-    }, 30000);
 })();
 </script>
 
