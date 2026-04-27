@@ -3110,6 +3110,66 @@ body::after {
     display: none !important;
 }
 
+
+
+/* OFFER SECTION FIX - image optional + auto fit */
+.offer-card{
+    overflow:hidden !important;
+    flex:0 0 250px !important;
+}
+.offer-top{
+    align-items:flex-start !important;
+    min-width:0 !important;
+}
+.offer-copy{
+    flex:1 !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+}
+.offer-title{
+    overflow:hidden !important;
+    word-break:break-word !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+    line-height:1.25 !important;
+}
+.offer-desc{
+    overflow:hidden !important;
+    word-break:break-word !important;
+    display:-webkit-box !important;
+    -webkit-line-clamp:2 !important;
+    -webkit-box-orient:vertical !important;
+}
+.offer-icon{
+    width:54px !important;
+    height:54px !important;
+    min-width:54px !important;
+    flex:0 0 54px !important;
+    overflow:hidden !important;
+}
+.offer-icon img{
+    width:100% !important;
+    height:100% !important;
+    display:block !important;
+    object-fit:cover !important;
+    border-radius:14px !important;
+}
+.offer-icon.offer-icon-img{
+    padding:0 !important;
+    background:#fff !important;
+}
+.offer-pill{
+    max-width:100% !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+}
+@media (max-width:600px){
+    .offer-card{flex-basis:225px !important;}
+    .offer-icon{width:48px !important;height:48px !important;min-width:48px !important;flex-basis:48px !important;}
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -5382,13 +5442,24 @@ function renderOffersFromServer(){
     if(section) section.style.display = 'block';
 
     strip.innerHTML = active.map(item => {
+        const escapeHtml = (value) => String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
         const title = item.title || 'Special Offer';
         const desc = item.subtitle || item.description || '';
         const code = String(item.code || '').trim().toUpperCase();
-        const image = item.image || '';
+        const image = String(item.image || item.imageUrl || item.photo || '').trim();
         const safeCode = code.replace(/'/g, "\'");
+        const safeTitle = escapeHtml(title);
+        const safeDesc = escapeHtml(desc);
+        const safeCodeText = escapeHtml(code);
+        const safeImage = escapeHtml(image);
         const visual = image
-            ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
+            ? `<div class="offer-icon offer-icon-img"><img src="${safeImage}" alt="${safeTitle}" loading="lazy" onerror="this.parentElement.className='offer-icon'; this.parentElement.innerHTML='🏷️';"></div>`
             : `<div class="offer-icon">🏷️</div>`;
 
         return `
@@ -5396,9 +5467,9 @@ function renderOffersFromServer(){
                 <div class="offer-top">
                     ${visual}
                     <div class="offer-copy">
-                        <div class="offer-title">${title}</div>
-                        <div class="offer-desc">${desc}</div>
-                        ${code ? `<div class="offer-pill">${code}</div>` : ``}
+                        <div class="offer-title">${safeTitle}</div>
+                        <div class="offer-desc">${safeDesc}</div>
+                        ${code ? `<div class="offer-pill">${safeCodeText}</div>` : ``}
                     </div>
                 </div>
             </div>
