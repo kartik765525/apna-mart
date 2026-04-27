@@ -2479,6 +2479,72 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
     }
 }
 
+
+/* REMOVE OLD VERTICAL CATEGORY SECTION */
+.category-section,
+.category-list,
+.category-buttons,
+#categorySection,
+.old-category-section,
+.category-panel,
+.category-menu{
+    display:none !important;
+}
+.search-box .cat,
+.search-box button.cat{
+    display:none !important;
+}
+
+
+/* CATEGORY CARD BACKGROUND IMAGES */
+.category-grid-scroll .cat{
+    position:relative !important;
+    overflow:hidden !important;
+    background-size:cover !important;
+    background-position:center !important;
+    color:#ffffff !important;
+    text-shadow:0 2px 8px rgba(0,0,0,.55) !important;
+    border:1px solid rgba(255,255,255,.55) !important;
+}
+.category-grid-scroll .cat::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,rgba(0,0,0,.35),rgba(0,0,0,.12));
+    z-index:0;
+}
+.category-grid-scroll .cat{
+    z-index:1;
+}
+.category-grid-scroll .cat.active::before{
+    background:linear-gradient(135deg,rgba(167,43,184,.48),rgba(12,143,122,.45));
+}
+.category-grid-scroll .cat span{
+    position:relative;
+    z-index:1;
+}
+.category-grid-scroll .cat-cat-all{
+    background-image:url("https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-fastfood{
+    background-image:url("https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-drink{
+    background-image:url("https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-grocery{
+    background-image:url("https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-dairy{
+    background-image:url("https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-vegetables{
+    background-image:url("https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=70") !important;
+}
+.category-grid-scroll .cat-cat-bakery{
+    background-image:url("https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=70") !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -2580,13 +2646,13 @@ document.addEventListener("DOMContentLoaded", startCategoryAutoScroll);
    
 
        <div class="categories category-grid-scroll" id="categoryGridScroll">
-        <button class="cat active" onclick="filterCategory('All', this)">🏠 All</button>
-        <button class="cat" onclick="filterCategory('Fast Food', this)">🍔 Fast Food</button>
-        <button class="cat" onclick="filterCategory('Drink', this)">🥤 Drink</button>
-        <button class="cat" onclick="filterCategory('Grocery', this)">🛒 Grocery</button>
-        <button class="cat" onclick="filterCategory('Dairy', this)">🥛 Dairy</button>
-        <button class="cat" onclick="filterCategory('Vegetables', this)">🥦 Vegetables</button>
-        <button class="cat" onclick="filterCategory('Bakery', this)">🍞 Bakery</button>
+        <button class="cat cat-cat-all active" onclick="filterCategory('All', this)"><span>🏠 All</span></button>
+        <button class="cat cat-cat-fastfood" onclick="filterCategory('Fast Food', this)"><span>🍔 Fast Food</span></button>
+        <button class="cat cat-cat-drink" onclick="filterCategory('Drink', this)"><span>🥤 Drink</span></button>
+        <button class="cat cat-cat-grocery" onclick="filterCategory('Grocery', this)"><span>🛒 Grocery</span></button>
+        <button class="cat cat-cat-dairy" onclick="filterCategory('Dairy', this)"><span>🥛 Dairy</span></button>
+        <button class="cat cat-cat-vegetables" onclick="filterCategory('Vegetables', this)"><span>🥦 Vegetables</span></button>
+        <button class="cat cat-cat-bakery" onclick="filterCategory('Bakery', this)"><span>🍞 Bakery</span></button>
     </div>
     <div class="cat" onclick="filterCategory('Grocery', this)">Grocery</div>
     <div class="cat" onclick="filterCategory('Dairy', this)">Dairy</div>
