@@ -2272,7 +2272,8 @@ body.panel-open .search-box{
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel{
+.support-panel,
+.privacy-panel{
     width:100% !important;
     max-width:100% !important;
     right:0 !important;
@@ -3030,6 +3031,53 @@ html[data-theme="dark"] .category-product-row .add-btn{
 }
 
 
+
+/* PRIVACY POLICY PANEL */
+.privacy-panel{
+    position:fixed;
+    right:0;
+    top:0;
+    width:420px;
+    max-width:100%;
+    height:100%;
+    background:#fff;
+    z-index:1003;
+    transform:translateX(100%);
+    transition:.3s;
+    overflow-y:auto;
+    box-shadow:-8px 0 22px rgba(0,0,0,.14);
+}
+.privacy-panel.open{transform:translateX(0)}
+.privacy-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px;
+    border-bottom:1px solid #eceff3;
+    position:sticky;
+    top:0;
+    background:#fff;
+    z-index:2;
+}
+.privacy-title{font-size:22px;font-weight:800;color:#111827;}
+.privacy-body{padding:16px;background:#f5f6f8;min-height:calc(100% - 72px);}
+.privacy-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;}
+.privacy-card h3{font-size:20px;color:#111827;margin-bottom:8px;}
+.privacy-card h4{font-size:16px;color:#111827;margin:18px 0 8px;}
+.privacy-card p,.privacy-card li{color:#6b7280;line-height:1.6;font-size:14px;}
+.privacy-card ul{padding-left:20px;margin:8px 0;}
+.privacy-updated{display:inline-block;margin:6px 0 10px;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#0b4f9c;font-size:12px;font-weight:800;}
+html[data-theme="dark"] .privacy-panel,
+html[data-theme="dark"] .privacy-header,
+html[data-theme="dark"] .privacy-card{background:#111827 !important;color:#e5e7eb !important;border-color:#263244 !important;}
+html[data-theme="dark"] .privacy-body{background:#0f172a !important;}
+html[data-theme="dark"] .privacy-title,
+html[data-theme="dark"] .privacy-card h3,
+html[data-theme="dark"] .privacy-card h4{color:#e5e7eb !important;}
+html[data-theme="dark"] .privacy-card p,
+html[data-theme="dark"] .privacy-card li{color:#94a3b8 !important;}
+html[data-theme="dark"] .privacy-updated{background:#152236 !important;color:#dbeafe !important;border:1px solid #35507a;}
+
 /* ===== SHADOW FIX ===== */
 html, body {
     overflow-x: hidden !important;
@@ -3038,7 +3086,8 @@ html, body {
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel {
+.support-panel,
+.privacy-panel {
     box-shadow: none !important;
 }
 #cartPanel,
@@ -3046,7 +3095,8 @@ html, body {
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel {
+.support-panel,
+.privacy-panel {
     right: 0 !important;
     left: auto !important;
     max-width: 100% !important;
@@ -3312,6 +3362,53 @@ body::after {
 
 
 
+<div class="privacy-panel" id="privacyPanel">
+    <div class="privacy-header">
+        <button class="close-btn" onclick="closePrivacyPolicyPanel()">←</button>
+        <div class="privacy-title">Privacy Policy</div>
+        <button class="close-btn" onclick="closePrivacyPolicyPanel()">✕</button>
+    </div>
+    <div class="privacy-body">
+        <div class="privacy-card">
+            <h3>Supply Setu Mart (Apna Mart)</h3>
+            <span class="privacy-updated">Last updated: April 2026</span>
+            <p>We respect your privacy. This Privacy Policy explains what information we collect, why we collect it, and how we use it to provide grocery and daily needs delivery services.</p>
+            <h4>1. Information We Collect</h4>
+            <ul>
+                <li>Name and mobile number</li>
+                <li>Delivery address, village, and landmark</li>
+                <li>Order details and cart items</li>
+                <li>Payment method such as Cash on Delivery or UPI</li>
+                <li>Location/GPS details at the time of placing an order</li>
+            </ul>
+            <h4>2. How We Use Your Information</h4>
+            <ul>
+                <li>To process and deliver your orders</li>
+                <li>To contact you about order confirmation, delivery, or support</li>
+                <li>To show your order history and delivery status</li>
+                <li>To improve our app, website, products, and services</li>
+            </ul>
+            <h4>3. Location Usage</h4>
+            <p>We use your location only to identify the delivery address and help the delivery partner reach you. We do not sell your location data.</p>
+            <h4>4. Data Sharing</h4>
+            <p>We do not sell your personal information. We may share limited order, phone, address, and location details with our delivery partner only for completing your order.</p>
+            <h4>5. Payments</h4>
+            <p>For UPI payments, the payment is completed through the UPI app selected by the customer. We do not store sensitive banking details such as card numbers, UPI PIN, or bank passwords.</p>
+            <h4>6. Data Security</h4>
+            <p>We use reasonable safety steps to protect customer information. However, no online system is 100% secure, so users should also keep their phone and account access safe.</p>
+            <h4>7. User Rights</h4>
+            <p>You can request profile updates, account deletion, or data removal by contacting our support team.</p>
+            <h4>8. Children’s Privacy</h4>
+            <p>Our service is intended for general grocery ordering. Children should use the app only with permission from a parent or guardian.</p>
+            <h4>9. Policy Updates</h4>
+            <p>We may update this Privacy Policy when required. The latest version will be available inside the Profile section of the app/website.</p>
+            <h4>10. Contact Us</h4>
+            <p>For privacy or support questions, contact us on WhatsApp or call: <strong>7518576269</strong>.</p>
+        </div>
+    </div>
+</div>
+
+
 <div class="language-panel" id="languagePanel">
     <div class="language-header">
         <button class="close-btn" onclick="closeLanguagePanel()">←</button>
@@ -3379,6 +3476,14 @@ body::after {
                     <div class="profile-arrow">›</div>
                 </div>
 
+
+                <div class="profile-menu-item" onclick="openPrivacyPolicyPanel()">
+                    <div class="profile-menu-left">
+                        <span class="profile-icon">🔐</span>
+                        <span>Privacy Policy</span>
+                    </div>
+                    <span class="profile-arrow">›</span>
+                </div>
                 <div class="profile-menu-item" onclick="openSupportPanel()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">💬</div>
@@ -4374,6 +4479,7 @@ function closeAllPanels(clearHash = false) {
     document.getElementById("orderDetailPanel")?.classList.remove("open");
     currentOpenOrderId = null;
     document.getElementById("supportPanel")?.classList.remove("open");
+    document.getElementById("privacyPanel")?.classList.remove("open");
     document.getElementById("languagePanel")?.classList.remove("open");
     document.getElementById("profilePage")?.classList.remove("open");
     document.getElementById("checkoutPanel")?.classList.remove("open");
@@ -4410,6 +4516,10 @@ function syncPanelWithHash(){
     }
     if(hash === "support"){
         document.getElementById("supportPanel")?.classList.add("open");
+        return;
+    }
+    if(hash === "privacy"){
+        document.getElementById("privacyPanel")?.classList.add("open");
         return;
     }
     if(hash === "language"){
@@ -5122,6 +5232,15 @@ async function submitCheckoutOrder() {
     }
 }
 
+function openPrivacyPolicyPanel(addToHistory = true){
+    closeAllPanels(false);
+    document.getElementById("privacyPanel")?.classList.add("open");
+    if(addToHistory) pushPanelState("privacy");
+}
+function closePrivacyPolicyPanel(){
+    closeAllPanels(true);
+}
+
 function openSupportPanel(addToHistory = true){
     closeAllPanels(false);
     document.getElementById("supportPanel")?.classList.add("open");
@@ -5711,12 +5830,12 @@ initApp();
 <script>
 (function(){
   function syncPanelOpenState(){
-    const openPanel = document.querySelector('#cartPanel.open, #ordersPanel.open, #orderDetailPanel.open, #profilePage.open, #languagePanel.open, #supportPanel.open');
+    const openPanel = document.querySelector('#cartPanel.open, #ordersPanel.open, #orderDetailPanel.open, #profilePage.open, #languagePanel.open, #supportPanel.open, #privacyPanel.open');
     document.body.classList.toggle('panel-open', !!openPanel);
   }
 
   function watchPanels(){
-    const ids = ['cartPanel','ordersPanel','orderDetailPanel','profilePage','languagePanel','supportPanel'];
+    const ids = ['cartPanel','ordersPanel','orderDetailPanel','profilePage','languagePanel','supportPanel','privacyPanel'];
     ids.forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
