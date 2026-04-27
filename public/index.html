@@ -2545,6 +2545,40 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#111827 !imp
     background-image:url("https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=70") !important;
 }
 
+
+/* FINAL REMOVE OLD CATEGORY LIST - RED BOX FIX */
+body > .cat:not(.category-grid-scroll .cat),
+.search-box ~ .cat,
+.welcome-stack .cat,
+#oldCategoryList,
+.old-category-list,
+.category-list-old,
+.category-section-old{
+    display:none !important;
+}
+
+/* Hide duplicated plain category button rows, keep only image grid cards */
+.categories:not(#categoryGridScroll){
+    display:none !important;
+}
+
+/* If old category buttons are accidentally placed as direct children after the grid */
+#categoryGridScroll ~ .cat,
+#categoryGridScroll + .cat,
+#categoryGridScroll + button,
+#categoryGridScroll ~ button.cat{
+    display:none !important;
+}
+
+/* Remove blank gap left by old category rows */
+#categoryGridScroll{
+    margin-bottom:10px !important;
+}
+#categoryGridScroll + .search-box,
+.search-box{
+    margin-top:0 !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
