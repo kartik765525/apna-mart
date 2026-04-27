@@ -2730,7 +2730,7 @@ html[data-theme="dark"] .product-unit-line{color:#94a3b8 !important;}
 
 
 
-    <div class="welcome-stack">
+    <div class="welcome-stack" id="offersSection" style="display:none;">
         <div class="welcome-banner">
             <div class="welcome-kicker">WELCOME</div>
             <div class="welcome-title">WELCOME</div>
@@ -4746,41 +4746,37 @@ document.getElementById("profileImageInput")?.addEventListener("change", async f
     document.getElementById("profilePreview").src = dataUrl;
 });
 
-let serverOffers = [];
-let offerAutoScrollTimer = null;
-
-function renderOffersFromServer(){
+let serverOffersfunction renderOffersFromServer(){
+    const section = document.getElementById('offersSection');
     const strip = document.getElementById('offersStrip');
     if(!strip) return;
 
     const active = (serverOffers || []).filter(item => !item.hidden && item.isActive !== false);
 
     if(!active.length){
-        strip.innerHTML = `
-            <div class="offer-card">
-                <div class="offer-top">
-                    <div class="offer-icon">🎁</div>
-                    <div class="offer-copy">
-                        <div class="offer-title">No live offers</div>
-                        <div class="offer-desc">Admin se naya offer ya coupon aane par yahan dikhega</div>
-                    </div>
-                </div>
-            </div>
-        `;
+        strip.innerHTML = '';
+        if(section) section.style.display = 'none';
+        if(offerAutoScrollTimer){
+            clearInterval(offerAutoScrollTimer);
+            offerAutoScrollTimer = null;
+        }
         return;
     }
+
+    if(section) section.style.display = 'block';
 
     strip.innerHTML = active.map(item => {
         const title = item.title || 'Special Offer';
         const desc = item.subtitle || item.description || '';
         const code = String(item.code || '').trim().toUpperCase();
         const image = item.image || '';
+        const safeCode = code.replace(/'/g, "\'");
         const visual = image
             ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
             : `<div class="offer-icon">🏷️</div>`;
 
         return `
-            <div class="offer-card" onclick="applyOfferFromStrip('${code.replace(/'/g, "\'")}')">
+            <div class="offer-card" onclick="applyOfferFromStrip('${safeCode}')">
                 <div class="offer-top">
                     ${visual}
                     <div class="offer-copy">
@@ -4790,6 +4786,9 @@ function renderOffersFromServer(){
                     </div>
                 </div>
             </div>
+        `;
+    }).join('');
+}    </div>
         `;
     }).join('');
 }
