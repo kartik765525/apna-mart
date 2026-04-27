@@ -483,9 +483,10 @@ html.apnamart-has-token #app{display:block !important;}
 
 .products{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:16px;
-    padding:0 14px 18px 14px;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    padding:0 10px 15px 10px;
+
 }
 .product-card{
     background:var(--card);
@@ -2705,104 +2706,6 @@ html[data-theme="dark"] .category-product-row .add-btn:active{
 .category-product-row .qty-box span{font-size:9.5px !important;}
 @media (min-width:700px){.category-product-row .product-card{flex:0 0 150px !important;width:150px !important;min-height:220px !important;padding:9px !important;}.category-product-row .product-image{height:100px !important;}.category-product-row .product-name{font-size:12px !important;min-height:34px !important;}.product-unit-line{font-size:12px !important;}.category-product-row .product-price{font-size:12px !important;}.category-product-row .add-btn{font-size:12px !important;min-width:58px !important;padding:7px 12px !important;}}
 
-
-
-/* ===== FINAL FIX: SHORT CARD + STOCK + DISCOUNT + ORIGINAL PRICE ===== */
-.category-product-row .product-card{
-    min-height:158px !important;
-    padding:6px !important;
-    display:flex !important;
-    flex-direction:column !important;
-}
-.category-product-row .product-image{
-    height:58px !important;
-}
-.category-product-row .product-name{
-    font-size:10px !important;
-    line-height:1.15 !important;
-    min-height:23px !important;
-    margin:4px 0 3px 0 !important;
-}
-.category-product-row .product-unit-line{
-    font-size:8px !important;
-    min-height:10px !important;
-    margin-bottom:3px !important;
-    color:#64748b !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-}
-.product-meta-line{
-    display:flex !important;
-    align-items:center !important;
-    gap:3px !important;
-    min-height:13px !important;
-    margin-bottom:4px !important;
-    overflow:hidden !important;
-}
-.stock-chip{
-    font-size:7px !important;
-    font-weight:900 !important;
-    color:#15803d !important;
-    background:#dcfce7 !important;
-    border:1px solid #bbf7d0 !important;
-    border-radius:999px !important;
-    padding:1px 3px !important;
-    white-space:nowrap !important;
-}
-.stock-chip.out{
-    color:#b91c1c !important;
-    background:#fee2e2 !important;
-    border-color:#fecaca !important;
-}
-.discount-chip{
-    font-size:7px !important;
-    font-weight:900 !important;
-    color:#0b4f9c !important;
-    background:#eaf3ff !important;
-    border:1px solid #bfdbfe !important;
-    border-radius:999px !important;
-    padding:1px 3px !important;
-    white-space:nowrap !important;
-}
-.price-wrap{
-    min-width:0 !important;
-    line-height:1.05 !important;
-}
-.original-price{
-    font-size:8px !important;
-    color:#94a3b8 !important;
-    text-decoration:line-through !important;
-    font-weight:800 !important;
-    margin-top:1px !important;
-}
-.category-product-row .product-price{
-    font-size:10px !important;
-    line-height:1.05 !important;
-}
-.category-product-row .add-btn{
-    min-width:40px !important;
-    padding:4px 6px !important;
-    font-size:9px !important;
-}
-.category-product-row .qty-box{
-    width:46px !important;
-}
-@media (min-width:700px){
-    .category-product-row .product-card{min-height:188px !important;padding:8px !important;}
-    .category-product-row .product-image{height:82px !important;}
-    .category-product-row .product-name{font-size:11.5px !important;min-height:31px !important;}
-    .category-product-row .product-unit-line{font-size:10px !important;min-height:13px !important;}
-    .stock-chip,.discount-chip{font-size:8px !important;padding:1px 4px !important;}
-    .category-product-row .product-price{font-size:12px !important;}
-    .original-price{font-size:10px !important;}
-    .category-product-row .add-btn{font-size:11px !important;min-width:54px !important;padding:6px 10px !important;}
-}
-html[data-theme="dark"] .stock-chip{background:#14532d !important;color:#bbf7d0 !important;border-color:#166534 !important;}
-html[data-theme="dark"] .stock-chip.out{background:#3a1d24 !important;color:#fecdd3 !important;border-color:#7f1d1d !important;}
-html[data-theme="dark"] .discount-chip{background:#172554 !important;color:#bfdbfe !important;border-color:#1d4ed8 !important;}
-html[data-theme="dark"] .original-price{color:#94a3b8 !important;}
-
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -4226,30 +4129,14 @@ function getProductUnitText(p){
 
 function renderProductCard(p){
     const item = cart.find(i => String(i.id) === String(p.id));
-
-    const priceNum = Number(p.price || 0);
-    const originalNum = Number(p.originalPrice || p.mrp || p.oldPrice || p.cutPrice || p.original || p.original_price || 0);
-    const hasOriginal = originalNum && originalNum > priceNum;
-    const discountPercent = hasOriginal ? Math.round(((originalNum - priceNum) / originalNum) * 100) : 0;
-    const unitText = p.unit || p.weight || p.quantity || p.qtyText || p.size || "";
-    const stockText = Number(p.stock || 0) <= 0 ? "Out of stock" : `Stock: ${p.stock}`;
-
     return `
         <div class="product-card">
             <div class="product-image">
                 <img src="${getProductImageSrc(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             </div>
             <div class="product-name">${p.name}</div>
-            ${unitText ? `<div class="product-unit-line">${unitText}</div>` : `<div class="product-unit-line"></div>`}
-            <div class="product-meta-line">
-                <span class="stock-chip ${Number(p.stock || 0) <= 0 ? 'out' : ''}">${stockText}</span>
-                ${discountPercent > 0 ? `<span class="discount-chip">${discountPercent}% OFF</span>` : ""}
-            </div>
             <div class="product-bottom-row">
-                <div class="price-wrap">
-                    <div class="product-price">₹${p.price}</div>
-                    ${hasOriginal ? `<div class="original-price">₹${originalNum}</div>` : ""}
-                </div>
+                <div class="product-price">₹${p.price}</div>
                 ${
                     p.active === false
                         ? `<button class="add-btn" disabled style="background:#f1f5f9;color:#64748b;border-color:#cbd5e1;">Disabled</button>`
