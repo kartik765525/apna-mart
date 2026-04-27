@@ -3029,6 +3029,37 @@ html[data-theme="dark"] .category-product-row .add-btn{
     border-color:#60a5fa !important;
 }
 
+
+/* ===== SHADOW FIX ===== */
+html, body {
+    overflow-x: hidden !important;
+}
+.side-panel,
+.profile-page,
+.order-detail-panel,
+.language-panel,
+.support-panel {
+    box-shadow: none !important;
+}
+#cartPanel,
+#ordersPanel,
+.profile-page,
+.order-detail-panel,
+.language-panel,
+.support-panel {
+    right: 0 !important;
+    left: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+* {
+    max-width: 100%;
+}
+body::before,
+body::after {
+    display: none !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
