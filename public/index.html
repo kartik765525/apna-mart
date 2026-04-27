@@ -4058,11 +4058,11 @@ function getBlinkitCategoryTitle(category){
     const c = normalizeCategory(category);
     const names = {
         "dairy":"Dairy, Bread & Eggs",
-        "grocery":"Grocery & Kitchen",
+        "grocery":"Grocery ",
         "vegetables":"Fresh Vegetables",
-        "bakery":"Bakery & Biscuits",
-        "drink":"Drinks & Juices",
-        "fast food":"Fast Food & Snacks"
+        "bakery":"Bakery & cake",
+        "drink":"cold drinks",
+        "fast food":"Fast Food "
     };
     return names[c] || (String(category || "Other Products").trim() || "Other Products");
 }
@@ -4078,9 +4078,7 @@ function renderProductCard(p){
             <div class="product-image">
                 <img src="${getProductImageSrc(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             </div>
-            <div class="product-time-badge">⏱ 17 MINS</div>
             <div class="product-name">${p.name}</div>
-            <div class="product-unit-line">${getProductUnitText(p)}</div>
             <div class="product-bottom-row">
                 <div class="product-price">₹${p.price}</div>
                 ${
