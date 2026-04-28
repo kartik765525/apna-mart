@@ -2272,8 +2272,7 @@ body.panel-open .search-box{
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel,
-.privacy-panel{
+.support-panel{
     width:100% !important;
     max-width:100% !important;
     right:0 !important;
@@ -3031,53 +3030,6 @@ html[data-theme="dark"] .category-product-row .add-btn{
 }
 
 
-
-/* PRIVACY POLICY PANEL */
-.privacy-panel{
-    position:fixed;
-    right:0;
-    top:0;
-    width:420px;
-    max-width:100%;
-    height:100%;
-    background:#fff;
-    z-index:1003;
-    transform:translateX(100%);
-    transition:.3s;
-    overflow-y:auto;
-    box-shadow:-8px 0 22px rgba(0,0,0,.14);
-}
-.privacy-panel.open{transform:translateX(0)}
-.privacy-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:16px;
-    border-bottom:1px solid #eceff3;
-    position:sticky;
-    top:0;
-    background:#fff;
-    z-index:2;
-}
-.privacy-title{font-size:22px;font-weight:800;color:#111827;}
-.privacy-body{padding:16px;background:#f5f6f8;min-height:calc(100% - 72px);}
-.privacy-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;}
-.privacy-card h3{font-size:20px;color:#111827;margin-bottom:8px;}
-.privacy-card h4{font-size:16px;color:#111827;margin:18px 0 8px;}
-.privacy-card p,.privacy-card li{color:#6b7280;line-height:1.6;font-size:14px;}
-.privacy-card ul{padding-left:20px;margin:8px 0;}
-.privacy-updated{display:inline-block;margin:6px 0 10px;padding:6px 10px;border-radius:999px;background:#eef4ff;color:#0b4f9c;font-size:12px;font-weight:800;}
-html[data-theme="dark"] .privacy-panel,
-html[data-theme="dark"] .privacy-header,
-html[data-theme="dark"] .privacy-card{background:#111827 !important;color:#e5e7eb !important;border-color:#263244 !important;}
-html[data-theme="dark"] .privacy-body{background:#0f172a !important;}
-html[data-theme="dark"] .privacy-title,
-html[data-theme="dark"] .privacy-card h3,
-html[data-theme="dark"] .privacy-card h4{color:#e5e7eb !important;}
-html[data-theme="dark"] .privacy-card p,
-html[data-theme="dark"] .privacy-card li{color:#94a3b8 !important;}
-html[data-theme="dark"] .privacy-updated{background:#152236 !important;color:#dbeafe !important;border:1px solid #35507a;}
-
 /* ===== SHADOW FIX ===== */
 html, body {
     overflow-x: hidden !important;
@@ -3086,8 +3038,7 @@ html, body {
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel,
-.privacy-panel {
+.support-panel {
     box-shadow: none !important;
 }
 #cartPanel,
@@ -3095,8 +3046,7 @@ html, body {
 .profile-page,
 .order-detail-panel,
 .language-panel,
-.support-panel,
-.privacy-panel {
+.support-panel {
     right: 0 !important;
     left: auto !important;
     max-width: 100% !important;
@@ -3108,66 +3058,6 @@ html, body {
 body::before,
 body::after {
     display: none !important;
-}
-
-
-
-/* OFFER SECTION FIX - image optional + auto fit */
-.offer-card{
-    overflow:hidden !important;
-    flex:0 0 250px !important;
-}
-.offer-top{
-    align-items:flex-start !important;
-    min-width:0 !important;
-}
-.offer-copy{
-    flex:1 !important;
-    min-width:0 !important;
-    overflow:hidden !important;
-}
-.offer-title{
-    overflow:hidden !important;
-    word-break:break-word !important;
-    display:-webkit-box !important;
-    -webkit-line-clamp:2 !important;
-    -webkit-box-orient:vertical !important;
-    line-height:1.25 !important;
-}
-.offer-desc{
-    overflow:hidden !important;
-    word-break:break-word !important;
-    display:-webkit-box !important;
-    -webkit-line-clamp:2 !important;
-    -webkit-box-orient:vertical !important;
-}
-.offer-icon{
-    width:54px !important;
-    height:54px !important;
-    min-width:54px !important;
-    flex:0 0 54px !important;
-    overflow:hidden !important;
-}
-.offer-icon img{
-    width:100% !important;
-    height:100% !important;
-    display:block !important;
-    object-fit:cover !important;
-    border-radius:14px !important;
-}
-.offer-icon.offer-icon-img{
-    padding:0 !important;
-    background:#fff !important;
-}
-.offer-pill{
-    max-width:100% !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-    white-space:nowrap !important;
-}
-@media (max-width:600px){
-    .offer-card{flex-basis:225px !important;}
-    .offer-icon{width:48px !important;height:48px !important;min-width:48px !important;flex-basis:48px !important;}
 }
 
 </style>
@@ -3225,9 +3115,9 @@ body::after {
 <div id="app">
     <div class="header">
         <div class="header-left">
-            <div class="logo-badge">🛒</div>
+            <div class="logo-badge">c:\Users\karti\Downloads\WhatsApp Image 2026-04-28 at 7.55.00 PM.jpeg</div>
             <div>
-                <div class="brand-title" id="brandTitle">Supply Setu Mart</div>
+                <div class="brand-title" id="brandTitle">Setu Mart</div>
                 <div class="brand-sub" id="brandSub">Har ghar ki daily zarurat</div>
             </div>
         </div>
@@ -3422,53 +3312,6 @@ body::after {
 
 
 
-<div class="privacy-panel" id="privacyPanel">
-    <div class="privacy-header">
-        <button class="close-btn" onclick="closePrivacyPolicyPanel()">←</button>
-        <div class="privacy-title">Privacy Policy</div>
-        <button class="close-btn" onclick="closePrivacyPolicyPanel()">✕</button>
-    </div>
-    <div class="privacy-body">
-        <div class="privacy-card">
-            <h3>Supply Setu Mart (Apna Mart)</h3>
-            <span class="privacy-updated">Last updated: April 2026</span>
-            <p>We respect your privacy. This Privacy Policy explains what information we collect, why we collect it, and how we use it to provide grocery and daily needs delivery services.</p>
-            <h4>1. Information We Collect</h4>
-            <ul>
-                <li>Name and mobile number</li>
-                <li>Delivery address, village, and landmark</li>
-                <li>Order details and cart items</li>
-                <li>Payment method such as Cash on Delivery or UPI</li>
-                <li>Location/GPS details at the time of placing an order</li>
-            </ul>
-            <h4>2. How We Use Your Information</h4>
-            <ul>
-                <li>To process and deliver your orders</li>
-                <li>To contact you about order confirmation, delivery, or support</li>
-                <li>To show your order history and delivery status</li>
-                <li>To improve our app, website, products, and services</li>
-            </ul>
-            <h4>3. Location Usage</h4>
-            <p>We use your location only to identify the delivery address and help the delivery partner reach you. We do not sell your location data.</p>
-            <h4>4. Data Sharing</h4>
-            <p>We do not sell your personal information. We may share limited order, phone, address, and location details with our delivery partner only for completing your order.</p>
-            <h4>5. Payments</h4>
-            <p>For UPI payments, the payment is completed through the UPI app selected by the customer. We do not store sensitive banking details such as card numbers, UPI PIN, or bank passwords.</p>
-            <h4>6. Data Security</h4>
-            <p>We use reasonable safety steps to protect customer information. However, no online system is 100% secure, so users should also keep their phone and account access safe.</p>
-            <h4>7. User Rights</h4>
-            <p>You can request profile updates, account deletion, or data removal by contacting our support team.</p>
-            <h4>8. Children’s Privacy</h4>
-            <p>Our service is intended for general grocery ordering. Children should use the app only with permission from a parent or guardian.</p>
-            <h4>9. Policy Updates</h4>
-            <p>We may update this Privacy Policy when required. The latest version will be available inside the Profile section of the app/website.</p>
-            <h4>10. Contact Us</h4>
-            <p>For privacy or support questions, contact us on WhatsApp or call: <strong>7518576269</strong>.</p>
-        </div>
-    </div>
-</div>
-
-
 <div class="language-panel" id="languagePanel">
     <div class="language-header">
         <button class="close-btn" onclick="closeLanguagePanel()">←</button>
@@ -3536,14 +3379,6 @@ body::after {
                     <div class="profile-arrow">›</div>
                 </div>
 
-
-                <div class="profile-menu-item" onclick="openPrivacyPolicyPanel()">
-                    <div class="profile-menu-left">
-                        <span class="profile-icon">🔐</span>
-                        <span>Privacy Policy</span>
-                    </div>
-                    <span class="profile-arrow">›</span>
-                </div>
                 <div class="profile-menu-item" onclick="openSupportPanel()">
                     <div class="profile-menu-left">
                         <div class="profile-icon">💬</div>
@@ -4539,7 +4374,6 @@ function closeAllPanels(clearHash = false) {
     document.getElementById("orderDetailPanel")?.classList.remove("open");
     currentOpenOrderId = null;
     document.getElementById("supportPanel")?.classList.remove("open");
-    document.getElementById("privacyPanel")?.classList.remove("open");
     document.getElementById("languagePanel")?.classList.remove("open");
     document.getElementById("profilePage")?.classList.remove("open");
     document.getElementById("checkoutPanel")?.classList.remove("open");
@@ -4576,10 +4410,6 @@ function syncPanelWithHash(){
     }
     if(hash === "support"){
         document.getElementById("supportPanel")?.classList.add("open");
-        return;
-    }
-    if(hash === "privacy"){
-        document.getElementById("privacyPanel")?.classList.add("open");
         return;
     }
     if(hash === "language"){
@@ -4896,116 +4726,64 @@ function getCurrentOrderLocation() {
             return;
         }
 
-        let bestLocation = null;
-        let watchId = null;
-        let settled = false;
+        function readLocation(callback) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = Number(position.coords.latitude);
+                    const longitude = Number(position.coords.longitude);
+                    const accuracy = Number(position.coords.accuracy || 0);
 
-        function isValidLocation(loc){
-            if(!loc) return false;
-            const latitude = Number(loc.latitude);
-            const longitude = Number(loc.longitude);
-            if(!Number.isFinite(latitude) || !Number.isFinite(longitude)) return false;
+                    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                        callback(null);
+                        return;
+                    }
 
-            // 0,0 / blank / fake location ko reject karo
-            if(Math.abs(latitude) < 0.000001 && Math.abs(longitude) < 0.000001) return false;
-
-            return latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+                    callback({
+                        latitude,
+                        longitude,
+                        accuracy
+                    });
+                },
+                (error) => {
+                    console.error("Current location fetch error:", error);
+                    callback(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
+            );
         }
 
-        function normalizePosition(position){
-            if(!position || !position.coords) return null;
-
-            const latitude = Number(position.coords.latitude);
-            const longitude = Number(position.coords.longitude);
-            const accuracy = Number(position.coords.accuracy || 0);
-
-            const loc = {
-                latitude,
-                longitude,
-                accuracy,
-                capturedAt: new Date().toISOString(),
-                source: "gps",
-                mapsLink: `https://www.google.com/maps?q=${latitude},${longitude}`
-            };
-
-            return isValidLocation(loc) ? loc : null;
-        }
-
-        function chooseBest(nextLocation){
-            if(!isValidLocation(nextLocation)) return;
-
-            if(!bestLocation){
-                bestLocation = nextLocation;
+        readLocation((firstLocation) => {
+            if (!firstLocation) {
+                resolve(null);
                 return;
             }
 
-            const oldAcc = Number(bestLocation.accuracy || 999999);
-            const newAcc = Number(nextLocation.accuracy || 999999);
-
-            if(newAcc < oldAcc){
-                bestLocation = nextLocation;
+            if (firstLocation.accuracy > 0 && firstLocation.accuracy <= 50) {
+                resolve(firstLocation);
+                return;
             }
-        }
 
-        function finish(){
-            if(settled) return;
-            settled = true;
-
-            try{
-                if(watchId !== null){
-                    navigator.geolocation.clearWatch(watchId);
-                }
-            }catch(e){}
-
-            resolve(isValidLocation(bestLocation) ? bestLocation : null);
-        }
-
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 25000,
-            maximumAge: 0
-        };
-
-        // Fast first attempt
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const loc = normalizePosition(position);
-                chooseBest(loc);
-
-                // Agar accuracy 80m ke andar aa gayi to turant use kar lo
-                if(loc && Number(loc.accuracy || 999999) <= 80){
-                    finish();
-                }
-            },
-            (error) => {
-                console.error("Current location fetch error:", error);
-            },
-            options
-        );
-
-        // Watch GPS for a few seconds to get more accurate location
-        try{
-            watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const loc = normalizePosition(position);
-                    chooseBest(loc);
-
-                    // Good accuracy milte hi finish
-                    if(loc && Number(loc.accuracy || 999999) <= 50){
-                        finish();
+            setTimeout(() => {
+                readLocation((secondLocation) => {
+                    if (!secondLocation) {
+                        resolve(firstLocation);
+                        return;
                     }
-                },
-                (error) => {
-                    console.error("Watch location error:", error);
-                },
-                options
-            );
-        }catch(e){
-            console.error("Watch location start error:", e);
-        }
 
-        // Max wait: 12 sec. Best available location return karo.
-        setTimeout(finish, 12000);
+                    const bestLocation =
+                        secondLocation.accuracy > 0 &&
+                        (firstLocation.accuracy <= 0 || secondLocation.accuracy < firstLocation.accuracy)
+                            ? secondLocation
+                            : firstLocation;
+
+                    resolve(bestLocation);
+                });
+            }, 2000);
+        });
     });
 }
 
@@ -5152,30 +4930,28 @@ async function placeOrder(){
 
 
 async function getQuickCheckoutLocation(){
-    // Old name kept for compatibility, but now it returns only real GPS coordinates.
-    return await getExactCheckoutLocationForOrder();
-}
+    try{
+        const fastText = await Promise.race([
+            detectCheckoutLocationFast(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1200))
+        ]);
+        const gpsLocation = await Promise.race([
+            getCurrentOrderLocation(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1800))
+        ]);
 
-async function getExactCheckoutLocationForOrder(){
-    const loc = await getCurrentOrderLocation();
+        if(gpsLocation && typeof gpsLocation === "object"){
+            return gpsLocation;
+        }
 
-    if(
-        !loc ||
-        !Number.isFinite(Number(loc.latitude)) ||
-        !Number.isFinite(Number(loc.longitude)) ||
-        (Math.abs(Number(loc.latitude)) < 0.000001 && Math.abs(Number(loc.longitude)) < 0.000001)
-    ){
+        if(fastText){
+            return { latitude: "", longitude: "", accuracy: 0, addressText: fastText };
+        }
+
+        return null;
+    }catch(error){
         return null;
     }
-
-    return {
-        latitude: Number(loc.latitude),
-        longitude: Number(loc.longitude),
-        accuracy: Number(loc.accuracy || 0),
-        capturedAt: loc.capturedAt || new Date().toISOString(),
-        source: "gps",
-        mapsLink: loc.mapsLink || `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`
-    };
 }
 
 async function submitCheckoutOrder() {
@@ -5204,21 +4980,7 @@ async function submitCheckoutOrder() {
 
     showPlaceOrderLoader();
 
-    const locationMsg = document.getElementById("checkoutAddressLine");
-    if(locationMsg) locationMsg.textContent = "GPS location le rahe hain... please wait.";
-
-    let currentLocation = await getExactCheckoutLocationForOrder();
-
-    if(!currentLocation){
-        hidePlaceOrderLoader();
-        if(locationMsg) locationMsg.textContent = "Location permission on karo. Exact GPS location ke bina order place nahi hoga.";
-        showToast("Exact location nahi mili. GPS/Location permission ON karke dobara try karo.", "error");
-        return;
-    }
-
-    if(locationMsg){
-        locationMsg.textContent = `GPS: ${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)} · Accuracy: ${Math.round(currentLocation.accuracy || 0)}m`;
-    }
+    let currentLocation = await getQuickCheckoutLocation();
 
     try {
         const response = await fetch("/api/orders", {
@@ -5290,15 +5052,6 @@ async function submitCheckoutOrder() {
         console.error(error);
         showToast("Backend se order place nahi hua", "error");
     }
-}
-
-function openPrivacyPolicyPanel(addToHistory = true){
-    closeAllPanels(false);
-    document.getElementById("privacyPanel")?.classList.add("open");
-    if(addToHistory) pushPanelState("privacy");
-}
-function closePrivacyPolicyPanel(){
-    closeAllPanels(true);
 }
 
 function openSupportPanel(addToHistory = true){
@@ -5442,24 +5195,13 @@ function renderOffersFromServer(){
     if(section) section.style.display = 'block';
 
     strip.innerHTML = active.map(item => {
-        const escapeHtml = (value) => String(value || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-
         const title = item.title || 'Special Offer';
         const desc = item.subtitle || item.description || '';
         const code = String(item.code || '').trim().toUpperCase();
-        const image = String(item.image || item.imageUrl || item.photo || '').trim();
+        const image = item.image || '';
         const safeCode = code.replace(/'/g, "\'");
-        const safeTitle = escapeHtml(title);
-        const safeDesc = escapeHtml(desc);
-        const safeCodeText = escapeHtml(code);
-        const safeImage = escapeHtml(image);
         const visual = image
-            ? `<div class="offer-icon offer-icon-img"><img src="${safeImage}" alt="${safeTitle}" loading="lazy" onerror="this.parentElement.className='offer-icon'; this.parentElement.innerHTML='🏷️';"></div>`
+            ? `<div class="offer-icon"><img src="${image}" alt="${title}"></div>`
             : `<div class="offer-icon">🏷️</div>`;
 
         return `
@@ -5467,9 +5209,9 @@ function renderOffersFromServer(){
                 <div class="offer-top">
                     ${visual}
                     <div class="offer-copy">
-                        <div class="offer-title">${safeTitle}</div>
-                        <div class="offer-desc">${safeDesc}</div>
-                        ${code ? `<div class="offer-pill">${safeCodeText}</div>` : ``}
+                        <div class="offer-title">${title}</div>
+                        <div class="offer-desc">${desc}</div>
+                        ${code ? `<div class="offer-pill">${code}</div>` : ``}
                     </div>
                 </div>
             </div>
@@ -5901,12 +5643,12 @@ initApp();
 <script>
 (function(){
   function syncPanelOpenState(){
-    const openPanel = document.querySelector('#cartPanel.open, #ordersPanel.open, #orderDetailPanel.open, #profilePage.open, #languagePanel.open, #supportPanel.open, #privacyPanel.open');
+    const openPanel = document.querySelector('#cartPanel.open, #ordersPanel.open, #orderDetailPanel.open, #profilePage.open, #languagePanel.open, #supportPanel.open');
     document.body.classList.toggle('panel-open', !!openPanel);
   }
 
   function watchPanels(){
-    const ids = ['cartPanel','ordersPanel','orderDetailPanel','profilePage','languagePanel','supportPanel','privacyPanel'];
+    const ids = ['cartPanel','ordersPanel','orderDetailPanel','profilePage','languagePanel','supportPanel'];
     ids.forEach(function(id){
       const el = document.getElementById(id);
       if(!el) return;
