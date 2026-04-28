@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#f7fbff" id="themeColorMeta" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Setu Mart</title>
+<meta name="application-name" content="Setu Mart" />
 
 <style>
 :root{
@@ -383,6 +384,14 @@ html.apnamart-has-token #app{display:block !important;}
     justify-content:center;
     font-size:22px;
     border:1px solid rgba(255,255,255,.25);
+}
+
+.logo-badge img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    border-radius:50%;
 }
 .brand-title{font-size:24px;font-weight:800;line-height:1}
 .brand-sub{font-size:11px;opacity:.9}
@@ -2350,6 +2359,36 @@ html[data-theme="dark"] .place-order-loader-sub{
 
 
 
+
+.cart-whatsapp-box{
+    background:linear-gradient(135deg,#eafff2,#ffffff);
+    margin:10px 0 0 0;
+    padding:16px;
+    border-top:1px solid #d8f3df;
+    border-bottom:1px solid #d8f3df;
+}
+.cart-whatsapp-box h4{
+    font-size:16px;
+    margin-bottom:6px;
+    color:#075e36;
+}
+.cart-whatsapp-box p{
+    font-size:14px;
+    line-height:1.5;
+    color:#4b5563;
+    margin-bottom:10px;
+}
+.cart-whatsapp-quick-btn{
+    background:#25D366 !important;
+    color:#fff !important;
+}
+html[data-theme="dark"] .cart-whatsapp-box{
+    background:linear-gradient(180deg,#10251a 0%,#111827 100%) !important;
+    border-color:#244a34 !important;
+}
+html[data-theme="dark"] .cart-whatsapp-box h4{color:#bbf7d0 !important;}
+html[data-theme="dark"] .cart-whatsapp-box p{color:#94a3b8 !important;}
+
 /* CHECKOUT PANEL ADDON */
 #cartPanel .cart-payment-box,
 #savedProfileBox{display:none !important;}
@@ -3115,7 +3154,7 @@ body::after {
 <div id="app">
     <div class="header">
         <div class="header-left">
-            <div class="logo-badge">🛒</div>
+            <div class="logo-badge"><img src="data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20128%20128%22%3E%0A%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23facc15%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2322c55e%22/%3E%3C/linearGradient%3E%3C/defs%3E%0A%3Ccircle%20cx%3D%2264%22%20cy%3D%2264%22%20r%3D%2260%22%20fill%3D%22%23fff7ed%22/%3E%0A%3Ccircle%20cx%3D%2264%22%20cy%3D%2264%22%20r%3D%2255%22%20fill%3D%22url%28%23g%29%22%20opacity%3D%22.22%22/%3E%0A%3Cpath%20d%3D%22M35%2039h9l8%2040h42l10-29H52%22%20fill%3D%22none%22%20stroke%3D%22%230b4f9c%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M58%2055h38%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%2261%22%20cy%3D%2291%22%20r%3D%228%22%20fill%3D%22%230b4f9c%22/%3E%0A%3Ccircle%20cx%3D%2291%22%20cy%3D%2291%22%20r%3D%228%22%20fill%3D%22%230b4f9c%22/%3E%0A%3Cpath%20d%3D%22M25%2035h10%22%20stroke%3D%22%23ff8a1d%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E" alt="Setu Mart logo"></div>
             <div>
                 <div class="brand-title" id="brandTitle">Setu Mart</div>
                 <div class="brand-sub" id="brandSub">Har ghar ki daily zarurat</div>
@@ -3196,6 +3235,12 @@ body::after {
             </div>
 
             <div id="savedProfileBox" class="profile-box" style="display:none;margin:10px 0 0 0;border-radius:0;border-left:none;border-right:none;"></div>
+
+            <div class="cart-whatsapp-box">
+                <h4>💬 Order on WhatsApp</h4>
+                <p>Want to order quickly? Your cart items, total amount and saved address will open directly in WhatsApp.</p>
+                <button onclick="orderOnWhatsApp()" class="main-btn cart-whatsapp-quick-btn">Continue on WhatsApp</button>
+            </div>
 
             <div class="cart-payment-box">
                 <h4 id="paymentOptionTitle" style="margin-bottom:8px;color:#111827;">Payment Option</h4>
@@ -5076,7 +5121,7 @@ function sendSupportMessage(){
     const village = profile.village || "N/A";
 
     const message =
-        `💬 *Customer Service Request - Supply Setu Mart*\n\n` +
+        `💬 *Customer Service Request - Setu Mart*\n\n` +
         `👤 Name: ${name}\n` +
         `📞 Phone: ${phone}\n` +
         `🏘 Village: ${village}\n\n` +
@@ -5145,7 +5190,7 @@ function orderOnWhatsApp() {
 
     if (cart.length === 0) { showToast("Cart is empty!", "error"); return; }
 
-    let message = "🛒 *New Order -  Setu Mart* %0A%0A";
+    let message = "🛒 *New Order - Setu Mart* %0A%0A";
 
     cart.forEach(item => {
         message += `${item.name} x ${item.qty} = ₹${item.price * item.qty}%0A`;
@@ -5299,7 +5344,7 @@ const translations = {
         loginOtpPlaceholder: "ओटीपी दर्ज करें",
         loginVillagePlaceholder: "गाँव का नाम",
         verifyOtpBtn: "ओटीपी सत्यापित करें",
-        brandTitle: "Supply Setu Mart",
+        brandTitle: "Setu Mart",
         brandSub: "हर घर की रोज़मर्रा की ज़रूरत",
         profileBtnText: "प्रोफाइल",
         ordersBtnText: "📦 ऑर्डर्स",
@@ -5364,7 +5409,7 @@ const translations = {
         loginOtpPlaceholder: "Enter OTP",
         loginVillagePlaceholder: "Village Name",
         verifyOtpBtn: "Verify OTP",
-        brandTitle: "Supply Setu Mart",
+        brandTitle: "Setu Mart",
         brandSub: "Daily essentials for every home",
         profileBtnText: "Profile",
         ordersBtnText: "📦 Orders",
