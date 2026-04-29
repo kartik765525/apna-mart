@@ -293,6 +293,77 @@ img{display:block;max-width:100%}
   .profile-name{font-size:12px}
   .profile-phone{font-size:10px}
 }
+
+/* ===== PROFILE RIGHT CORNER ONLY FIX ===== */
+.header-inner{
+  position:relative !important;
+  padding-right:70px !important;
+}
+
+.profile-chip{
+  position:absolute !important;
+  right:14px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  overflow:hidden !important;
+  display:grid !important;
+  place-items:center !important;
+  background:#fff !important;
+  z-index:10 !important;
+}
+
+.profile-chip:active{
+  transform:translateY(-50%) scale(.97) !important;
+}
+
+.profile-chip > div:not(.mini-avatar){
+  display:none !important;
+}
+
+.profile-chip .mini-avatar{
+  width:46px !important;
+  height:46px !important;
+  border-radius:50% !important;
+}
+
+.profile-chip .mini-profile-image{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  border-radius:50% !important;
+}
+
+@media(max-width:700px){
+  .header-inner{
+    position:relative !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    padding:12px 66px 12px 10px !important;
+  }
+
+  .header-actions{
+    width:auto !important;
+    justify-content:flex-end !important;
+  }
+
+  .profile-chip{
+    right:10px !important;
+    width:44px !important;
+    height:44px !important;
+    min-width:44px !important;
+  }
+
+  .profile-chip .mini-avatar{
+    width:44px !important;
+    height:44px !important;
+  }
+}
+
 </style>
 </head>
 <body>
