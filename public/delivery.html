@@ -378,6 +378,93 @@ img{display:block;max-width:100%}
   cursor:pointer !important;
 }
 
+
+/* ===== DELIVERED SUMMARY + TODAY PENDING + EARNING FIX UI ===== */
+.delivered-summary-card{
+  background:linear-gradient(180deg,#fbfdff 0%,#ffffff 100%);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:16px;
+  cursor:pointer;
+}
+.delivered-summary-card:active{
+  transform:scale(.99);
+}
+.delivered-summary-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+.delivered-summary-id{
+  font-weight:900;
+  color:#0f172a;
+  font-size:16px;
+}
+.delivered-summary-name{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px;
+}
+.delivered-click-note{
+  font-size:12px;
+  color:#1d4ed8;
+  font-weight:900;
+}
+.delivery-detail-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  z-index:1400;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+}
+.delivery-detail-modal.show{
+  display:flex;
+}
+.delivery-detail-box{
+  width:min(620px,96vw);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:0 28px 70px rgba(0,0,0,.22);
+  padding:16px;
+}
+.delivery-detail-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:12px;
+  margin-bottom:12px;
+}
+.delivery-detail-head h3{
+  color:#1e40af;
+}
+.delivery-detail-close{
+  border:none;
+  background:#111827;
+  color:#fff;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
+}
+.delivery-detail-line{
+  padding:8px 0;
+  border-bottom:1px dashed #e2e8f0;
+  color:#334155;
+  line-height:1.5;
+}
+.delivery-detail-line b{
+  color:#0f172a;
+}
+
 </style>
 </head>
 <body>
@@ -1208,6 +1295,247 @@ document.addEventListener("DOMContentLoaded", function(){
     cleanOldDeliveredOrders();
     removeProfileCardFromDashboard();
   }, 60000);
+})();
+</script>
+
+
+<div class="delivery-detail-modal" id="deliveryDetailModal">
+  <div class="delivery-detail-box">
+    <div class="delivery-detail-head">
+      <h3>Order Details</h3>
+      <button type="button" class="delivery-detail-close" id="deliveryDetailCloseBtn">Close</button>
+    </div>
+    <div id="deliveryDetailContent"></div>
+  </div>
+</div>
+
+
+<script>
+/* ===== DELIVERED SUMMARY + EARNING + TODAY PENDING FIX ===== */
+(function(){
+  function money(v){
+    if(v === null || v === undefined) return 0;
+    if(typeof v === "number") return v;
+    const n = Number(String(v).replace(/[₹,\s]/g,""));
+    return isNaN(n) ? 0 : n;
+  }
+
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function orderDateKey(order){
+    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
+    const parsed = new Date(raw);
+    if(raw && !isNaN(parsed.getTime())){
+      return parsed.getFullYear()+"-"+String(parsed.getMonth()+1).padStart(2,"0")+"-"+String(parsed.getDate()).padStart(2,"0");
+    }
+    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if(m){
+      const yy = m[3].length === 2 ? "20"+m[3] : m[3];
+      return yy+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[1]).padStart(2,"0");
+    }
+    return todayKey();
+  }
+
+  function isToday(order){
+    return orderDateKey(order) === todayKey();
+  }
+
+  function isDelivered(order){
+    return String(order.status || "").toLowerCase() === "delivered";
+  }
+
+  function isPending(order){
+    const s = String(order.status || "").toLowerCase();
+    return s === "pending" || s === "need confirmation" || s === "confirmed";
+  }
+
+  function orderTotal(order){
+    const direct = money(order.total) || money(order.grandTotal) || money(order.totalAmount) || money(order.finalTotal) || money(order.payableAmount) || money(order.amount) || money(order.subtotal);
+    if(direct) return direct;
+
+    const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.products) ? order.products : []);
+    return items.reduce(function(sum,item){
+      const price = money(item.price || item.finalPrice || item.salePrice);
+      const qty = money(item.qty || item.quantity || 1) || 1;
+      return sum + price * qty;
+    },0);
+  }
+
+  function shipping(order){
+    return money(order.shippingCharge) || money(order.deliveryCharge) || money(order.delivery) || money(order.shipping) || 0;
+  }
+
+  function totalDeliveredEarning(){
+    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
+    return orders.filter(isDelivered).reduce(function(sum,o){
+      return sum + orderTotal(o) + shipping(o);
+    },0);
+  }
+
+  function todayPendingCount(){
+    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
+    return orders.filter(function(o){ return isPending(o) && isToday(o); }).length;
+  }
+
+  function getOrderName(order){
+    return order.customerName || order.name || order.customer || order.userName || order.phone || "Customer";
+  }
+
+  function getOrderId(order){
+    return order.id || order.orderId || order.orderID || order._id || "ORDER";
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g,function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function openDeliveredDetail(orderId){
+    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
+    const order = orders.find(function(o){ return String(getOrderId(o)) === String(orderId); });
+    if(!order) return;
+
+    const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.products) ? order.products : []);
+    const itemHtml = items.length ? items.map(function(it){
+      return `<div>${escapeHtml(it.name || it.productName || "Item")} x ${escapeHtml(it.qty || it.quantity || 1)}</div>`;
+    }).join("") : "No items";
+
+    const content = document.getElementById("deliveryDetailContent");
+    if(content){
+      content.innerHTML = `
+        <div class="delivery-detail-line"><b>Order ID:</b> ${escapeHtml(getOrderId(order))}</div>
+        <div class="delivery-detail-line"><b>Name:</b> ${escapeHtml(getOrderName(order))}</div>
+        <div class="delivery-detail-line"><b>Phone:</b> ${escapeHtml(order.phone || order.customerPhone || order.mobile || "")}</div>
+        <div class="delivery-detail-line"><b>Address:</b> ${escapeHtml(order.address || order.fullAddress || "")}</div>
+        <div class="delivery-detail-line"><b>Status:</b> ${escapeHtml(order.status || "")}</div>
+        <div class="delivery-detail-line"><b>Order Total:</b> ₹${orderTotal(order).toFixed(0)}</div>
+        <div class="delivery-detail-line"><b>Shipping / Delivery Charge:</b> ₹${shipping(order).toFixed(0)}</div>
+        <div class="delivery-detail-line"><b>Total Earning:</b> ₹${(orderTotal(order)+shipping(order)).toFixed(0)}</div>
+        <div class="delivery-detail-line"><b>Payment:</b> ${escapeHtml(order.paymentMode || order.payment || "")}</div>
+        <div class="delivery-detail-line"><b>Items:</b><br>${itemHtml}</div>
+      `;
+    }
+    const modal = document.getElementById("deliveryDetailModal");
+    if(modal) modal.classList.add("show");
+  }
+
+  function closeDeliveredDetail(){
+    const modal = document.getElementById("deliveryDetailModal");
+    if(modal) modal.classList.remove("show");
+  }
+
+  function compactDeliveredCards(){
+    const list = document.getElementById("orderList");
+    if(!list || !Array.isArray(window.deliveryOrders)) return;
+
+    const delivered = window.deliveryOrders.filter(isDelivered);
+    if(!delivered.length) return;
+
+    // Replace only delivered full order cards with compact summary cards.
+    const currentCards = Array.from(list.querySelectorAll(".order-card"));
+    currentCards.forEach(function(card){
+      const text = (card.innerText || "").toLowerCase();
+      if(!text.includes("delivered")) return;
+
+      const matched = delivered.find(function(o){
+        return text.includes(String(getOrderId(o)).toLowerCase());
+      });
+      if(!matched) return;
+
+      const id = getOrderId(matched);
+      const name = getOrderName(matched);
+      const div = document.createElement("div");
+      div.className = "delivered-summary-card";
+      div.setAttribute("data-delivered-id", id);
+      div.innerHTML = `
+        <div class="delivered-summary-top">
+          <div>
+            <div class="delivered-summary-id">Order ID: ${escapeHtml(id)}</div>
+            <div class="delivered-summary-name">${escapeHtml(name)}</div>
+          </div>
+          <div class="delivered-click-note">Click for details</div>
+        </div>
+      `;
+      div.onclick = function(){ openDeliveredDetail(id); };
+      card.replaceWith(div);
+    });
+  }
+
+  function updateDashboardCards(){
+    const stats = document.getElementById("stats");
+    if(!stats) return;
+
+    // earning: replace any earning/total earning value
+    let earningCard = document.getElementById("totalEarningWithShippingCard");
+    if(!earningCard){
+      earningCard = Array.from(stats.querySelectorAll(".quick-card")).find(function(c){
+        return (c.innerText || "").toLowerCase().includes("earning");
+      });
+    }
+    if(earningCard){
+      let value = earningCard.querySelector(".quick-value");
+      if(value) value.textContent = "₹" + totalDeliveredEarning().toFixed(0);
+      const sub = earningCard.querySelector(".quick-sub");
+      if(sub) sub.textContent = "Delivered order total + shipping";
+    }
+
+    // today pending card
+    let pendingCard = document.getElementById("todayPendingOrdersCard");
+    if(!pendingCard){
+      pendingCard = document.createElement("div");
+      pendingCard.className = "quick-card";
+      pendingCard.id = "todayPendingOrdersCard";
+      pendingCard.innerHTML = `
+        <div class="quick-icon">⏳</div>
+        <div>
+          <div class="quick-label">Today Pending</div>
+          <div class="quick-value" id="todayPendingOrdersValue">0</div>
+          <div class="quick-sub">Aaj ke pending orders</div>
+        </div>
+      `;
+      stats.appendChild(pendingCard);
+    }
+    const pendingValue = document.getElementById("todayPendingOrdersValue");
+    if(pendingValue) pendingValue.textContent = todayPendingCount();
+  }
+
+  function runFixes(){
+    compactDeliveredCards();
+    updateDashboardCards();
+  }
+
+  window.openDeliveredDetail = openDeliveredDetail;
+  const closeBtn = document.getElementById("deliveryDetailCloseBtn");
+  if(closeBtn) closeBtn.onclick = closeDeliveredDetail;
+  const modal = document.getElementById("deliveryDetailModal");
+  if(modal) modal.addEventListener("click", function(e){ if(e.target === modal) closeDeliveredDetail(); });
+
+  const oldRenderOrders = window.renderOrders;
+  if(typeof oldRenderOrders === "function"){
+    window.renderOrders = function(){
+      oldRenderOrders.apply(this, arguments);
+      setTimeout(runFixes, 50);
+    };
+  }
+
+  const oldRenderStats = window.renderStats;
+  if(typeof oldRenderStats === "function"){
+    window.renderStats = function(){
+      oldRenderStats.apply(this, arguments);
+      setTimeout(runFixes, 50);
+    };
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(runFixes,300); });
+  }else{
+    setTimeout(runFixes,300);
+  }
+  setInterval(runFixes, 3000);
 })();
 </script>
 
