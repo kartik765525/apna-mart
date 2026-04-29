@@ -32,7 +32,7 @@ body{font-family:Segoe UI,sans-serif;background:#f8f9fa;color:#333;}
 .search-box{flex:1;min-width:240px;}
 .search-box input{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:12px;outline:none;}
 .horizontal-list{display:flex;flex-direction:column;gap:12px;}
-.product-row{display:grid;grid-template-columns: 1.2fr 1fr 1fr auto;gap:14px;align-items:center;border:1px solid #eee;border-radius:12px;padding:14px;background:#fafafa;}
+.product-row{display:grid;grid-template-columns: 1.2fr .8fr .9fr .8fr auto;gap:14px;align-items:center;border:1px solid #eee;border-radius:12px;padding:14px;background:#fafafa;}
 .product-info{display:flex;align-items:center;gap:12px;}
 .product-emoji{width:50px;height:50px;display:flex;align-items:center;justify-content:center;}
 .manage-box{display:flex;flex-direction:column;gap:6px;}
@@ -403,6 +403,7 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
         </div>
         <div id="imageUploadStatus" style="margin-top:8px;color:#666;font-size:14px;">No image selected</div>
         <input type="number" id="newStock" placeholder="Stock" class="admin-input">
+        <input type="text" id="newUnit" placeholder="Unit (kg / litre / piece)" class="admin-input">
         <button onclick="addNewProduct()" class="action-btn orange">Add Product</button>
     </div>
 </div>
@@ -1043,6 +1044,7 @@ function renderProducts(){
                         <div style="font-weight:700;">${product.name}</div>
                         <div style="font-size:13px;color:#666;">Category: ${product.category || "N/A"}</div>
                         <div style="font-size:13px;color:#666;">Price: ₹${product.price} | Original: ₹${product.original}</div>
+                        <div style="font-size:13px;color:#666;">Unit: ${product.unit || product.quantity || product.weight || "piece"}</div>
                     </div>
                 </div>
 
@@ -1054,6 +1056,11 @@ function renderProducts(){
                 <div class="manage-box">
                     <div class="manage-label">Category</div>
                     <input type="text" id="category-${product.id}" value="${product.category || ""}">
+                </div>
+
+                <div class="manage-box">
+                    <div class="manage-label">Unit</div>
+                    <input type="text" id="unit-${product.id}" value="${product.unit || product.quantity || product.weight || ""}" placeholder="kg / litre / piece">
                 </div>
 
                 <div class="product-actions">
@@ -1576,6 +1583,7 @@ async function addNewProduct(){
     const original = document.getElementById("newOriginal").value.trim();
     const category = document.getElementById("newCategory").value.trim();
     const stock = document.getElementById("newStock").value.trim();
+    const unit = document.getElementById("newUnit").value.trim();
     const imageFile = document.getElementById("newImage").files[0];
 
     if(!name || !price){
@@ -1610,6 +1618,7 @@ async function addNewProduct(){
                 original: Number(original || price),
                 category,
                 stock: Number(stock || 0),
+                unit: unit || "piece",
                 image: imageUrl
             })
         });
@@ -1625,6 +1634,7 @@ async function addNewProduct(){
         document.getElementById("newOriginal").value = "";
         document.getElementById("newCategory").value = "";
         document.getElementById("newStock").value = "";
+        document.getElementById("newUnit").value = "";
         document.getElementById("newImage").value = "";
         document.getElementById("imageUploadStatus").textContent = "No image selected";
 
@@ -1641,6 +1651,7 @@ async function addNewProduct(){
 async function saveProductChanges(productId){
     const stockValue = document.getElementById(`stock-${productId}`)?.value || 0;
     const categoryValue = document.getElementById(`category-${productId}`)?.value || "";
+    const unitValue = document.getElementById(`unit-${productId}`)?.value || "piece";
 
     const product = products.find(p => Number(p.id) === Number(productId));
     if(!product) return await showSoftAlert("Product not found", "Product", "OK", "📦");
@@ -1652,7 +1663,8 @@ async function saveProductChanges(productId){
             body: JSON.stringify({
                 ...product,
                 stock: Number(stockValue),
-                category: categoryValue
+                category: categoryValue,
+                unit: unitValue
             })
         });
 
