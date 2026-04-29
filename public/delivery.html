@@ -625,6 +625,50 @@ img{display:block;max-width:100%}
 </style>
 </head>
 <body>
+
+<script>
+/* ===== BOOT STUCK FINAL SAFETY ===== */
+(function(){
+  function showSafeScreen(){
+    try{
+      var boot = document.getElementById("bootScreen");
+      var login = document.getElementById("loginScreen");
+      var app = document.getElementById("app");
+      var token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken");
+
+      if(boot) boot.classList.add("hidden");
+
+      if(token && app){
+        app.classList.remove("hidden");
+        try{
+          if(typeof window.fetchOrders === "function") window.fetchOrders();
+          else if(typeof window.renderOrders === "function") window.renderOrders();
+        }catch(e){}
+      }else if(login){
+        login.classList.remove("hidden");
+      }
+    }catch(e){}
+  }
+
+  window.addEventListener("error", function(e){
+    console.warn("Delivery panel error recovered:", e.message);
+    setTimeout(showSafeScreen, 200);
+  });
+
+  window.addEventListener("unhandledrejection", function(e){
+    console.warn("Delivery panel promise recovered");
+    setTimeout(showSafeScreen, 200);
+  });
+
+  setTimeout(function(){
+    var boot = document.getElementById("bootScreen");
+    if(boot && !boot.classList.contains("hidden")){
+      showSafeScreen();
+    }
+  }, 2200);
+})();
+</script>
+
 <div class="boot-screen" id="bootScreen">
   <div class="boot-card">
     <div class="boot-spinner"></div>
@@ -1077,8 +1121,9 @@ function getOrderVillageForDelivery(order){
 }
 
 function escapeDeliveryHtml(value){
-  return String(value ?? "").replace(/[&<>"']/g, function(ch){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[ch];
+  return String(value == null ? "" : value).replace(/[&<>"']/g, function(ch){
+    const map = {"&":"&amp;","<":"&lt;",">":"&gt;", "\"":"&quot;", "'":"&#39;"};
+    return map[ch] || ch;
   });
 }
 
@@ -1454,6 +1499,59 @@ document.addEventListener("DOMContentLoaded", function(){
   }else{
     initFinalOrderFlow();
   }
+})();
+</script>
+
+
+<script>
+/* ===== LOGIN CLICK SAFE REBIND ===== */
+(function(){
+  function el(id){ return document.getElementById(id); }
+
+  function bindLoginButtons(){
+    var loginTabBtn = el("loginTabBtn");
+    var requestTabBtn = el("requestTabBtn");
+    var loginTab = el("loginTab");
+    var requestTab = el("requestTab");
+
+    if(loginTabBtn && requestTabBtn && loginTab && requestTab){
+      loginTabBtn.onclick = function(){
+        loginTab.style.display = "block";
+        requestTab.style.display = "none";
+        loginTabBtn.classList.add("active");
+        requestTabBtn.classList.remove("active");
+      };
+      requestTabBtn.onclick = function(){
+        loginTab.style.display = "none";
+        requestTab.style.display = "block";
+        requestTabBtn.classList.add("active");
+        loginTabBtn.classList.remove("active");
+      };
+    }
+
+    var loginBtn = el("loginSubmitBtn");
+    if(loginBtn && typeof window.loginDelivery === "function"){
+      loginBtn.onclick = function(e){
+        e.preventDefault();
+        window.loginDelivery();
+      };
+    }
+
+    var reqBtn = el("requestSubmitBtn");
+    if(reqBtn && typeof window.requestDeliveryId === "function"){
+      reqBtn.onclick = function(e){
+        e.preventDefault();
+        window.requestDeliveryId();
+      };
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bindLoginButtons);
+  }else{
+    bindLoginButtons();
+  }
+  setTimeout(bindLoginButtons, 800);
 })();
 </script>
 
