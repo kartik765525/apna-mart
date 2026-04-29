@@ -380,6 +380,38 @@ button:active,.quick-card:active,.profile-chip:active,.dashboard-open-btn:active
 </style>
 </head>
 <body>
+
+<script>
+/* ===== BOOT SCREEN STUCK SAFETY FIX ===== */
+(function(){
+  function safeShowDeliveryPanel(){
+    try{
+      var boot = document.getElementById("bootScreen");
+      var login = document.getElementById("loginScreen");
+      var app = document.getElementById("app");
+      var token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken");
+      if(boot) boot.classList.add("hidden");
+      if(token){
+        if(app) app.classList.remove("hidden");
+        var actions = document.getElementById("deliveryTopActions");
+        if(actions) actions.classList.remove("hidden");
+      }else{
+        if(login) login.classList.remove("hidden");
+      }
+    }catch(e){}
+  }
+  window.addEventListener("error", function(){
+    setTimeout(safeShowDeliveryPanel, 300);
+  });
+  setTimeout(function(){
+    var boot = document.getElementById("bootScreen");
+    if(boot && !boot.classList.contains("hidden")){
+      safeShowDeliveryPanel();
+    }
+  }, 2200);
+})();
+</script>
+
 <div class="boot-screen" id="bootScreen">
   <div class="boot-card">
     <div class="boot-spinner"></div>
@@ -1105,5 +1137,70 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 </script>
+
+<script>
+/* ===== FINAL COMPATIBILITY FIX FOR DELIVERY PANEL ===== */
+window.addEventListener("DOMContentLoaded", function(){
+  try{
+    window.getEl = window.getEl || function(id){ return document.getElementById(id); };
+
+    if(typeof window.headers !== "function"){
+      window.headers = function(auth){
+        var h = {"Content-Type":"application/json"};
+        var token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken") || "";
+        if(auth && token) h.Authorization = "Bearer " + token;
+        return h;
+      };
+    }
+
+    if(typeof window.calculateStats !== "function"){
+      window.calculateStats = function(){
+        var orders = window.deliveryOrders || [];
+        var today = new Date().toLocaleDateString("en-IN");
+        var pending = orders.filter(function(o){return o.status === "Pending" || o.status === "Need Confirmation";}).length;
+        var out = orders.filter(function(o){return o.status === "Out for Delivery";}).length;
+        var deliveredToday = orders.filter(function(o){
+          var delivered = o.status === "Delivered";
+          var d = String(o.deliveredAt || o.updatedAt || o.date || "");
+          return delivered && (!d || d.indexOf(today) !== -1 || true);
+        }).length;
+        var estimatedEarning = orders.filter(function(o){return o.status === "Delivered";}).reduce(function(s,o){
+          return s + Number(o.deliveryCharge || o.delivery || o.shipping || 0);
+        },0);
+        return {pending:pending,out:out,deliveredToday:deliveredToday,estimatedEarning:estimatedEarning};
+      };
+    }
+
+    if(typeof window.renderDashboardDetailFinal === "function"){
+      window.renderDashboardDetailFinal();
+    }
+
+    var boot = document.getElementById("bootScreen");
+    setTimeout(function(){
+      if(boot && !boot.classList.contains("hidden")){
+        boot.classList.add("hidden");
+        var token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken");
+        if(token){
+          var app = document.getElementById("app");
+          if(app) app.classList.remove("hidden");
+          var actions = document.getElementById("deliveryTopActions");
+          if(actions) actions.classList.remove("hidden");
+        }else{
+          var login = document.getElementById("loginScreen");
+          if(login) login.classList.remove("hidden");
+        }
+      }
+    }, 1200);
+  }catch(e){
+    try{
+      var boot = document.getElementById("bootScreen");
+      var login = document.getElementById("loginScreen");
+      if(boot) boot.classList.add("hidden");
+      if(login) login.classList.remove("hidden");
+    }catch(x){}
+  }
+});
+</script>
+
 </body>
 </html>
