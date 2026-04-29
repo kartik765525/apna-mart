@@ -983,5 +983,101 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 </script>
+
+<script>
+/* ===== TOTAL EARNING = ORDER TOTAL + SHIPPING/DELIVERY CHARGE ===== */
+(function(){
+  function moneyNumber(v){
+    if(v === null || v === undefined) return 0;
+    if(typeof v === "number") return v;
+    const n = Number(String(v).replace(/[₹,\s]/g,""));
+    return isNaN(n) ? 0 : n;
+  }
+
+  function getOrderAmount(o){
+    const direct =
+      moneyNumber(o.total) ||
+      moneyNumber(o.grandTotal) ||
+      moneyNumber(o.totalAmount) ||
+      moneyNumber(o.finalTotal) ||
+      moneyNumber(o.payableAmount) ||
+      moneyNumber(o.amount) ||
+      moneyNumber(o.subtotal);
+
+    if(direct) return direct;
+
+    const items = Array.isArray(o.items) ? o.items : (Array.isArray(o.products) ? o.products : []);
+    return items.reduce(function(sum, item){
+      const price = moneyNumber(item.price || item.finalPrice || item.salePrice);
+      const qty = moneyNumber(item.qty || item.quantity || 1) || 1;
+      return sum + (price * qty);
+    }, 0);
+  }
+
+  function getShippingCharge(o){
+    return moneyNumber(o.shippingCharge) ||
+           moneyNumber(o.deliveryCharge) ||
+           moneyNumber(o.delivery) ||
+           moneyNumber(o.shipping) ||
+           0;
+  }
+
+  function getTotalEarningFinal(){
+    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
+    return orders.reduce(function(sum, o){
+      return sum + getOrderAmount(o) + getShippingCharge(o);
+    }, 0);
+  }
+
+  function injectTotalEarningCard(){
+    const statsBox = document.getElementById("stats");
+    if(!statsBox) return;
+
+    let card = document.getElementById("totalEarningWithShippingCard");
+    const total = getTotalEarningFinal();
+
+    if(!card){
+      card = document.createElement("div");
+      card.className = "quick-card";
+      card.id = "totalEarningWithShippingCard";
+      card.innerHTML = `
+        <div class="quick-icon">💰</div>
+        <div>
+          <div class="quick-label">Total Earning</div>
+          <div class="quick-value" id="totalEarningWithShippingValue">₹0</div>
+          <div class="quick-sub">Order total + shipping charge</div>
+        </div>
+      `;
+      statsBox.appendChild(card);
+    }
+
+    const value = document.getElementById("totalEarningWithShippingValue");
+    if(value) value.textContent = "₹" + total.toFixed(0);
+  }
+
+  const oldRenderStats = window.renderStats;
+  if(typeof oldRenderStats === "function"){
+    window.renderStats = function(){
+      oldRenderStats.apply(this, arguments);
+      injectTotalEarningCard();
+    };
+  }
+
+  const oldRenderOrders = window.renderOrders;
+  if(typeof oldRenderOrders === "function"){
+    window.renderOrders = function(){
+      oldRenderOrders.apply(this, arguments);
+      injectTotalEarningCard();
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(injectTotalEarningCard, 300);
+    setTimeout(injectTotalEarningCard, 1200);
+  });
+  setInterval(injectTotalEarningCard, 5000);
+})();
+</script>
+
 </body>
 </html>
