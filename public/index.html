@@ -3131,14 +3131,46 @@ html[data-theme="dark"] .privacy-updated{background:#152236 !important;color:#db
     border-radius:50% !important;
 }
 
+
+/* ===== FINAL CUSTOMER PRODUCT UNIT + HEADER FIX ===== */
+.stock-line,.stock-chip{display:none !important;}
+.category-product-row .product-card{min-height:178px !important;}
+.category-product-row .product-name{margin-bottom:2px !important;min-height:28px !important;}
+.category-product-row .product-unit-line,.product-unit-line{display:block !important;min-height:14px !important;margin:0 0 4px 0 !important;font-size:10.5px !important;line-height:1.2 !important;color:#64748b !important;font-weight:800 !important;}
+.product-meta-line{min-height:0 !important;margin-bottom:4px !important;}
+.header-right{justify-content:space-between !important;}
+.header-profile-icon{margin-left:auto !important;width:44px !important;height:44px !important;min-width:44px !important;border-radius:50% !important;padding:0 !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;}
+.header-profile-icon img{width:100% !important;height:100% !important;object-fit:cover !important;border-radius:50% !important;border:2px solid #dbe5ee !important;}
+.header-profile-icon .profile-text{display:none !important;}
+
 </style>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+function syncHeaderProfileImageFinal(){
+    try{
+        const img=document.getElementById("headerProfileImg");
+        if(!img) return;
+        let src="";
+        ["customerProfile","profileData","userProfile","apnaMartProfile"].forEach(k=>{
+            if(src) return;
+            try{const d=JSON.parse(localStorage.getItem(k)||"{}"); src=d.image||d.photo||d.profileImage||d.avatar||"";}catch(e){}
+        });
+        const pImg=document.getElementById("profileImage")||document.getElementById("profileAvatar")||document.querySelector(".profile-card-top img");
+        if(!src && pImg && pImg.src) src=pImg.src;
+        if(src){img.src=src;}else{img.src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80"%3E%3Ccircle cx="40" cy="40" r="40" fill="%23e5e7eb"/%3E%3Ccircle cx="40" cy="32" r="14" fill="%239ca3af"/%3E%3Cpath d="M16 70c4-17 44-17 48 0" fill="%239ca3af"/%3E%3C/svg%3E';}
+    }catch(e){}
+}
+document.addEventListener("DOMContentLoaded", syncHeaderProfileImageFinal);
+setInterval(syncHeaderProfileImageFinal,3000);
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 </head>
 <body>
 <script>
+function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
+function getProductUnitText(product){return getProductUnit(product) || "piece";}
+
 (function(){
     try{
         if(localStorage.getItem("apnaMartCustomerToken")){
@@ -4634,6 +4666,7 @@ function renderProductCard(p){
                 <img src="${getProductImageSrc(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             </div>
             <div class="product-name">${p.name}</div>
+                        <div class="product-unit-line">${getProductUnitText(p)}</div>
             ${unitText ? `<div class="product-unit-line">${unitText}</div>` : `<div class="product-unit-line"></div>`}
             <div class="product-meta-line">
                 <span class="stock-chip ${Number(p.stock || 0) <= 0 ? 'out' : ''}">${stockText}</span>
