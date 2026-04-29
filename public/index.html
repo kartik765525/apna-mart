@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#f7fbff" id="themeColorMeta" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Setu Mart</title>
@@ -3301,6 +3301,109 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.78) !important;
 }
 
+
+/* ===== FINAL FIX: STICKY HEADER + SEARCH, SEE ALL BACK, NO ZOOM ===== */
+html{
+    -webkit-text-size-adjust:100% !important;
+    touch-action:manipulation !important;
+}
+body{
+    overscroll-behavior-x:none !important;
+}
+input, select, textarea{
+    font-size:16px !important; /* mobile zoom off on focus */
+}
+.header{
+    position:sticky !important;
+    top:0 !important;
+    z-index:3000 !important;
+    width:100% !important;
+    left:0 !important;
+    right:0 !important;
+    background:linear-gradient(135deg,rgba(11,79,156,.94),rgba(31,143,69,.94)) !important;
+    backdrop-filter:blur(14px) saturate(150%) !important;
+    -webkit-backdrop-filter:blur(14px) saturate(150%) !important;
+    border-bottom:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:0 8px 22px rgba(15,23,42,.10) !important;
+}
+.search-box{
+    position:sticky !important;
+    top:var(--sticky-header-height,118px) !important;
+    z-index:2999 !important;
+    width:100% !important;
+    background:rgba(247,251,255,.88) !important;
+    backdrop-filter:blur(14px) saturate(150%) !important;
+    -webkit-backdrop-filter:blur(14px) saturate(150%) !important;
+    border-bottom:1px solid rgba(219,229,238,.72) !important;
+    padding-top:12px !important;
+    padding-bottom:12px !important;
+}
+.search-box input{
+    box-shadow:0 8px 20px rgba(15,23,42,.06) !important;
+    background:rgba(255,255,255,.86) !important;
+}
+.categories{
+    position:relative !important;
+    top:auto !important;
+    z-index:auto !important;
+}
+
+/* product compact spacing */
+.category-product-row .product-card{
+    min-height:145px !important;
+    padding:8px !important;
+    display:flex !important;
+    flex-direction:column !important;
+}
+.category-product-row .product-image{
+    height:82px !important;
+    margin-bottom:6px !important;
+}
+.category-product-row .product-name{
+    margin:0 0 2px 0 !important;
+    min-height:auto !important;
+    height:auto !important;
+    line-height:1.18 !important;
+}
+.category-product-row .product-unit-line,
+.product-unit-line{
+    margin:0 0 5px 0 !important;
+    min-height:auto !important;
+    height:auto !important;
+    line-height:1.15 !important;
+}
+.product-meta-line{
+    margin:0 0 3px 0 !important;
+    min-height:auto !important;
+}
+.product-bottom-row{
+    margin-top:auto !important;
+}
+.category-product-row .add-btn{
+    padding:6px 9px !important;
+}
+
+/* see all mode back button */
+.category-see-all.back-mode{
+    background:#0b4f9c !important;
+    color:#fff !important;
+    border-radius:999px !important;
+    padding:7px 12px !important;
+    font-weight:900 !important;
+    box-shadow:0 6px 14px rgba(11,79,156,.18) !important;
+}
+.category-see-all.back-mode::before{
+    content:"← ";
+}
+
+html[data-theme="dark"] .search-box{
+    background:rgba(15,23,42,.86) !important;
+    border-bottom-color:rgba(49,65,93,.7) !important;
+}
+html[data-theme="dark"] .search-box input{
+    background:rgba(17,24,39,.86) !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3320,6 +3423,39 @@ function syncHeaderProfileImageFinal(){
 }
 document.addEventListener("DOMContentLoaded", syncHeaderProfileImageFinal);
 setInterval(syncHeaderProfileImageFinal,3000);
+
+/* ===== FINAL JS: STICKY HEIGHT + BACK NAV + ZOOM OFF ===== */
+function syncStickyHeaderHeightFinal(){
+    try{
+        const header = document.querySelector(".header");
+        if(header){
+            document.documentElement.style.setProperty("--sticky-header-height", header.offsetHeight + "px");
+        }
+    }catch(e){}
+}
+window.addEventListener("load", syncStickyHeaderHeightFinal);
+window.addEventListener("resize", syncStickyHeaderHeightFinal);
+setInterval(syncStickyHeaderHeightFinal, 1000);
+
+window.addEventListener("popstate", function(){
+    if(isSingleCategoryViewFinal){
+        goBackFromCategory(true);
+    }
+});
+
+document.addEventListener("gesturestart", function(e){
+    e.preventDefault();
+}, {passive:false});
+
+let lastTouchEndFinal = 0;
+document.addEventListener("touchend", function(e){
+    const now = Date.now();
+    if(now - lastTouchEndFinal <= 300){
+        e.preventDefault();
+    }
+    lastTouchEndFinal = now;
+}, {passive:false});
+
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -4815,8 +4951,7 @@ function renderProductCard(p){
     const originalNum = Number(p.originalPrice || p.mrp || p.oldPrice || p.cutPrice || p.original || p.original_price || 0);
     const hasOriginal = originalNum && originalNum > priceNum;
     const discountPercent = hasOriginal ? Math.round(((originalNum - priceNum) / originalNum) * 100) : 0;
-    const unitText = p.unit || p.weight || p.quantity || p.qtyText || p.size || "";
-    const stockText = Number(p.stock || 0) <= 0 ? "Out of stock" : `Stock: ${p.stock}`;
+    const unitText = (typeof getProductUnitText === "function") ? getProductUnitText(p) : (p.unit || p.weight || p.quantity || p.qtyText || p.size || "pc");
 
     return `
         <div class="product-card">
@@ -4824,10 +4959,8 @@ function renderProductCard(p){
                 <img src="${getProductImageSrc(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             </div>
             <div class="product-name">${p.name}</div>
-                        <div class="product-unit-line">${getProductUnitText(p)}</div>
-            ${unitText ? `<div class="product-unit-line">${unitText}</div>` : `<div class="product-unit-line"></div>`}
+            <div class="product-unit-line">${unitText}</div>
             <div class="product-meta-line">
-                <span class="stock-chip ${Number(p.stock || 0) <= 0 ? 'out' : ''}">${stockText}</span>
                 ${discountPercent > 0 ? `<span class="discount-chip">${discountPercent}% OFF</span>` : ""}
             </div>
             <div class="product-bottom-row">
@@ -4851,6 +4984,9 @@ function renderProductCard(p){
             </div>
         </div>`;
 }
+
+let isSingleCategoryViewFinal = false;
+let singleCategoryNameFinal = "";
 
 function loadProducts() {
     const wrap = document.getElementById("products");
@@ -4885,7 +5021,7 @@ function loadProducts() {
             <section class="category-row-section" id="section-${key.replace(/\s+/g,'-')}">
                 <div class="category-row-head">
                     <h2 class="category-row-title">${getBlinkitCategoryTitle(key)}</h2>
-                    <button class="category-see-all" onclick="showOnlyCategory('${key}')">see all</button>
+                    <button class="category-see-all ${isSingleCategoryViewFinal ? 'back-mode' : ''}" onclick="${isSingleCategoryViewFinal ? 'goBackFromCategory()' : `showOnlyCategory(\'${key}\')`}">${isSingleCategoryViewFinal ? 'Back' : 'see all'}</button>
                 </div>
                 <div class="category-product-row">
                     ${list.map(renderProductCard).join("")}
@@ -4896,10 +5032,33 @@ function loadProducts() {
 
 function showOnlyCategory(cat){
     const selected = normalizeCategory(cat);
+    isSingleCategoryViewFinal = true;
+    singleCategoryNameFinal = selected;
     filteredProducts = products.filter(p => normalizeCategory(p.category) === selected);
     loadProducts();
+    try{
+        if(!history.state || history.state.view !== "category" || history.state.category !== selected){
+            history.pushState({view:"category", category:selected}, "", location.href);
+        }
+    }catch(e){}
     document.getElementById("products")?.scrollIntoView({behavior:"smooth", block:"start"});
 }
+
+function goBackFromCategory(skipHistoryBack = false){
+    isSingleCategoryViewFinal = false;
+    singleCategoryNameFinal = "";
+    filteredProducts = [...products];
+    loadProducts();
+    document.getElementById("products")?.scrollIntoView({behavior:"smooth", block:"start"});
+    if(!skipHistoryBack){
+        try{
+            if(history.state && history.state.view === "category"){
+                history.back();
+            }
+        }catch(e){}
+    }
+}
+
 function normalizeCategory(value){
     const v = String(value || "").trim().toLowerCase();
     if(["vegetable","vegetables","vegitable","vegitable","vegitables","sabzi","sabziyan"].includes(v)) return "vegetables";
@@ -4912,6 +5071,8 @@ function normalizeCategory(value){
 }
 
 function filterCategory(cat, el) {
+    isSingleCategoryViewFinal = false;
+    singleCategoryNameFinal = "";
     document.querySelectorAll(".cat").forEach(c => c.classList.remove("active"));
     if (el && el.classList) el.classList.add("active");
 
@@ -4930,6 +5091,8 @@ function filterCategory(cat, el) {
 }
 
 document.getElementById("search").addEventListener("input", function (e) {
+    isSingleCategoryViewFinal = false;
+    singleCategoryNameFinal = "";
     const value = e.target.value.toLowerCase();
     filteredProducts = products.filter(p => String(p.name || "").toLowerCase().includes(value));
     loadProducts();
