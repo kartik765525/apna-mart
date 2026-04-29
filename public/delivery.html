@@ -500,6 +500,128 @@ img{display:block;max-width:100%}
   font-weight:900;
 }
 
+
+/* ===== FINAL DELIVERY ORDER FLOW FIX ===== */
+.quick-card[data-card-action="profile"]{
+  display:none !important;
+}
+.quick-card{
+  cursor:pointer !important;
+  user-select:none !important;
+}
+.quick-card:active{
+  transform:scale(.98) !important;
+}
+.delivery-filter-bar{
+  display:none;
+  max-width:1160px;
+  margin:12px auto 0;
+  padding:0 12px;
+}
+.delivery-filter-bar.show{
+  display:block;
+}
+.delivery-back-btn{
+  border:none;
+  cursor:pointer;
+  background:#111827;
+  color:#fff;
+  border-radius:14px;
+  padding:11px 16px;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(15,23,42,.14);
+}
+.delivery-filter-title{
+  display:inline-block;
+  margin-left:10px;
+  color:#1e40af;
+  font-weight:900;
+}
+.delivered-summary-card{
+  background:linear-gradient(180deg,#fbfdff 0%,#ffffff 100%);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:16px;
+  cursor:pointer;
+}
+.delivered-summary-card:active{
+  transform:scale(.99);
+}
+.delivered-summary-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+.delivered-summary-id{
+  font-weight:900;
+  color:#0f172a;
+  font-size:16px;
+}
+.delivered-summary-village{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px;
+}
+.delivered-click-note{
+  font-size:12px;
+  color:#1d4ed8;
+  font-weight:900;
+}
+.delivery-detail-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  z-index:1400;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+}
+.delivery-detail-modal.show{
+  display:flex;
+}
+.delivery-detail-box{
+  width:min(650px,96vw);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:0 28px 70px rgba(0,0,0,.22);
+  padding:16px;
+}
+.delivery-detail-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:12px;
+  margin-bottom:12px;
+}
+.delivery-detail-head h3{
+  color:#1e40af;
+}
+.delivery-detail-close{
+  border:none;
+  background:#111827;
+  color:#fff;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
+}
+.delivery-detail-line{
+  padding:8px 0;
+  border-bottom:1px dashed #e2e8f0;
+  color:#334155;
+  line-height:1.5;
+}
+.delivery-detail-line b{
+  color:#0f172a;
+}
+
 </style>
 </head>
 <body>
@@ -885,55 +1007,174 @@ function sameDateAsToday(value){
 }
 
 function calculateStats(){
-  const pending = deliveryOrders.filter(function(o){ return o.status === "Pending"; }).length;
-  const out = deliveryOrders.filter(function(o){ return o.status === "Out for Delivery"; }).length;
-  const deliveredToday = deliveryOrders.filter(function(o){
-    return o.status === "Delivered" && sameDateAsToday(o.deliveredAt || o.date);
+  const activeOrders = deliveryOrders.filter(function(o){
+    return o.status === "Pending" || o.status === "Out for Delivery" || o.status === "Need Confirmation" || o.status === "Confirmed";
   }).length;
-  const estimatedEarning = deliveryOrders
-    .filter(function(o){ return o.status === "Delivered" && sameDateAsToday(o.deliveredAt || o.date); })
-    .reduce(function(sum, o){ return sum + Number(o.shipping || 0); }, 0);
 
-  return { pending: pending, out: out, deliveredToday: deliveredToday, estimatedEarning: estimatedEarning };
+  const deliveredOrders = deliveryOrders.filter(function(o){
+    return o.status === "Delivered";
+  });
+
+  const deliveredToday = deliveredOrders.filter(function(o){
+    const d = o.deliveredAt || o.updatedAt || o.date || o.time;
+    return sameDateAsToday(d) || !d;
+  }).length || deliveredOrders.length;
+
+  const totalEarning = deliveredOrders.reduce(function(sum, o){
+    const orderTotal = getOrderTotalForDelivery(o);
+    const shipping = getDeliveryChargeForDelivery(o);
+    return sum + orderTotal + shipping;
+  }, 0);
+
+  const todayPending = activeOrders;
+
+  return {
+    pending: deliveryOrders.filter(function(o){ return o.status === "Pending" || o.status === "Need Confirmation" || o.status === "Confirmed"; }).length,
+    out: deliveryOrders.filter(function(o){ return o.status === "Out for Delivery"; }).length,
+    activeOrders: activeOrders,
+    deliveredToday: deliveredToday,
+    estimatedEarning: totalEarning,
+    todayPending: todayPending
+  };
+}
+
+function moneyForDelivery(v){
+  if(v === null || v === undefined) return 0;
+  if(typeof v === "number") return v;
+  const n = Number(String(v).replace(/[₹,\s]/g,""));
+  return isNaN(n) ? 0 : n;
+}
+
+function getOrderTotalForDelivery(order){
+  const direct = moneyForDelivery(order.total) ||
+    moneyForDelivery(order.grandTotal) ||
+    moneyForDelivery(order.totalAmount) ||
+    moneyForDelivery(order.finalTotal) ||
+    moneyForDelivery(order.payableAmount) ||
+    moneyForDelivery(order.amount) ||
+    moneyForDelivery(order.subtotal);
+
+  if(direct) return direct;
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  return items.reduce(function(sum, item){
+    const price = moneyForDelivery(item.price || item.finalPrice || item.salePrice);
+    const qty = moneyForDelivery(item.qty || item.quantity || 1) || 1;
+    return sum + (price * qty);
+  }, 0);
+}
+
+function getDeliveryChargeForDelivery(order){
+  return moneyForDelivery(order.shipping) ||
+    moneyForDelivery(order.deliveryCharge) ||
+    moneyForDelivery(order.shippingCharge) ||
+    moneyForDelivery(order.delivery) ||
+    0;
+}
+
+function getOrderVillageForDelivery(order){
+  return order.village || order.gaon || order.gao || order.locationName || order.addressVillage || "Village not available";
+}
+
+function escapeDeliveryHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, function(ch){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[ch];
+  });
+}
+
+function showDeliveryFilter(title){
+  const bar = getEl("deliveryFilterBar");
+  const titleEl = getEl("deliveryFilterTitle");
+  if(titleEl) titleEl.textContent = title;
+  if(bar) bar.classList.add("show");
+}
+
+function hideDeliveryFilter(){
+  const bar = getEl("deliveryFilterBar");
+  if(bar) bar.classList.remove("show");
+}
+
+function openDeliveredOrderDetail(orderId){
+  const order = deliveryOrders.find(function(o){ return String(o.id) === String(orderId); });
+  if(!order) return;
+
+  const itemsHtml = (Array.isArray(order.items) ? order.items : []).map(function(item){
+    return "<div>" + escapeDeliveryHtml(item.name) + " x " + escapeDeliveryHtml(item.qty || item.quantity || 1) + "</div>";
+  }).join("") || "No items";
+
+  const addressLine = (order.village || "") + (order.address ? ", " + order.address : "");
+  const content = getEl("deliveryDetailContent");
+  if(content){
+    content.innerHTML =
+      '<div class="delivery-detail-line"><b>Order ID:</b> ' + escapeDeliveryHtml(order.id) + '</div>' +
+      '<div class="delivery-detail-line"><b>Name:</b> ' + escapeDeliveryHtml(order.customerName || order.name || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Phone:</b> ' + escapeDeliveryHtml(order.phone || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Village:</b> ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
+      '<div class="delivery-detail-line"><b>Address:</b> ' + escapeDeliveryHtml(addressLine || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Status:</b> ' + escapeDeliveryHtml(order.status || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Order Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + '</div>' +
+      '<div class="delivery-detail-line"><b>Delivery Charge:</b> ₹' + getDeliveryChargeForDelivery(order).toFixed(0) + '</div>' +
+      '<div class="delivery-detail-line"><b>Total Earning:</b> ₹' + (getOrderTotalForDelivery(order) + getDeliveryChargeForDelivery(order)).toFixed(0) + '</div>' +
+      '<div class="delivery-detail-line"><b>Payment:</b> ' + escapeDeliveryHtml(String(order.paymentMethod || "COD").toUpperCase()) + '</div>' +
+      '<div class="delivery-detail-line"><b>Payment Status:</b> ' + escapeDeliveryHtml(order.paymentStatus || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Items:</b><br>' + itemsHtml + '</div>';
+  }
+
+  const modal = getEl("deliveryDetailModal");
+  if(modal) modal.classList.add("show");
+}
+
+function closeDeliveredOrderDetail(){
+  const modal = getEl("deliveryDetailModal");
+  if(modal) modal.classList.remove("show");
 }
 
 function renderStats(){
   const stats = calculateStats();
-  const profile = loadProfileState();
-  const activeOrders = stats.pending + stats.out;
   getEl("stats").innerHTML =
-    '<div class="quick-card" data-card-action="profile">' +
-      '<div class="quick-icon"><img src="' + (profile.image || DEFAULT_PROFILE_IMAGE) + '" alt="profile"></div>' +
-      '<div><div class="quick-label">Profile</div><div class="quick-value">' + (profile.name || 'Delivery Profile') + '</div><div class="quick-sub">' + (profile.phone || 'Not logged in') + '</div></div>' +
-    '</div>' +
     '<div class="quick-card ' + (statsView === 'active' ? 'active' : '') + '" data-card-action="dashboard">' +
       '<div class="quick-icon">📊</div>' +
-      '<div><div class="quick-label">Dashboard</div><div class="quick-value">' + activeOrders + '</div><div class="quick-sub">Pending + out for delivery orders</div></div>' +
+      '<div><div class="quick-label">Pending Orders</div><div class="quick-value">' + stats.activeOrders + '</div><div class="quick-sub">Only admin assigned active orders</div></div>' +
     '</div>' +
     '<div class="quick-card ' + (statsView === 'delivered' ? 'active' : '') + '" data-card-action="delivered">' +
       '<div class="quick-icon">✅</div>' +
-      '<div><div class="quick-label">Delivered Today</div><div class="quick-value">' + stats.deliveredToday + '</div><div class="quick-sub">Aaj deliver kiye gaye orders</div></div>' +
+      '<div><div class="quick-label">Delivered Today</div><div class="quick-value">' + stats.deliveredToday + '</div><div class="quick-sub">Click to view order id + village</div></div>' +
+    '</div>' +
+    '<div class="quick-card" data-card-action="earning">' +
+      '<div class="quick-icon">💰</div>' +
+      '<div><div class="quick-label">Total Earning</div><div class="quick-value">₹' + stats.estimatedEarning.toFixed(0) + '</div><div class="quick-sub">Delivered order total + delivery charge</div></div>' +
     '</div>';
 
   getEl("stats").querySelectorAll('[data-card-action]').forEach(function(card){
     card.addEventListener('click', function(){
       const action = this.getAttribute('data-card-action');
-      if(action === 'profile'){
-        openProfilePanel();
-        return;
-      }
+
       if(action === 'dashboard'){
         statsView = 'active';
+        hideDeliveryFilter();
         renderOrders();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-      if(action === 'delivered'){
+
+      if(action === 'delivered' || action === 'earning'){
         statsView = 'delivered';
+        showDeliveryFilter(action === 'earning' ? 'Delivered Orders / Total Earning' : 'Delivered Today');
         renderOrders();
+        const section = document.querySelector(".section");
+        if(section) section.scrollIntoView({ behavior:"smooth", block:"start" });
       }
     });
   });
+
+  const backBtn = getEl("deliveryBackBtn");
+  if(backBtn){
+    backBtn.onclick = function(){
+      statsView = "active";
+      hideDeliveryFilter();
+      renderOrders();
+    };
+  }
 }
 
 function getOrderThumb(order){
@@ -956,11 +1197,46 @@ function getMapsLink(order){
 function renderOrders(){
   const list = getEl("orderList");
   const visibleOrders = deliveryOrders.filter(function(order){
-    if(statsView === "delivered") return order.status === "Delivered" && sameDateAsToday(order.deliveredAt || order.date);
-    return order.status === "Pending" || order.status === "Out for Delivery";
+    if(statsView === "delivered"){
+      return order.status === "Delivered";
+    }
+    return order.status === "Pending" || order.status === "Out for Delivery" || order.status === "Need Confirmation" || order.status === "Confirmed";
   });
+
+  const sectionTitle = document.querySelector(".section h3");
+  if(sectionTitle){
+    sectionTitle.textContent = statsView === "delivered" ? "Delivered Orders" : "Assigned / Active Orders";
+  }
+
   if(!visibleOrders.length){
-    list.innerHTML = statsView === 'delivered' ? '<div class="empty">Aaj ki delivered orders yahan dikhenge</div>' : '<div class="empty">No assigned delivery orders right now</div>'; 
+    list.innerHTML = statsView === 'delivered'
+      ? '<div class="empty">Delivered orders yahan dikhenge</div>'
+      : '<div class="empty">No assigned pending orders right now</div>';
+    renderStats();
+    return;
+  }
+
+  if(statsView === "delivered"){
+    list.innerHTML = visibleOrders.map(function(order){
+      return (
+        '<div class="delivered-summary-card" data-delivered-id="' + order.id + '">' +
+          '<div class="delivered-summary-top">' +
+            '<div>' +
+              '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
+              '<div class="delivered-summary-village">Village: ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
+            '</div>' +
+            '<div class="delivered-click-note">Click for details</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
+
+    list.querySelectorAll(".delivered-summary-card").forEach(function(card){
+      card.addEventListener("click", function(){
+        openDeliveredOrderDetail(this.getAttribute("data-delivered-id"));
+      });
+    });
+
     renderStats();
     return;
   }
@@ -969,9 +1245,9 @@ function renderOrders(){
     const customerName = order.customerName || order.name || "N/A";
     const addressLine = (order.village || "") + (order.address ? ", " + order.address : "");
     const itemsHtml = (Array.isArray(order.items) ? order.items : []).map(function(item){
-      return "<div>" + item.name + " x " + item.qty + "</div>";
+      return "<div>" + escapeDeliveryHtml(item.name) + " x " + escapeDeliveryHtml(item.qty || item.quantity || 1) + "</div>";
     }).join("");
-    const startBtn = order.status === "Pending"
+    const startBtn = (order.status === "Pending" || order.status === "Need Confirmation" || order.status === "Confirmed")
       ? '<button type="button" class="action-btn start" data-order-id="' + order.id + '" data-status="Out for Delivery">Mark Out for Delivery</button>'
       : "";
     const doneBtn = order.status === "Out for Delivery"
@@ -991,22 +1267,22 @@ function renderOrders(){
               (thumb ? '<img src="' + thumb + '" alt="item image" onerror="this.parentNode.innerHTML=&quot;<div class=\\&quot;order-thumb-fallback\\&quot;>' + fallback + '</div>&quot;">' : '<div class="order-thumb-fallback">' + fallback + '</div>') +
             '</div>' +
             '<div class="order-main">' +
-              '<div class="order-id">Order ID: ' + order.id + '</div>' +
-              '<div class="order-customer">' + customerName + ' · ' + (order.phone || "N/A") + '</div>' +
+              '<div class="order-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
+              '<div class="order-customer">' + escapeDeliveryHtml(customerName) + ' · ' + escapeDeliveryHtml(order.phone || "N/A") + '</div>' +
             '</div>' +
           '</div>' +
-          '<span class="badge ' + badgeClass(order.status) + '">' + order.status + '</span>' +
+          '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status) + '</span>' +
         '</div>' +
         '<div class="order-meta">' +
-          '<b>Address:</b> ' + addressLine + '<br>' +
-          '<b>Total:</b> ₹' + (order.total || 0) + ' · <b>Payment:</b> ' + String(order.paymentMethod || "COD").toUpperCase() + ' · <b>Payment Status:</b> ' + (order.paymentStatus || "N/A") + '<br>' +
-          '<b>Delivery Charge:</b> ₹' + Number(order.shipping || 0) +
+          '<b>Address:</b> ' + escapeDeliveryHtml(addressLine) + '<br>' +
+          '<b>Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + ' · <b>Payment:</b> ' + escapeDeliveryHtml(String(order.paymentMethod || "COD").toUpperCase()) + ' · <b>Payment Status:</b> ' + escapeDeliveryHtml(order.paymentStatus || "N/A") + '<br>' +
+          '<b>Delivery Charge:</b> ₹' + getDeliveryChargeForDelivery(order).toFixed(0) +
         '</div>' +
         '<div class="delivery-profile">' +
           '<div class="mini-avatar">' + getInitials(order.assignedDeliveryBoyName || (deliveryMe && deliveryMe.name) || "DP") + '</div>' +
           '<div>' +
-            '<div class="delivery-profile-name">' + (order.assignedDeliveryBoyName || order.deliveryBoyName || (deliveryMe && deliveryMe.name) || "Assigned Delivery Boy") + '</div>' +
-            '<div class="delivery-profile-sub">' + (order.assignedDeliveryBoyPhone || order.deliveryBoyPhone || (deliveryMe && deliveryMe.phone) || "Phone not available") + '</div>' +
+            '<div class="delivery-profile-name">' + escapeDeliveryHtml(order.assignedDeliveryBoyName || order.deliveryBoyName || (deliveryMe && deliveryMe.name) || "Assigned Delivery Boy") + '</div>' +
+            '<div class="delivery-profile-sub">' + escapeDeliveryHtml(order.assignedDeliveryBoyPhone || order.deliveryBoyPhone || (deliveryMe && deliveryMe.phone) || "Phone not available") + '</div>' +
           '</div>' +
         '</div>' +
         '<div class="items"><b>Items</b>' + itemsHtml + '</div>' +
@@ -1126,218 +1402,10 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
-<script>
-/* ===== TOTAL EARNING = ORDER TOTAL + SHIPPING/DELIVERY CHARGE ===== */
-(function(){
-  function moneyNumber(v){
-    if(v === null || v === undefined) return 0;
-    if(typeof v === "number") return v;
-    const n = Number(String(v).replace(/[₹,\s]/g,""));
-    return isNaN(n) ? 0 : n;
-  }
-
-  function getOrderAmount(o){
-    const direct =
-      moneyNumber(o.total) ||
-      moneyNumber(o.grandTotal) ||
-      moneyNumber(o.totalAmount) ||
-      moneyNumber(o.finalTotal) ||
-      moneyNumber(o.payableAmount) ||
-      moneyNumber(o.amount) ||
-      moneyNumber(o.subtotal);
-
-    if(direct) return direct;
-
-    const items = Array.isArray(o.items) ? o.items : (Array.isArray(o.products) ? o.products : []);
-    return items.reduce(function(sum, item){
-      const price = moneyNumber(item.price || item.finalPrice || item.salePrice);
-      const qty = moneyNumber(item.qty || item.quantity || 1) || 1;
-      return sum + (price * qty);
-    }, 0);
-  }
-
-  function getShippingCharge(o){
-    return moneyNumber(o.shippingCharge) ||
-           moneyNumber(o.deliveryCharge) ||
-           moneyNumber(o.delivery) ||
-           moneyNumber(o.shipping) ||
-           0;
-  }
-
-  function getTotalEarningFinal(){
-    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
-    return orders.reduce(function(sum, o){
-      return sum + getOrderAmount(o) + getShippingCharge(o);
-    }, 0);
-  }
-
-  function injectTotalEarningCard(){
-    const statsBox = document.getElementById("stats");
-    if(!statsBox) return;
-
-    let card = document.getElementById("totalEarningWithShippingCard");
-    const total = getTotalEarningFinal();
-
-    if(!card){
-      card = document.createElement("div");
-      card.className = "quick-card";
-      card.id = "totalEarningWithShippingCard";
-      card.innerHTML = `
-        <div class="quick-icon">💰</div>
-        <div>
-          <div class="quick-label">Total Earning</div>
-          <div class="quick-value" id="totalEarningWithShippingValue">₹0</div>
-          <div class="quick-sub">Order total + shipping charge</div>
-        </div>
-      `;
-      statsBox.appendChild(card);
-    }
-
-    const value = document.getElementById("totalEarningWithShippingValue");
-    if(value) value.textContent = "₹" + total.toFixed(0);
-  }
-
-  const oldRenderStats = window.renderStats;
-  if(typeof oldRenderStats === "function"){
-    window.renderStats = function(){
-      oldRenderStats.apply(this, arguments);
-      injectTotalEarningCard();
-    };
-  }
-
-  const oldRenderOrders = window.renderOrders;
-  if(typeof oldRenderOrders === "function"){
-    window.renderOrders = function(){
-      oldRenderOrders.apply(this, arguments);
-      injectTotalEarningCard();
-    };
-  }
-
-  document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(injectTotalEarningCard, 300);
-    setTimeout(injectTotalEarningCard, 1200);
-  });
-  setInterval(injectTotalEarningCard, 5000);
-})();
-</script>
 
 
-<script>
-/* ===== PROFILE CARD REMOVE + CORNER PROFILE CLICK + MIDNIGHT DELIVERED CLEAN ===== */
-(function(){
-  function todayKey(){
-    const d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-  }
 
-  function isDelivered(order){
-    return String(order.status || "").toLowerCase() === "delivered";
-  }
 
-  function getOrderDateKey(order){
-    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
-    if(!raw) return todayKey();
-
-    const parsed = new Date(raw);
-    if(!isNaN(parsed.getTime())){
-      return parsed.getFullYear() + "-" + String(parsed.getMonth()+1).padStart(2,"0") + "-" + String(parsed.getDate()).padStart(2,"0");
-    }
-
-    // dd/mm/yyyy or dd-mm-yyyy fallback
-    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-    if(m){
-      const yy = m[3].length === 2 ? "20" + m[3] : m[3];
-      return yy + "-" + String(m[2]).padStart(2,"0") + "-" + String(m[1]).padStart(2,"0");
-    }
-
-    return todayKey();
-  }
-
-  function cleanOldDeliveredOrders(){
-    try{
-      if(!Array.isArray(window.deliveryOrders)) return;
-      const today = todayKey();
-      const before = window.deliveryOrders.length;
-      window.deliveryOrders = window.deliveryOrders.filter(function(order){
-        if(!isDelivered(order)) return true;
-        return getOrderDateKey(order) === today;
-      });
-
-      if(before !== window.deliveryOrders.length && typeof window.renderOrders === "function"){
-        window.renderOrders();
-      }
-    }catch(e){}
-  }
-
-  function removeProfileCardFromDashboard(){
-    try{
-      const stats = document.getElementById("stats");
-      if(!stats) return;
-
-      Array.from(stats.querySelectorAll(".quick-card")).forEach(function(card){
-        const text = (card.innerText || "").toLowerCase();
-        const action = card.getAttribute("data-card-action") || "";
-        if(action === "profile" || text.includes("profile")){
-          card.remove();
-        }
-      });
-    }catch(e){}
-  }
-
-  function bindCornerProfile(){
-    const btn = document.getElementById("openProfileBtn");
-    if(btn){
-      btn.onclick = function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        if(typeof window.openProfilePanel === "function"){
-          window.openProfilePanel();
-        }else{
-          const panel = document.getElementById("profilePanel");
-          if(panel) panel.classList.add("open");
-        }
-      };
-    }
-  }
-
-  const oldRenderStats = window.renderStats;
-  if(typeof oldRenderStats === "function"){
-    window.renderStats = function(){
-      oldRenderStats.apply(this, arguments);
-      removeProfileCardFromDashboard();
-      cleanOldDeliveredOrders();
-    };
-  }
-
-  const oldRenderOrders = window.renderOrders;
-  if(typeof oldRenderOrders === "function"){
-    window.renderOrders = function(){
-      cleanOldDeliveredOrders();
-      oldRenderOrders.apply(this, arguments);
-      removeProfileCardFromDashboard();
-    };
-  }
-
-  function runAll(){
-    removeProfileCardFromDashboard();
-    bindCornerProfile();
-    cleanOldDeliveredOrders();
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", runAll);
-  }else{
-    runAll();
-  }
-
-  setTimeout(runAll, 500);
-  setTimeout(runAll, 1500);
-  setInterval(function(){
-    cleanOldDeliveredOrders();
-    removeProfileCardFromDashboard();
-  }, 60000);
-})();
-</script>
 
 
 <div class="delivery-detail-modal" id="deliveryDetailModal">
@@ -1351,521 +1419,41 @@ document.addEventListener("DOMContentLoaded", function(){
 </div>
 
 
-<script>
-/* ===== DELIVERED SUMMARY + EARNING + TODAY PENDING FIX ===== */
-(function(){
-  function money(v){
-    if(v === null || v === undefined) return 0;
-    if(typeof v === "number") return v;
-    const n = Number(String(v).replace(/[₹,\s]/g,""));
-    return isNaN(n) ? 0 : n;
-  }
 
-  function todayKey(){
-    const d = new Date();
-    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-  }
 
-  function orderDateKey(order){
-    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
-    const parsed = new Date(raw);
-    if(raw && !isNaN(parsed.getTime())){
-      return parsed.getFullYear()+"-"+String(parsed.getMonth()+1).padStart(2,"0")+"-"+String(parsed.getDate()).padStart(2,"0");
-    }
-    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-    if(m){
-      const yy = m[3].length === 2 ? "20"+m[3] : m[3];
-      return yy+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[1]).padStart(2,"0");
-    }
-    return todayKey();
-  }
 
-  function isToday(order){
-    return orderDateKey(order) === todayKey();
-  }
 
-  function isDelivered(order){
-    return String(order.status || "").toLowerCase() === "delivered";
-  }
 
-  function isPending(order){
-    const s = String(order.status || "").toLowerCase();
-    return s === "pending" || s === "need confirmation" || s === "confirmed";
-  }
 
-  function orderTotal(order){
-    const direct = money(order.total) || money(order.grandTotal) || money(order.totalAmount) || money(order.finalTotal) || money(order.payableAmount) || money(order.amount) || money(order.subtotal);
-    if(direct) return direct;
 
-    const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.products) ? order.products : []);
-    return items.reduce(function(sum,item){
-      const price = money(item.price || item.finalPrice || item.salePrice);
-      const qty = money(item.qty || item.quantity || 1) || 1;
-      return sum + price * qty;
-    },0);
-  }
-
-  function shipping(order){
-    return money(order.shippingCharge) || money(order.deliveryCharge) || money(order.delivery) || money(order.shipping) || 0;
-  }
-
-  function totalDeliveredEarning(){
-    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
-    return orders.filter(isDelivered).reduce(function(sum,o){
-      return sum + orderTotal(o) + shipping(o);
-    },0);
-  }
-
-  function todayPendingCount(){
-    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
-    return orders.filter(function(o){ return isPending(o) && isToday(o); }).length;
-  }
-
-  function getOrderName(order){
-    return order.customerName || order.name || order.customer || order.userName || order.phone || "Customer";
-  }
-
-  function getOrderId(order){
-    return order.id || order.orderId || order.orderID || order._id || "ORDER";
-  }
-
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g,function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
-    });
-  }
-
-  function openDeliveredDetail(orderId){
-    const orders = Array.isArray(window.deliveryOrders) ? window.deliveryOrders : [];
-    const order = orders.find(function(o){ return String(getOrderId(o)) === String(orderId); });
-    if(!order) return;
-
-    const items = Array.isArray(order.items) ? order.items : (Array.isArray(order.products) ? order.products : []);
-    const itemHtml = items.length ? items.map(function(it){
-      return `<div>${escapeHtml(it.name || it.productName || "Item")} x ${escapeHtml(it.qty || it.quantity || 1)}</div>`;
-    }).join("") : "No items";
-
-    const content = document.getElementById("deliveryDetailContent");
-    if(content){
-      content.innerHTML = `
-        <div class="delivery-detail-line"><b>Order ID:</b> ${escapeHtml(getOrderId(order))}</div>
-        <div class="delivery-detail-line"><b>Name:</b> ${escapeHtml(getOrderName(order))}</div>
-        <div class="delivery-detail-line"><b>Phone:</b> ${escapeHtml(order.phone || order.customerPhone || order.mobile || "")}</div>
-        <div class="delivery-detail-line"><b>Address:</b> ${escapeHtml(order.address || order.fullAddress || "")}</div>
-        <div class="delivery-detail-line"><b>Status:</b> ${escapeHtml(order.status || "")}</div>
-        <div class="delivery-detail-line"><b>Order Total:</b> ₹${orderTotal(order).toFixed(0)}</div>
-        <div class="delivery-detail-line"><b>Shipping / Delivery Charge:</b> ₹${shipping(order).toFixed(0)}</div>
-        <div class="delivery-detail-line"><b>Total Earning:</b> ₹${(orderTotal(order)+shipping(order)).toFixed(0)}</div>
-        <div class="delivery-detail-line"><b>Payment:</b> ${escapeHtml(order.paymentMode || order.payment || "")}</div>
-        <div class="delivery-detail-line"><b>Items:</b><br>${itemHtml}</div>
-      `;
-    }
-    const modal = document.getElementById("deliveryDetailModal");
-    if(modal) modal.classList.add("show");
-  }
-
-  function closeDeliveredDetail(){
-    const modal = document.getElementById("deliveryDetailModal");
-    if(modal) modal.classList.remove("show");
-  }
-
-  function compactDeliveredCards(){
-    const list = document.getElementById("orderList");
-    if(!list || !Array.isArray(window.deliveryOrders)) return;
-
-    const delivered = window.deliveryOrders.filter(isDelivered);
-    if(!delivered.length) return;
-
-    // Replace only delivered full order cards with compact summary cards.
-    const currentCards = Array.from(list.querySelectorAll(".order-card"));
-    currentCards.forEach(function(card){
-      const text = (card.innerText || "").toLowerCase();
-      if(!text.includes("delivered")) return;
-
-      const matched = delivered.find(function(o){
-        return text.includes(String(getOrderId(o)).toLowerCase());
-      });
-      if(!matched) return;
-
-      const id = getOrderId(matched);
-      const name = getOrderName(matched);
-      const div = document.createElement("div");
-      div.className = "delivered-summary-card";
-      div.setAttribute("data-delivered-id", id);
-      div.innerHTML = `
-        <div class="delivered-summary-top">
-          <div>
-            <div class="delivered-summary-id">Order ID: ${escapeHtml(id)}</div>
-            <div class="delivered-summary-name">${escapeHtml(name)}</div>
-          </div>
-          <div class="delivered-click-note">Click for details</div>
-        </div>
-      `;
-      div.onclick = function(){ openDeliveredDetail(id); };
-      card.replaceWith(div);
-    });
-  }
-
-  function updateDashboardCards(){
-    const stats = document.getElementById("stats");
-    if(!stats) return;
-
-    // earning: replace any earning/total earning value
-    let earningCard = document.getElementById("totalEarningWithShippingCard");
-    if(!earningCard){
-      earningCard = Array.from(stats.querySelectorAll(".quick-card")).find(function(c){
-        return (c.innerText || "").toLowerCase().includes("earning");
-      });
-    }
-    if(earningCard){
-      let value = earningCard.querySelector(".quick-value");
-      if(value) value.textContent = "₹" + totalDeliveredEarning().toFixed(0);
-      const sub = earningCard.querySelector(".quick-sub");
-      if(sub) sub.textContent = "Delivered order total + shipping";
-    }
-
-    // today pending card
-    let pendingCard = document.getElementById("todayPendingOrdersCard");
-    if(!pendingCard){
-      pendingCard = document.createElement("div");
-      pendingCard.className = "quick-card";
-      pendingCard.id = "todayPendingOrdersCard";
-      pendingCard.innerHTML = `
-        <div class="quick-icon">⏳</div>
-        <div>
-          <div class="quick-label">Today Pending</div>
-          <div class="quick-value" id="todayPendingOrdersValue">0</div>
-          <div class="quick-sub">Aaj ke pending orders</div>
-        </div>
-      `;
-      stats.appendChild(pendingCard);
-    }
-    const pendingValue = document.getElementById("todayPendingOrdersValue");
-    if(pendingValue) pendingValue.textContent = todayPendingCount();
-  }
-
-  function runFixes(){
-    compactDeliveredCards();
-    updateDashboardCards();
-  }
-
-  window.openDeliveredDetail = openDeliveredDetail;
-  const closeBtn = document.getElementById("deliveryDetailCloseBtn");
-  if(closeBtn) closeBtn.onclick = closeDeliveredDetail;
-  const modal = document.getElementById("deliveryDetailModal");
-  if(modal) modal.addEventListener("click", function(e){ if(e.target === modal) closeDeliveredDetail(); });
-
-  const oldRenderOrders = window.renderOrders;
-  if(typeof oldRenderOrders === "function"){
-    window.renderOrders = function(){
-      oldRenderOrders.apply(this, arguments);
-      setTimeout(runFixes, 50);
-    };
-  }
-
-  const oldRenderStats = window.renderStats;
-  if(typeof oldRenderStats === "function"){
-    window.renderStats = function(){
-      oldRenderStats.apply(this, arguments);
-      setTimeout(runFixes, 50);
-    };
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", function(){ setTimeout(runFixes,300); });
-  }else{
-    setTimeout(runFixes,300);
-  }
-  setInterval(runFixes, 3000);
-})();
-</script>
 
 
 <script>
-/* ===== TODAY PENDING / TOTAL EARNING CLICK + BACK NAV ===== */
+/* ===== FINAL ORDER FLOW INIT ===== */
 (function(){
-  let originalOrdersForFilter = null;
-  let activeFilterMode = "";
-
-  function todayKey(){
-    const d = new Date();
-    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-  }
-
-  function orderDateKey(order){
-    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
-    const parsed = new Date(raw);
-    if(raw && !isNaN(parsed.getTime())){
-      return parsed.getFullYear()+"-"+String(parsed.getMonth()+1).padStart(2,"0")+"-"+String(parsed.getDate()).padStart(2,"0");
-    }
-    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-    if(m){
-      const yy = m[3].length === 2 ? "20"+m[3] : m[3];
-      return yy+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[1]).padStart(2,"0");
-    }
-    return todayKey();
-  }
-
-  function isToday(order){
-    return orderDateKey(order) === todayKey();
-  }
-
-  function isPendingAssigned(order){
-    const s = String(order.status || "").toLowerCase();
-    return (s === "pending" || s === "need confirmation" || s === "confirmed" || s === "out for delivery") && isToday(order);
-  }
-
-  function isDelivered(order){
-    return String(order.status || "").toLowerCase() === "delivered";
-  }
-
-  function showFilterBar(title){
-    const bar = document.getElementById("deliveryFilterBar");
-    const titleEl = document.getElementById("deliveryFilterTitle");
-    if(titleEl) titleEl.textContent = title;
-    if(bar) bar.classList.add("show");
-  }
-
-  function hideFilterBar(){
-    const bar = document.getElementById("deliveryFilterBar");
-    if(bar) bar.classList.remove("show");
-  }
-
-  function applyOrdersFilter(mode){
-    if(!Array.isArray(window.deliveryOrders)) return;
-    if(!originalOrdersForFilter){
-      originalOrdersForFilter = [...window.deliveryOrders];
-    }
-
-    activeFilterMode = mode;
-
-    if(mode === "todayPending"){
-      window.deliveryOrders = originalOrdersForFilter.filter(isPendingAssigned);
-      showFilterBar("Today Pending Assigned Orders");
-    }
-
-    if(mode === "earningDelivered"){
-      window.deliveryOrders = originalOrdersForFilter.filter(isDelivered);
-      showFilterBar("Delivered Orders / Total Earning");
-    }
-
-    if(typeof window.renderOrders === "function"){
-      window.renderOrders();
-    }
-
-    const section = document.querySelector(".section");
-    if(section) section.scrollIntoView({behavior:"smooth", block:"start"});
-
-    try{
-      if(!history.state || history.state.deliveryFilter !== mode){
-        history.pushState({deliveryFilter:mode}, "", location.href);
-      }
-    }catch(e){}
-  }
-
-  function backToAllOrders(skipHistory){
-    if(originalOrdersForFilter){
-      window.deliveryOrders = [...originalOrdersForFilter];
-    }
-    activeFilterMode = "";
-    hideFilterBar();
-
-    if(typeof window.renderOrders === "function"){
-      window.renderOrders();
-    }
-
-    if(!skipHistory){
-      try{
-        if(history.state && history.state.deliveryFilter){
-          history.back();
-        }
-      }catch(e){}
-    }
-  }
-
-  function bindDashboardCardClicks(){
-    const pendingCard = document.getElementById("todayPendingOrdersCard");
-    if(pendingCard){
-      pendingCard.onclick = function(e){
-        e.preventDefault();
-        applyOrdersFilter("todayPending");
+  function initFinalOrderFlow(){
+    const closeBtn = document.getElementById("deliveryDetailCloseBtn");
+    const modal = document.getElementById("deliveryDetailModal");
+    if(closeBtn) closeBtn.onclick = closeDeliveredOrderDetail;
+    if(modal){
+      modal.onclick = function(e){
+        if(e.target === modal) closeDeliveredOrderDetail();
       };
     }
-
-    const stats = document.getElementById("stats");
-    if(stats){
-      Array.from(stats.querySelectorAll(".quick-card")).forEach(function(card){
-        const text = (card.innerText || "").toLowerCase();
-        if(card.id === "totalEarningWithShippingCard" || text.includes("earning")){
-          card.onclick = function(e){
-            e.preventDefault();
-            applyOrdersFilter("earningDelivered");
-          };
-        }
-      });
-    }
-
     const backBtn = document.getElementById("deliveryBackBtn");
     if(backBtn){
-      backBtn.onclick = function(e){
-        e.preventDefault();
-        backToAllOrders(false);
+      backBtn.onclick = function(){
+        statsView = "active";
+        hideDeliveryFilter();
+        renderOrders();
       };
     }
   }
-
-  window.addEventListener("popstate", function(){
-    if(activeFilterMode){
-      backToAllOrders(true);
-    }
-  });
-
-  const oldRenderStats = window.renderStats;
-  if(typeof oldRenderStats === "function"){
-    window.renderStats = function(){
-      oldRenderStats.apply(this, arguments);
-      setTimeout(bindDashboardCardClicks, 80);
-    };
-  }
-
-  const oldRenderOrders = window.renderOrders;
-  if(typeof oldRenderOrders === "function"){
-    window.renderOrders = function(){
-      oldRenderOrders.apply(this, arguments);
-      setTimeout(bindDashboardCardClicks, 80);
-    };
-  }
-
-  function run(){
-    bindDashboardCardClicks();
-  }
-
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", function(){ setTimeout(run, 300); });
+    document.addEventListener("DOMContentLoaded", initFinalOrderFlow);
   }else{
-    setTimeout(run, 300);
+    initFinalOrderFlow();
   }
-
-  setInterval(bindDashboardCardClicks, 3000);
-})();
-</script>
-
-
-<script>
-/* ===== FIX TODAY PENDING CLICK: SHOW ASSIGNED ACTIVE ORDERS ===== */
-(function(){
-  function isAssignedActiveOrder(order){
-    const s = String(order.status || "").toLowerCase().trim();
-
-    // delivered ko pending/active me mat dikhana
-    if(s === "delivered" || s === "cancelled" || s === "canceled") return false;
-
-    // admin se assigned aur active wale orders yahin dikhenge
-    return (
-      s === "pending" ||
-      s === "need confirmation" ||
-      s === "confirmed" ||
-      s === "out for delivery" ||
-      s === "" ||
-      !s
-    );
-  }
-
-  function getAllAssignedOrders(){
-    if(Array.isArray(window.deliveryOrders) && window.deliveryOrders.length){
-      return [...window.deliveryOrders];
-    }
-    try{
-      const cached = JSON.parse(localStorage.getItem("deliveryOrders") || localStorage.getItem("apnaMartDeliveryOrders") || "[]");
-      return Array.isArray(cached) ? cached : [];
-    }catch(e){
-      return [];
-    }
-  }
-
-  function showAssignedPendingOrders(){
-    const all = window.__allAssignedOrdersBackup && window.__allAssignedOrdersBackup.length
-      ? [...window.__allAssignedOrdersBackup]
-      : getAllAssignedOrders();
-
-    if(!window.__allAssignedOrdersBackup || !window.__allAssignedOrdersBackup.length){
-      window.__allAssignedOrdersBackup = [...all];
-    }
-
-    const filtered = all.filter(isAssignedActiveOrder);
-
-    // agar status match na ho to bhi assigned orders hide na ho
-    window.deliveryOrders = filtered.length ? filtered : all;
-
-    if(typeof window.renderOrders === "function"){
-      window.renderOrders();
-    }
-
-    const bar = document.getElementById("deliveryFilterBar");
-    const title = document.getElementById("deliveryFilterTitle");
-    if(title) title.textContent = "Assigned Pending / Active Orders";
-    if(bar) bar.classList.add("show");
-
-    const section = document.querySelector(".section");
-    if(section) section.scrollIntoView({behavior:"smooth", block:"start"});
-  }
-
-  function backAllAssignedOrders(){
-    if(window.__allAssignedOrdersBackup && window.__allAssignedOrdersBackup.length){
-      window.deliveryOrders = [...window.__allAssignedOrdersBackup];
-      if(typeof window.renderOrders === "function"){
-        window.renderOrders();
-      }
-    }
-    const bar = document.getElementById("deliveryFilterBar");
-    if(bar) bar.classList.remove("show");
-  }
-
-  function bindTodayPendingFix(){
-    const pendingCard = document.getElementById("todayPendingOrdersCard");
-    if(pendingCard){
-      pendingCard.onclick = function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        showAssignedPendingOrders();
-      };
-    }
-
-    const backBtn = document.getElementById("deliveryBackBtn");
-    if(backBtn){
-      backBtn.onclick = function(e){
-        e.preventDefault();
-        backAllAssignedOrders();
-      };
-    }
-  }
-
-  const oldRenderOrdersFinal = window.renderOrders;
-  if(typeof oldRenderOrdersFinal === "function"){
-    window.renderOrders = function(){
-      oldRenderOrdersFinal.apply(this, arguments);
-      if(Array.isArray(window.deliveryOrders) && window.deliveryOrders.length && !window.__allAssignedOrdersBackup){
-        window.__allAssignedOrdersBackup = [...window.deliveryOrders];
-      }
-      setTimeout(bindTodayPendingFix, 80);
-    };
-  }
-
-  const oldRenderStatsFinal = window.renderStats;
-  if(typeof oldRenderStatsFinal === "function"){
-    window.renderStats = function(){
-      oldRenderStatsFinal.apply(this, arguments);
-      setTimeout(bindTodayPendingFix, 80);
-    };
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", function(){ setTimeout(bindTodayPendingFix, 400); });
-  }else{
-    setTimeout(bindTodayPendingFix, 400);
-  }
-
-  setInterval(bindTodayPendingFix, 2000);
 })();
 </script>
 
