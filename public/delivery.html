@@ -1750,5 +1750,124 @@ document.addEventListener("DOMContentLoaded", function(){
 })();
 </script>
 
+
+<script>
+/* ===== FIX TODAY PENDING CLICK: SHOW ASSIGNED ACTIVE ORDERS ===== */
+(function(){
+  function isAssignedActiveOrder(order){
+    const s = String(order.status || "").toLowerCase().trim();
+
+    // delivered ko pending/active me mat dikhana
+    if(s === "delivered" || s === "cancelled" || s === "canceled") return false;
+
+    // admin se assigned aur active wale orders yahin dikhenge
+    return (
+      s === "pending" ||
+      s === "need confirmation" ||
+      s === "confirmed" ||
+      s === "out for delivery" ||
+      s === "" ||
+      !s
+    );
+  }
+
+  function getAllAssignedOrders(){
+    if(Array.isArray(window.deliveryOrders) && window.deliveryOrders.length){
+      return [...window.deliveryOrders];
+    }
+    try{
+      const cached = JSON.parse(localStorage.getItem("deliveryOrders") || localStorage.getItem("apnaMartDeliveryOrders") || "[]");
+      return Array.isArray(cached) ? cached : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function showAssignedPendingOrders(){
+    const all = window.__allAssignedOrdersBackup && window.__allAssignedOrdersBackup.length
+      ? [...window.__allAssignedOrdersBackup]
+      : getAllAssignedOrders();
+
+    if(!window.__allAssignedOrdersBackup || !window.__allAssignedOrdersBackup.length){
+      window.__allAssignedOrdersBackup = [...all];
+    }
+
+    const filtered = all.filter(isAssignedActiveOrder);
+
+    // agar status match na ho to bhi assigned orders hide na ho
+    window.deliveryOrders = filtered.length ? filtered : all;
+
+    if(typeof window.renderOrders === "function"){
+      window.renderOrders();
+    }
+
+    const bar = document.getElementById("deliveryFilterBar");
+    const title = document.getElementById("deliveryFilterTitle");
+    if(title) title.textContent = "Assigned Pending / Active Orders";
+    if(bar) bar.classList.add("show");
+
+    const section = document.querySelector(".section");
+    if(section) section.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function backAllAssignedOrders(){
+    if(window.__allAssignedOrdersBackup && window.__allAssignedOrdersBackup.length){
+      window.deliveryOrders = [...window.__allAssignedOrdersBackup];
+      if(typeof window.renderOrders === "function"){
+        window.renderOrders();
+      }
+    }
+    const bar = document.getElementById("deliveryFilterBar");
+    if(bar) bar.classList.remove("show");
+  }
+
+  function bindTodayPendingFix(){
+    const pendingCard = document.getElementById("todayPendingOrdersCard");
+    if(pendingCard){
+      pendingCard.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        showAssignedPendingOrders();
+      };
+    }
+
+    const backBtn = document.getElementById("deliveryBackBtn");
+    if(backBtn){
+      backBtn.onclick = function(e){
+        e.preventDefault();
+        backAllAssignedOrders();
+      };
+    }
+  }
+
+  const oldRenderOrdersFinal = window.renderOrders;
+  if(typeof oldRenderOrdersFinal === "function"){
+    window.renderOrders = function(){
+      oldRenderOrdersFinal.apply(this, arguments);
+      if(Array.isArray(window.deliveryOrders) && window.deliveryOrders.length && !window.__allAssignedOrdersBackup){
+        window.__allAssignedOrdersBackup = [...window.deliveryOrders];
+      }
+      setTimeout(bindTodayPendingFix, 80);
+    };
+  }
+
+  const oldRenderStatsFinal = window.renderStats;
+  if(typeof oldRenderStatsFinal === "function"){
+    window.renderStats = function(){
+      oldRenderStatsFinal.apply(this, arguments);
+      setTimeout(bindTodayPendingFix, 80);
+    };
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(bindTodayPendingFix, 400); });
+  }else{
+    setTimeout(bindTodayPendingFix, 400);
+  }
+
+  setInterval(bindTodayPendingFix, 2000);
+})();
+</script>
+
 </body>
 </html>
