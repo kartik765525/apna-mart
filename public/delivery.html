@@ -377,6 +377,28 @@ button:active,.quick-card:active,.profile-chip:active,.dashboard-open-btn:active
   .dashboard-detail-grid-final{grid-template-columns:1fr;}
 }
 
+
+/* ===== CLICK AREA FIX ===== */
+#openDashboardDetailBtn,
+#availabilitySwitch,
+#closeDashboardDetailBtn{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  user-select:none !important;
+}
+#dashboardDetailPanel.show{
+  display:block !important;
+}
+#dashboardDetailPanel{
+  scroll-margin-top:90px;
+}
+.availability-switch{
+  overflow:visible !important;
+}
+.availability-switch.active::after{
+  left:28px !important;
+}
+
 </style>
 </head>
 <body>
@@ -1200,6 +1222,168 @@ window.addEventListener("DOMContentLoaded", function(){
     }catch(x){}
   }
 });
+</script>
+
+
+<script>
+/* ===== FINAL CLICK FIX: DASHBOARD + ACTIVE/INACTIVE ===== */
+(function(){
+  const ACTIVE_KEY = "setuMartDeliveryActiveFinal";
+
+  function qs(id){ return document.getElementById(id); }
+
+  function getOrders(){
+    try{
+      if(Array.isArray(window.deliveryOrders)) return window.deliveryOrders;
+      const cached = localStorage.getItem("deliveryOrders") || localStorage.getItem("apnaMartDeliveryOrders") || "[]";
+      const arr = JSON.parse(cached);
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+
+  function calcStats(){
+    const orders = getOrders();
+    const pending = orders.filter(o => o.status === "Pending" || o.status === "Need Confirmation").length;
+    const out = orders.filter(o => o.status === "Out for Delivery").length;
+    const delivered = orders.filter(o => o.status === "Delivered").length;
+    const earning = orders
+      .filter(o => o.status === "Delivered")
+      .reduce((s,o)=> s + Number(o.deliveryCharge || o.delivery || o.shipping || 0), 0);
+    return {pending, out, delivered, earning, active: pending + out, total: orders.length};
+  }
+
+  function isActive(){
+    return localStorage.getItem(ACTIVE_KEY) === "true";
+  }
+
+  function setActiveUI(active){
+    localStorage.setItem(ACTIVE_KEY, active ? "true" : "false");
+
+    const txt = qs("availabilityText");
+    const sw = qs("availabilitySwitch");
+    const note = qs("deliveryStatusNote");
+
+    if(txt){
+      txt.textContent = active ? "Active" : "Inactive";
+      txt.classList.toggle("active", active);
+      txt.classList.toggle("inactive", !active);
+      txt.style.color = active ? "#15803d" : "#b91c1c";
+    }
+    if(sw){
+      sw.classList.toggle("active", active);
+      sw.setAttribute("aria-pressed", active ? "true" : "false");
+      sw.style.background = active ? "#10b981" : "#cbd5e1";
+    }
+    if(note){
+      note.textContent = active
+        ? "Status: Active — delivery boy active hai."
+        : "Status: Inactive — delivery boy inactive hai.";
+    }
+  }
+
+  function renderDashboard(){
+    const grid = qs("dashboardDetailGridFinal");
+    if(!grid) return;
+    const s = calcStats();
+    grid.innerHTML = `
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Active Orders</div><div class="dashboard-info-value">${s.active}</div><div class="dashboard-info-sub">Pending + Out for delivery</div></div>
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Pending</div><div class="dashboard-info-value">${s.pending}</div><div class="dashboard-info-sub">Start delivery pending</div></div>
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Out for Delivery</div><div class="dashboard-info-value">${s.out}</div><div class="dashboard-info-sub">Abhi delivery par</div></div>
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Delivered</div><div class="dashboard-info-value">${s.delivered}</div><div class="dashboard-info-sub">Total delivered orders</div></div>
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Earning</div><div class="dashboard-info-value">₹${s.earning}</div><div class="dashboard-info-sub">Delivery charge earning</div></div>
+      <div class="dashboard-info-card"><div class="dashboard-info-label">Status</div><div class="dashboard-info-value">${isActive() ? "Active" : "Inactive"}</div><div class="dashboard-info-sub">Switch se change kare</div></div>
+    `;
+    setActiveUI(isActive());
+  }
+
+  function openDashboard(){
+    const panel = qs("dashboardDetailPanel");
+    if(panel){
+      renderDashboard();
+      panel.classList.add("show");
+      panel.style.display = "block";
+      panel.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  function closeDashboard(){
+    const panel = qs("dashboardDetailPanel");
+    if(panel){
+      panel.classList.remove("show");
+      panel.style.display = "none";
+    }
+  }
+
+  function toggleActive(){
+    const next = !isActive();
+    setActiveUI(next);
+    renderDashboard();
+
+    // backend available ho to update try karega, warna UI local chalega
+    try{
+      const token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken") || "";
+      fetch("/api/delivery/availability", {
+        method:"PATCH",
+        headers:{
+          "Content-Type":"application/json",
+          ...(token ? {Authorization:"Bearer " + token} : {})
+        },
+        body:JSON.stringify({active:next,isActive:next,available:next})
+      }).catch(()=>{});
+    }catch(e){}
+  }
+
+  function bind(){
+    const dashBtn = qs("openDashboardDetailBtn");
+    const closeBtn = qs("closeDashboardDetailBtn");
+    const sw = qs("availabilitySwitch");
+
+    if(dashBtn){
+      dashBtn.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        openDashboard();
+      };
+      dashBtn.style.pointerEvents = "auto";
+      dashBtn.style.cursor = "pointer";
+    }
+
+    if(closeBtn){
+      closeBtn.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        closeDashboard();
+      };
+    }
+
+    if(sw){
+      sw.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        toggleActive();
+      };
+      sw.style.pointerEvents = "auto";
+      sw.style.cursor = "pointer";
+    }
+
+    setActiveUI(isActive());
+    renderDashboard();
+  }
+
+  // direct global fallback
+  window.openDashboardDetailFinal = openDashboard;
+  window.closeDashboardDetailFinal = closeDashboard;
+  window.toggleDeliveryActiveFinal = toggleActive;
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bind);
+  }else{
+    bind();
+  }
+
+  setTimeout(bind, 500);
+  setTimeout(bind, 1500);
+})();
 </script>
 
 </body>
