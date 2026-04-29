@@ -3260,6 +3260,47 @@ html[data-theme="dark"] .privacy-updated{background:#152236 !important;color:#db
     position:relative !important;
 }
 
+
+/* ===== PREMIUM BLUR STICKY HEADER + SEARCH DEMO ===== */
+.header{
+    position:sticky !important;
+    top:0 !important;
+    z-index:1200 !important;
+    background:linear-gradient(135deg,rgba(11,79,156,.82),rgba(31,143,69,.82)) !important;
+    backdrop-filter:blur(18px) saturate(160%) !important;
+    -webkit-backdrop-filter:blur(18px) saturate(160%) !important;
+    border-bottom:1px solid rgba(255,255,255,.22) !important;
+    box-shadow:0 12px 30px rgba(15,23,42,.12) !important;
+}
+
+.search-box{
+    position:sticky !important;
+    top:118px !important;
+    z-index:1199 !important;
+    background:rgba(247,251,255,.72) !important;
+    backdrop-filter:blur(16px) saturate(150%) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(150%) !important;
+    border-bottom:1px solid rgba(219,229,238,.65) !important;
+    padding-top:12px !important;
+}
+
+.search-box input{
+    background:rgba(255,255,255,.78) !important;
+    backdrop-filter:blur(14px) !important;
+    -webkit-backdrop-filter:blur(14px) !important;
+    border:1px solid rgba(203,213,225,.75) !important;
+    box-shadow:0 10px 24px rgba(15,23,42,.08) !important;
+}
+
+html[data-theme="dark"] .search-box{
+    background:rgba(15,23,42,.72) !important;
+    border-bottom-color:rgba(49,65,93,.75) !important;
+}
+
+html[data-theme="dark"] .search-box input{
+    background:rgba(17,24,39,.78) !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
