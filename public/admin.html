@@ -337,6 +337,28 @@ body{
     .order-detail-grid{grid-template-columns:1fr;}
 }
 
+
+/* ===== CUSTOM BILL + FAST CLICK UI FIX ===== */
+button,.action-btn,.tab-btn,.cat-btn,.soft-btn{touch-action:manipulation !important;}
+button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale(.98) !important;opacity:.92 !important;}
+.custom-bill-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.custom-bill-card{background:#f8fbff;border:1px solid #e5edf6;border-radius:16px;padding:14px;}
+.custom-bill-card h4{color:#243447;margin-bottom:10px;}
+.bill-product-row{display:grid;grid-template-columns:2fr .8fr .9fr auto;gap:10px;align-items:end;padding:12px;margin-top:10px;border:1px solid #e6edf5;border-radius:14px;background:#fff;}
+.bill-small-label{display:block;font-size:12px;color:#667085;font-weight:800;margin-bottom:5px;}
+.bill-mini-input,.bill-mini-select{width:100%;padding:10px 12px;border:1px solid #dbe6f2;border-radius:10px;outline:none;background:#fbfdff;}
+.bill-summary-box{background:#fff;border:1px solid #e6edf5;border-radius:16px;padding:14px;margin-top:12px;}
+.bill-summary-line{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf2f7;font-weight:700;}
+.bill-summary-line:last-child{border-bottom:none;color:#ff6b35;font-size:20px;font-weight:900;}
+.custom-bill-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.custom-bill-note{margin-top:10px;color:#64748b;font-size:13px;font-weight:700;line-height:1.5;}
+@media(max-width:900px){.custom-bill-wrap{grid-template-columns:1fr;}.bill-product-row{grid-template-columns:1fr;}}
+@media print{
+ body *{visibility:hidden !important;}
+ #customBillPrintArea,#customBillPrintArea *{visibility:visible !important;}
+ #customBillPrintArea{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;background:#fff !important;padding:0 !important;margin:0 !important;}
+}
+
 </style>
 </head>
 <body>
@@ -360,6 +382,7 @@ body{
     <button class="tab-btn active" id="tabAddBtn" onclick="showSection('add')">Add Product</button>
     <button class="tab-btn" id="tabStockBtn" onclick="showSection('stock')">Stock Manage</button>
     <button class="tab-btn" id="tabDashboardBtn" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="tab-btn" id="tabCustomBillBtn" onclick="showSection('customBill')">Custom Bill</button>
     <button class="tab-btn" id="tabOrdersBtn" onclick="showSection('orders')">Orders</button>
     <button class="tab-btn" id="tabDeliveryBtn" onclick="showSection('delivery')">Delivery Boys</button>
     <button class="tab-btn" id="tabOffersBtn" onclick="showSection('offers')">Offers</button>
@@ -405,6 +428,44 @@ body{
     <div class="section-card">
         <div class="section-title">📊 Dashboard / Analytics</div>
         <div id="dashboardStats" class="stats-grid"></div>
+    </div>
+</div>
+
+
+<div class="page-section" id="sectionCustomBill">
+    <div class="section-card">
+        <div class="section-title">🧾 Custom Bill</div>
+        <div class="custom-bill-wrap">
+            <div class="custom-bill-card">
+                <h4>Customer Details</h4>
+                <input type="text" id="billCustomerName" placeholder="Customer Name" class="admin-input">
+                <input type="tel" id="billCustomerPhone" placeholder="Phone Number" class="admin-input">
+                <textarea id="billCustomerAddress" placeholder="Address" class="admin-input" style="min-height:80px;resize:vertical;"></textarea>
+                <div class="grid-two">
+                    <input type="text" id="billPaymentMode" placeholder="Payment Mode (Cash / UPI)" class="admin-input" value="Cash">
+                    <input type="number" id="billDeliveryCharge" placeholder="Delivery Charge" class="admin-input" value="0" oninput="updateCustomBillTotal()">
+                </div>
+                <div class="custom-bill-note">Ye bill sirf print ke liye hai. Server/Firebase/JSON me save nahi hoga.</div>
+            </div>
+            <div class="custom-bill-card">
+                <h4>Bill Summary</h4>
+                <div class="bill-summary-box">
+                    <div class="bill-summary-line"><span>Items</span><span id="billItemsCount">0</span></div>
+                    <div class="bill-summary-line"><span>Subtotal</span><span id="billSubtotal">₹0.00</span></div>
+                    <div class="bill-summary-line"><span>Delivery</span><span id="billDeliveryText">₹0.00</span></div>
+                    <div class="bill-summary-line"><span>Total</span><span id="billGrandTotal">₹0.00</span></div>
+                </div>
+                <div class="custom-bill-actions">
+                    <button class="action-btn blue" onclick="addCustomBillRow()">+ Add Product</button>
+                    <button class="action-btn green" onclick="printCustomBill()">Create & Print Bill</button>
+                    <button class="action-btn gray" onclick="resetCustomBill()">Reset</button>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:16px;">
+            <h4 style="margin-bottom:8px;color:#243447;">Products</h4>
+            <div id="customBillRows"></div>
+        </div>
     </div>
 </div>
 
@@ -500,6 +561,8 @@ body{
 
 <div id="newOrderPopup" style="position:fixed; top:20px; right:20px; z-index:12000; display:none;"><div class="popup-title">🔔 New order received</div><div class="popup-sub">Orders section me check karo</div></div>
 
+<div id="customBillPrintArea" style="display:none;"></div>
+
 <script>
 let products = [];
 let orders = [];
@@ -513,7 +576,7 @@ let lastKnownOrderIds = [];
 let hasInitializedOrderWatcher = false;
 let currentOrderDetailId = null;
 let softAlertResolver = null;
-let loadedTabs = { products:false, orders:false, delivery:false, offers:false, coupons:false };
+let loadedTabs = { products:false, orders:false, delivery:false, offers:false, coupons:false, customBill:false };
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
 let adminToken = localStorage.getItem(ADMIN_STORAGE_KEY) || "";
 
@@ -689,6 +752,8 @@ async function unlockAdmin(){
         if(lockScreen) lockScreen.style.display = "none";
 
         try{
+            await fetchProducts();
+            loadedTabs.products = true;
             await loadAdmin();
         }catch(loadError){
             console.error("loadAdmin error:", loadError);
@@ -767,6 +832,7 @@ async function showSection(name){
     document.getElementById("sectionAdd").classList.remove("active");
     document.getElementById("sectionStock").classList.remove("active");
     document.getElementById("sectionOrders").classList.remove("active");
+    document.getElementById("sectionCustomBill").classList.remove("active");
     document.getElementById("sectionDashboard").classList.remove("active");
     document.getElementById("sectionDelivery").classList.remove("active");
     document.getElementById("sectionOffers").classList.remove("active");
@@ -775,6 +841,7 @@ async function showSection(name){
     document.getElementById("tabAddBtn").classList.remove("active");
     document.getElementById("tabStockBtn").classList.remove("active");
     document.getElementById("tabOrdersBtn").classList.remove("active");
+    document.getElementById("tabCustomBillBtn").classList.remove("active");
     document.getElementById("tabDashboardBtn").classList.remove("active");
     document.getElementById("tabDeliveryBtn").classList.remove("active");
     document.getElementById("tabOffersBtn").classList.remove("active");
@@ -789,6 +856,9 @@ async function showSection(name){
     }else if(name === "dashboard"){
         document.getElementById("sectionDashboard").classList.add("active");
         document.getElementById("tabDashboardBtn").classList.add("active");
+    }else if(name === "customBill"){
+        document.getElementById("sectionCustomBill").classList.add("active");
+        document.getElementById("tabCustomBillBtn").classList.add("active");
     }else if(name === "delivery"){
         document.getElementById("sectionDelivery").classList.add("active");
         document.getElementById("tabDeliveryBtn").classList.add("active");
@@ -815,6 +885,11 @@ async function showSection(name){
         loadedTabs.products = true;
         loadedTabs.orders = true;
         renderDashboard();
+    }
+    if(name === "customBill" && !loadedTabs.customBill){
+        if(!loadedTabs.products){ await fetchProducts(); loadedTabs.products = true; }
+        initCustomBill();
+        loadedTabs.customBill = true;
     }
     if(name === "orders" && !loadedTabs.orders){
         document.getElementById("ordersManager").innerHTML = '<div class="loading-line">Loading orders...</div>';
@@ -1239,6 +1314,172 @@ function renderCoupons(){
             </div>
         </div>
     `).join("") : "<p>No coupons added</p>";
+}
+
+
+/* ===== CUSTOM BILL PRINT ONLY FEATURE ===== */
+let customBillRowIndex = 0;
+function getInStockProducts(){ return (products || []).filter(p => Number(p.stock || 0) > 0); }
+function getProductById(productId){ return (products || []).find(p => String(p.id) === String(productId)); }
+function buildBillProductOptions(selectedId = ""){
+    const inStock = getInStockProducts();
+    if(!inStock.length) return '<option value="">No in-stock product available</option>';
+    return '<option value="">Select Product</option>' + inStock.map(p => `<option value="${p.id}" ${String(selectedId)===String(p.id)?"selected":""}>${p.name} · ₹${Number(p.price||0).toFixed(2)} · Stock ${Number(p.stock||0)}</option>`).join("");
+}
+function initCustomBill(){
+    const rows = document.getElementById("customBillRows");
+    if(!rows) return;
+    if(!rows.children.length) addCustomBillRow();
+    else { refreshCustomBillProductOptions(); updateCustomBillTotal(); }
+}
+function addCustomBillRow(){
+    const rows = document.getElementById("customBillRows");
+    if(!rows) return;
+    customBillRowIndex += 1;
+    const rowId = customBillRowIndex;
+    const div = document.createElement("div");
+    div.className = "bill-product-row";
+    div.dataset.rowId = rowId;
+    div.innerHTML = `
+        <div>
+            <label class="bill-small-label">Product</label>
+            <select class="bill-mini-select bill-product-select" id="billProduct-${rowId}" onchange="onBillProductChange(${rowId})">${buildBillProductOptions()}</select>
+            <div id="billStockText-${rowId}" style="font-size:12px;color:#64748b;font-weight:700;margin-top:5px;">Select in-stock product</div>
+        </div>
+        <div>
+            <label class="bill-small-label">Qty</label>
+            <input type="number" class="bill-mini-input bill-qty-input" id="billQty-${rowId}" value="1" min="1" oninput="updateCustomBillRow(${rowId})">
+        </div>
+        <div>
+            <label class="bill-small-label">Price</label>
+            <input type="number" class="bill-mini-input" id="billPrice-${rowId}" value="0" readonly>
+        </div>
+        <div>
+            <label class="bill-small-label">Total</label>
+            <div style="font-weight:900;color:#ff6b35;margin-bottom:8px;" id="billLineTotal-${rowId}">₹0.00</div>
+            <button class="action-btn red" style="margin:0;padding:8px 11px;" onclick="removeCustomBillRow(${rowId})">Remove</button>
+        </div>`;
+    rows.appendChild(div);
+    updateCustomBillTotal();
+}
+function refreshCustomBillProductOptions(){
+    document.querySelectorAll(".bill-product-select").forEach(select=>{
+        const currentValue = select.value;
+        select.innerHTML = buildBillProductOptions(currentValue);
+        select.value = currentValue;
+    });
+}
+function onBillProductChange(rowId){
+    const product = getProductById(document.getElementById(`billProduct-${rowId}`)?.value);
+    const priceInput = document.getElementById(`billPrice-${rowId}`);
+    const qtyInput = document.getElementById(`billQty-${rowId}`);
+    const stockText = document.getElementById(`billStockText-${rowId}`);
+    if(!product){
+        if(priceInput) priceInput.value = 0;
+        if(stockText) stockText.textContent = "Select in-stock product";
+        updateCustomBillRow(rowId);
+        return;
+    }
+    if(priceInput) priceInput.value = Number(product.price || 0);
+    if(qtyInput){
+        qtyInput.max = Number(product.stock || 0);
+        if(Number(qtyInput.value || 1) > Number(product.stock || 0)) qtyInput.value = Number(product.stock || 0);
+        if(Number(qtyInput.value || 0) <= 0) qtyInput.value = 1;
+    }
+    if(stockText) stockText.textContent = `Stock: ${Number(product.stock||0)} · Original: ₹${Number(product.original || product.price || 0).toFixed(2)}`;
+    updateCustomBillRow(rowId);
+}
+function updateCustomBillRow(rowId){
+    const product = getProductById(document.getElementById(`billProduct-${rowId}`)?.value);
+    const qtyInput = document.getElementById(`billQty-${rowId}`);
+    const lineTotal = document.getElementById(`billLineTotal-${rowId}`);
+    let qty = Number(qtyInput?.value || 0);
+    if(product){
+        const stock = Number(product.stock || 0);
+        if(qty > stock){
+            qty = stock;
+            qtyInput.value = stock;
+            showSoftAlert(`"${product.name}" ka stock sirf ${stock} hai`, "Stock Limit", "OK", "📦");
+        }
+        if(qty < 1){ qty = 1; qtyInput.value = 1; }
+    }
+    const price = Number(product?.price || document.getElementById(`billPrice-${rowId}`)?.value || 0);
+    if(lineTotal) lineTotal.textContent = `₹${(qty * price).toFixed(2)}`;
+    updateCustomBillTotal();
+}
+function removeCustomBillRow(rowId){
+    const row = document.querySelector(`.bill-product-row[data-row-id="${rowId}"]`);
+    if(row) row.remove();
+    updateCustomBillTotal();
+}
+function collectCustomBillItems(){
+    const items = [];
+    document.querySelectorAll(".bill-product-row").forEach(row=>{
+        const rowId = row.dataset.rowId;
+        const product = getProductById(document.getElementById(`billProduct-${rowId}`)?.value);
+        const qty = Number(document.getElementById(`billQty-${rowId}`)?.value || 0);
+        if(product && qty > 0){
+            items.push({id:product.id,name:product.name,qty,price:Number(product.price||0),original:Number(product.original||product.price||0),stock:Number(product.stock||0),total:qty*Number(product.price||0)});
+        }
+    });
+    return items;
+}
+function updateCustomBillTotal(){
+    const items = collectCustomBillItems();
+    const subtotal = items.reduce((sum,item)=>sum+item.total,0);
+    const delivery = Number(document.getElementById("billDeliveryCharge")?.value || 0);
+    const total = subtotal + delivery;
+    const itemCount = items.reduce((sum,item)=>sum+Number(item.qty||0),0);
+    const setText = (id, text) => { const el = document.getElementById(id); if(el) el.textContent = text; };
+    setText("billItemsCount", itemCount);
+    setText("billSubtotal", `₹${subtotal.toFixed(2)}`);
+    setText("billDeliveryText", `₹${delivery.toFixed(2)}`);
+    setText("billGrandTotal", `₹${total.toFixed(2)}`);
+}
+function resetCustomBill(){
+    document.getElementById("billCustomerName").value = "";
+    document.getElementById("billCustomerPhone").value = "";
+    document.getElementById("billCustomerAddress").value = "";
+    document.getElementById("billPaymentMode").value = "Cash";
+    document.getElementById("billDeliveryCharge").value = "0";
+    document.getElementById("customBillRows").innerHTML = "";
+    addCustomBillRow();
+    updateCustomBillTotal();
+}
+async function printCustomBill(){
+    const name = document.getElementById("billCustomerName").value.trim();
+    const phone = document.getElementById("billCustomerPhone").value.trim();
+    const address = document.getElementById("billCustomerAddress").value.trim();
+    const paymentMode = document.getElementById("billPaymentMode").value.trim() || "Cash";
+    const delivery = Number(document.getElementById("billDeliveryCharge").value || 0);
+    const items = collectCustomBillItems();
+    if(!name){ await showSoftAlert("Customer name required", "Custom Bill", "OK", "🧾"); return; }
+    if(!items.length){ await showSoftAlert("Kam se kam 1 in-stock product add karo", "Custom Bill", "OK", "🧾"); return; }
+    for(const item of items){
+        if(item.qty > item.stock){ await showSoftAlert(`${item.name} ka stock sirf ${item.stock} hai`, "Stock Limit", "OK", "📦"); return; }
+    }
+    const subtotal = items.reduce((sum,item)=>sum+item.total,0);
+    const total = subtotal + delivery;
+    const billNo = "CB-" + Date.now().toString().slice(-8);
+    const date = new Date().toLocaleString("en-IN", { timeZone:"Asia/Kolkata" });
+    const area = document.getElementById("customBillPrintArea");
+    area.style.display = "block";
+    area.innerHTML = `
+        <div class="invoice-box">
+            <div class="invoice-top">
+                <div class="invoice-brand"><h2>Supply Setu Mart</h2><div>Custom Bill</div><div style="margin-top:6px;font-size:14px;">Bill print only · Not saved in server/Firebase</div></div>
+                <div class="invoice-meta"><div><b>Bill No:</b> ${billNo}</div><div><b>Date:</b> ${date}</div><div><b>Payment Mode:</b> ${paymentMode}</div></div>
+            </div>
+            <div class="invoice-grid">
+                <div class="invoice-section"><div style="font-weight:700;margin-bottom:8px;">Customer Details</div><div><b>Name:</b> ${name}</div><div><b>Phone:</b> ${phone || "N/A"}</div><div><b>Address:</b> ${address || "N/A"}</div></div>
+                <div class="invoice-section"><div style="font-weight:700;margin-bottom:8px;">Bill Details</div><div><b>Total Items:</b> ${items.reduce((s,i)=>s+i.qty,0)}</div><div><b>Created By:</b> Admin</div><div><b>Type:</b> Custom Bill</div></div>
+            </div>
+            <table class="invoice-table"><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Original</th><th>Total</th></tr></thead>
+            <tbody>${items.map(item=>`<tr><td>${item.name}</td><td>${item.qty}</td><td>₹${item.price.toFixed(2)}</td><td>₹${item.original.toFixed(2)}</td><td>₹${item.total.toFixed(2)}</td></tr>`).join("")}</tbody></table>
+            <div class="invoice-total"><div class="invoice-total-box"><div class="invoice-total-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div><div class="invoice-total-row"><span>Delivery</span><span>₹${delivery.toFixed(2)}</span></div><div class="invoice-total-row"><span>Total</span><span>₹${total.toFixed(2)}</span></div></div></div>
+            <div class="invoice-footer">Thank you for shopping with Supply Setu Mart.</div>
+        </div>`;
+    setTimeout(()=>{ window.print(); setTimeout(()=>{ area.style.display="none"; area.innerHTML=""; },700); },150);
 }
 
 function buildInvoiceHtml(order){
