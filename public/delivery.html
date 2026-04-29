@@ -399,6 +399,103 @@ button:active,.quick-card:active,.profile-chip:active,.dashboard-open-btn:active
   left:28px !important;
 }
 
+
+/* ===== MOBILE SAME AS PC: DASHBOARD + ACTIVE SWITCH IN ONE ROW ===== */
+.delivery-top-actions{
+  display:grid !important;
+  grid-template-columns:1fr auto !important;
+  align-items:center !important;
+  gap:10px !important;
+  max-width:1160px !important;
+  margin:12px auto 0 !important;
+  padding:0 12px !important;
+}
+
+.dashboard-open-btn{
+  width:100% !important;
+  min-width:0 !important;
+  height:56px !important;
+  border-radius:18px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  white-space:nowrap !important;
+}
+
+.availability-box{
+  width:180px !important;
+  min-width:180px !important;
+  height:56px !important;
+  border-radius:18px !important;
+  padding:7px 8px 7px 14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+}
+
+@media(max-width:700px){
+  .delivery-top-actions{
+    grid-template-columns:1fr auto !important;
+    gap:8px !important;
+    padding:0 10px !important;
+    margin-top:10px !important;
+  }
+
+  .dashboard-open-btn{
+    height:52px !important;
+    border-radius:16px !important;
+    font-size:14px !important;
+    padding:10px 8px !important;
+  }
+
+  .availability-box{
+    width:118px !important;
+    min-width:118px !important;
+    height:52px !important;
+    border-radius:16px !important;
+    padding:6px 6px 6px 9px !important;
+    gap:6px !important;
+  }
+
+  .availability-text{
+    font-size:11px !important;
+    max-width:54px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .availability-switch{
+    width:44px !important;
+    height:26px !important;
+    min-width:44px !important;
+  }
+
+  .availability-switch::after{
+    width:18px !important;
+    height:18px !important;
+    top:4px !important;
+    left:4px !important;
+  }
+
+  .availability-switch.active::after{
+    left:22px !important;
+  }
+}
+
+@media(max-width:360px){
+  .availability-box{
+    width:108px !important;
+    min-width:108px !important;
+  }
+  .availability-text{
+    font-size:10px !important;
+    max-width:48px !important;
+  }
+  .dashboard-open-btn{
+    font-size:13px !important;
+  }
+}
+
 </style>
 </head>
 <body>
