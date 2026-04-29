@@ -3212,6 +3212,54 @@ html[data-theme="dark"] .privacy-updated{background:#152236 !important;color:#db
     }
 }
 
+
+/* ===== HEADER: ONLY CART + ORDERS, PROFILE TOP RIGHT ICON ===== */
+/* hide Profile button in main actions */
+.cart-btn:has(.profile-text),
+.cart-btn.profile-btn{
+    display:none !important;
+}
+
+/* keep orders & cart visible */
+.cart-btn{display:flex !important}
+
+/* move profile trigger to top-right as icon */
+.cart-btn.profile-trigger{
+    position:absolute !important;
+    right:12px !important;
+    top:10px !important;
+    width:40px !important;
+    height:40px !important;
+    min-width:40px !important;
+    border-radius:50% !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    background:#fff !important;
+    border:1px solid #e2e8f0 !important;
+    box-shadow:0 4px 10px rgba(0,0,0,.06) !important;
+    z-index:5 !important;
+}
+.cart-btn.profile-trigger span,
+.cart-btn.profile-trigger .profile-text{
+    display:none !important;
+}
+.cart-btn.profile-trigger img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    border-radius:50% !important;
+}
+
+/* ensure header is relative for absolute icon */
+.header,
+.topbar,
+.app-header{
+    position:relative !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
