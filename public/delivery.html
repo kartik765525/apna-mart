@@ -566,6 +566,16 @@ button:active,.quick-card:active,.profile-chip:active,.delivery-dashboard-btn:ac
   }
 }
 
+
+/* ===== LOGIN COMPATIBILITY FIX ===== */
+#headerAvatar.brand-logo-ui{
+  display:grid !important;
+  place-items:center !important;
+}
+#headerAvatar.brand-logo-ui img{
+  pointer-events:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -1330,6 +1340,94 @@ document.addEventListener("DOMContentLoaded", function(){
   else bind();
   setTimeout(bind, 700);
   setTimeout(bind, 1800);
+})();
+</script>
+
+
+<script>
+/* ===== LOGIN BUTTON SAFE FIX - ORIGINAL API SAME ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  function showNotice(msg){
+    const n = $("authNotice");
+    if(n){
+      n.textContent = msg;
+      n.classList.add("show");
+    }else{
+      alert(msg);
+    }
+  }
+
+  function bindLoginFix(){
+    const loginBtn = $("loginSubmitBtn");
+    const reqBtn = $("requestSubmitBtn");
+    const loginTabBtn = $("loginTabBtn");
+    const requestTabBtn = $("requestTabBtn");
+
+    if(loginTabBtn && requestTabBtn){
+      loginTabBtn.onclick = function(){
+        $("loginTab").style.display = "block";
+        $("requestTab").style.display = "none";
+        loginTabBtn.classList.add("active");
+        requestTabBtn.classList.remove("active");
+      };
+      requestTabBtn.onclick = function(){
+        $("loginTab").style.display = "none";
+        $("requestTab").style.display = "block";
+        requestTabBtn.classList.add("active");
+        loginTabBtn.classList.remove("active");
+      };
+    }
+
+    if(loginBtn && typeof window.loginDelivery === "function"){
+      loginBtn.onclick = function(e){
+        e.preventDefault();
+        window.loginDelivery();
+      };
+    }
+
+    if(reqBtn && typeof window.requestDeliveryId === "function"){
+      reqBtn.onclick = function(e){
+        e.preventDefault();
+        window.requestDeliveryId();
+      };
+    }
+
+    // if original function names are not exposed, keep existing listeners and do not break
+    setTimeout(function(){
+      const boot = $("bootScreen");
+      const login = $("loginScreen");
+      const app = $("app");
+      const token = localStorage.getItem("deliveryToken") || localStorage.getItem("apnaMartDeliveryToken") || localStorage.getItem("deliveryAuthToken");
+      if(boot && !boot.classList.contains("hidden")){
+        boot.classList.add("hidden");
+        if(token && app){
+          app.classList.remove("hidden");
+          const top = $("deliveryTopUi");
+          if(top) top.classList.remove("hidden");
+        }else if(login){
+          login.classList.remove("hidden");
+        }
+      }
+    }, 1500);
+  }
+
+  window.addEventListener("error", function(ev){
+    console.warn("Delivery panel safe error:", ev.message);
+    const boot = $("bootScreen");
+    const login = $("loginScreen");
+    if(boot) boot.classList.add("hidden");
+    if(login && !localStorage.getItem("deliveryToken") && !localStorage.getItem("apnaMartDeliveryToken")) login.classList.remove("hidden");
+  });
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bindLoginFix);
+  }else{
+    bindLoginFix();
+  }
+  setTimeout(bindLoginFix, 500);
+  setTimeout(bindLoginFix, 1800);
 })();
 </script>
 
