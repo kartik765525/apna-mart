@@ -364,6 +364,20 @@ img{display:block;max-width:100%}
   }
 }
 
+
+/* ===== REMOVE DASHBOARD PROFILE CARD + CORNER PROFILE ONLY ===== */
+.quick-card[data-card-action="profile"],
+.quick-card.profile-dashboard-card,
+#stats .quick-card:first-child:has(.quick-label){
+  display:none !important;
+}
+
+/* keep top right profile clickable and visible */
+.profile-chip{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+}
+
 </style>
 </head>
 <body>
@@ -1076,6 +1090,124 @@ document.addEventListener("DOMContentLoaded", function(){
     setTimeout(injectTotalEarningCard, 1200);
   });
   setInterval(injectTotalEarningCard, 5000);
+})();
+</script>
+
+
+<script>
+/* ===== PROFILE CARD REMOVE + CORNER PROFILE CLICK + MIDNIGHT DELIVERED CLEAN ===== */
+(function(){
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+
+  function isDelivered(order){
+    return String(order.status || "").toLowerCase() === "delivered";
+  }
+
+  function getOrderDateKey(order){
+    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
+    if(!raw) return todayKey();
+
+    const parsed = new Date(raw);
+    if(!isNaN(parsed.getTime())){
+      return parsed.getFullYear() + "-" + String(parsed.getMonth()+1).padStart(2,"0") + "-" + String(parsed.getDate()).padStart(2,"0");
+    }
+
+    // dd/mm/yyyy or dd-mm-yyyy fallback
+    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if(m){
+      const yy = m[3].length === 2 ? "20" + m[3] : m[3];
+      return yy + "-" + String(m[2]).padStart(2,"0") + "-" + String(m[1]).padStart(2,"0");
+    }
+
+    return todayKey();
+  }
+
+  function cleanOldDeliveredOrders(){
+    try{
+      if(!Array.isArray(window.deliveryOrders)) return;
+      const today = todayKey();
+      const before = window.deliveryOrders.length;
+      window.deliveryOrders = window.deliveryOrders.filter(function(order){
+        if(!isDelivered(order)) return true;
+        return getOrderDateKey(order) === today;
+      });
+
+      if(before !== window.deliveryOrders.length && typeof window.renderOrders === "function"){
+        window.renderOrders();
+      }
+    }catch(e){}
+  }
+
+  function removeProfileCardFromDashboard(){
+    try{
+      const stats = document.getElementById("stats");
+      if(!stats) return;
+
+      Array.from(stats.querySelectorAll(".quick-card")).forEach(function(card){
+        const text = (card.innerText || "").toLowerCase();
+        const action = card.getAttribute("data-card-action") || "";
+        if(action === "profile" || text.includes("profile")){
+          card.remove();
+        }
+      });
+    }catch(e){}
+  }
+
+  function bindCornerProfile(){
+    const btn = document.getElementById("openProfileBtn");
+    if(btn){
+      btn.onclick = function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof window.openProfilePanel === "function"){
+          window.openProfilePanel();
+        }else{
+          const panel = document.getElementById("profilePanel");
+          if(panel) panel.classList.add("open");
+        }
+      };
+    }
+  }
+
+  const oldRenderStats = window.renderStats;
+  if(typeof oldRenderStats === "function"){
+    window.renderStats = function(){
+      oldRenderStats.apply(this, arguments);
+      removeProfileCardFromDashboard();
+      cleanOldDeliveredOrders();
+    };
+  }
+
+  const oldRenderOrders = window.renderOrders;
+  if(typeof oldRenderOrders === "function"){
+    window.renderOrders = function(){
+      cleanOldDeliveredOrders();
+      oldRenderOrders.apply(this, arguments);
+      removeProfileCardFromDashboard();
+    };
+  }
+
+  function runAll(){
+    removeProfileCardFromDashboard();
+    bindCornerProfile();
+    cleanOldDeliveredOrders();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", runAll);
+  }else{
+    runAll();
+  }
+
+  setTimeout(runAll, 500);
+  setTimeout(runAll, 1500);
+  setInterval(function(){
+    cleanOldDeliveredOrders();
+    removeProfileCardFromDashboard();
+  }, 60000);
 })();
 </script>
 
