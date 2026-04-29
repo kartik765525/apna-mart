@@ -465,6 +465,41 @@ img{display:block;max-width:100%}
   color:#0f172a;
 }
 
+
+/* ===== CLICKABLE DASHBOARD CARDS + BACK NAV ONLY ===== */
+.quick-card{
+  cursor:pointer !important;
+  user-select:none !important;
+}
+.quick-card:active{
+  transform:scale(.98) !important;
+}
+.delivery-filter-bar{
+  display:none;
+  max-width:1160px;
+  margin:12px auto 0;
+  padding:0 12px;
+}
+.delivery-filter-bar.show{
+  display:block;
+}
+.delivery-back-btn{
+  border:none;
+  cursor:pointer;
+  background:#111827;
+  color:#fff;
+  border-radius:14px;
+  padding:11px 16px;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(15,23,42,.14);
+}
+.delivery-filter-title{
+  display:inline-block;
+  margin-left:10px;
+  color:#1e40af;
+  font-weight:900;
+}
+
 </style>
 </head>
 <body>
@@ -529,6 +564,12 @@ img{display:block;max-width:100%}
     </div>
   </div>
 </header>
+
+
+<div class="delivery-filter-bar" id="deliveryFilterBar">
+  <button type="button" class="delivery-back-btn" id="deliveryBackBtn">← Back</button>
+  <span class="delivery-filter-title" id="deliveryFilterTitle">Orders</span>
+</div>
 
 <div class="container hidden" id="app">
   <section class="quick-grid" id="stats"></section>
@@ -1536,6 +1577,176 @@ document.addEventListener("DOMContentLoaded", function(){
     setTimeout(runFixes,300);
   }
   setInterval(runFixes, 3000);
+})();
+</script>
+
+
+<script>
+/* ===== TODAY PENDING / TOTAL EARNING CLICK + BACK NAV ===== */
+(function(){
+  let originalOrdersForFilter = null;
+  let activeFilterMode = "";
+
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function orderDateKey(order){
+    const raw = order.deliveredAt || order.updatedAt || order.createdAt || order.date || order.time || "";
+    const parsed = new Date(raw);
+    if(raw && !isNaN(parsed.getTime())){
+      return parsed.getFullYear()+"-"+String(parsed.getMonth()+1).padStart(2,"0")+"-"+String(parsed.getDate()).padStart(2,"0");
+    }
+    const m = String(raw).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if(m){
+      const yy = m[3].length === 2 ? "20"+m[3] : m[3];
+      return yy+"-"+String(m[2]).padStart(2,"0")+"-"+String(m[1]).padStart(2,"0");
+    }
+    return todayKey();
+  }
+
+  function isToday(order){
+    return orderDateKey(order) === todayKey();
+  }
+
+  function isPendingAssigned(order){
+    const s = String(order.status || "").toLowerCase();
+    return (s === "pending" || s === "need confirmation" || s === "confirmed" || s === "out for delivery") && isToday(order);
+  }
+
+  function isDelivered(order){
+    return String(order.status || "").toLowerCase() === "delivered";
+  }
+
+  function showFilterBar(title){
+    const bar = document.getElementById("deliveryFilterBar");
+    const titleEl = document.getElementById("deliveryFilterTitle");
+    if(titleEl) titleEl.textContent = title;
+    if(bar) bar.classList.add("show");
+  }
+
+  function hideFilterBar(){
+    const bar = document.getElementById("deliveryFilterBar");
+    if(bar) bar.classList.remove("show");
+  }
+
+  function applyOrdersFilter(mode){
+    if(!Array.isArray(window.deliveryOrders)) return;
+    if(!originalOrdersForFilter){
+      originalOrdersForFilter = [...window.deliveryOrders];
+    }
+
+    activeFilterMode = mode;
+
+    if(mode === "todayPending"){
+      window.deliveryOrders = originalOrdersForFilter.filter(isPendingAssigned);
+      showFilterBar("Today Pending Assigned Orders");
+    }
+
+    if(mode === "earningDelivered"){
+      window.deliveryOrders = originalOrdersForFilter.filter(isDelivered);
+      showFilterBar("Delivered Orders / Total Earning");
+    }
+
+    if(typeof window.renderOrders === "function"){
+      window.renderOrders();
+    }
+
+    const section = document.querySelector(".section");
+    if(section) section.scrollIntoView({behavior:"smooth", block:"start"});
+
+    try{
+      if(!history.state || history.state.deliveryFilter !== mode){
+        history.pushState({deliveryFilter:mode}, "", location.href);
+      }
+    }catch(e){}
+  }
+
+  function backToAllOrders(skipHistory){
+    if(originalOrdersForFilter){
+      window.deliveryOrders = [...originalOrdersForFilter];
+    }
+    activeFilterMode = "";
+    hideFilterBar();
+
+    if(typeof window.renderOrders === "function"){
+      window.renderOrders();
+    }
+
+    if(!skipHistory){
+      try{
+        if(history.state && history.state.deliveryFilter){
+          history.back();
+        }
+      }catch(e){}
+    }
+  }
+
+  function bindDashboardCardClicks(){
+    const pendingCard = document.getElementById("todayPendingOrdersCard");
+    if(pendingCard){
+      pendingCard.onclick = function(e){
+        e.preventDefault();
+        applyOrdersFilter("todayPending");
+      };
+    }
+
+    const stats = document.getElementById("stats");
+    if(stats){
+      Array.from(stats.querySelectorAll(".quick-card")).forEach(function(card){
+        const text = (card.innerText || "").toLowerCase();
+        if(card.id === "totalEarningWithShippingCard" || text.includes("earning")){
+          card.onclick = function(e){
+            e.preventDefault();
+            applyOrdersFilter("earningDelivered");
+          };
+        }
+      });
+    }
+
+    const backBtn = document.getElementById("deliveryBackBtn");
+    if(backBtn){
+      backBtn.onclick = function(e){
+        e.preventDefault();
+        backToAllOrders(false);
+      };
+    }
+  }
+
+  window.addEventListener("popstate", function(){
+    if(activeFilterMode){
+      backToAllOrders(true);
+    }
+  });
+
+  const oldRenderStats = window.renderStats;
+  if(typeof oldRenderStats === "function"){
+    window.renderStats = function(){
+      oldRenderStats.apply(this, arguments);
+      setTimeout(bindDashboardCardClicks, 80);
+    };
+  }
+
+  const oldRenderOrders = window.renderOrders;
+  if(typeof oldRenderOrders === "function"){
+    window.renderOrders = function(){
+      oldRenderOrders.apply(this, arguments);
+      setTimeout(bindDashboardCardClicks, 80);
+    };
+  }
+
+  function run(){
+    bindDashboardCardClicks();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(run, 300); });
+  }else{
+    setTimeout(run, 300);
+  }
+
+  setInterval(bindDashboardCardClicks, 3000);
 })();
 </script>
 
