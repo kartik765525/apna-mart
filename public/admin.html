@@ -512,6 +512,93 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 @media print{
 }
 
+
+/* ===== CUSTOMER ORDER BILL 2 INCH FIX ===== */
+@media print{
+  .invoice-print,
+  .print-bill,
+  .invoice-area,
+  .receipt-print,
+  .bill-print-area{
+    width:58mm !important;
+    max-width:58mm !important;
+    min-width:58mm !important;
+    padding:3mm 2mm !important;
+    margin:0 !important;
+    background:#fff !important;
+    color:#000 !important;
+    font-family:Arial,sans-serif !important;
+    font-size:10px !important;
+    line-height:1.25 !important;
+    box-sizing:border-box !important;
+  }
+
+  .invoice-print *,
+  .print-bill *,
+  .invoice-area *,
+  .receipt-print *,
+  .bill-print-area *{
+    color:#000 !important;
+    box-sizing:border-box !important;
+  }
+
+  .invoice-print table,
+  .print-bill table,
+  .invoice-area table,
+  .receipt-print table,
+  .bill-print-area table{
+    width:100% !important;
+    border-collapse:collapse !important;
+    font-size:9px !important;
+  }
+
+  .invoice-print th,
+  .invoice-print td,
+  .print-bill th,
+  .print-bill td,
+  .invoice-area th,
+  .invoice-area td,
+  .receipt-print th,
+  .receipt-print td,
+  .bill-print-area th,
+  .bill-print-area td{
+    padding:1mm 0 !important;
+    border-bottom:1px dotted #888 !important;
+    word-break:break-word !important;
+  }
+
+  .invoice-print img,
+  .print-bill img,
+  .invoice-area img,
+  .receipt-print img,
+  .bill-print-area img{
+    max-width:14mm !important;
+    max-height:14mm !important;
+    object-fit:contain !important;
+  }
+
+  .invoice-print h1,
+  .invoice-print h2,
+  .invoice-print h3,
+  .print-bill h1,
+  .print-bill h2,
+  .print-bill h3,
+  .invoice-area h1,
+  .invoice-area h2,
+  .invoice-area h3{
+    font-size:12px !important;
+    margin:1mm 0 !important;
+    text-align:center !important;
+  }
+
+  .invoice-total,
+  .grand-total,
+  .bill-total{
+    font-size:13px !important;
+    font-weight:900 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2144,6 +2231,56 @@ async function loadAdmin(){
     bindOrderButtons();
   }
   setTimeout(bindOrderButtons, 1000);
+})();
+</script>
+
+
+<script>
+/* ===== CUSTOMER ORDER PRINT AUTO FIT 2 INCH ===== */
+(function(){
+  function fitCustomerBills(){
+    const selectors = [
+      ".invoice-print",
+      ".print-bill",
+      ".invoice-area",
+      ".receipt-print",
+      ".bill-print-area"
+    ];
+
+    selectors.forEach(function(sel){
+      document.querySelectorAll(sel).forEach(function(el){
+        el.style.width = "58mm";
+        el.style.maxWidth = "58mm";
+        el.style.minWidth = "58mm";
+        el.style.margin = "0";
+        el.style.padding = "3mm 2mm";
+
+        el.querySelectorAll("table").forEach(function(t){
+          t.style.width = "100%";
+        });
+
+        el.querySelectorAll("img").forEach(function(img){
+          img.style.maxWidth = "14mm";
+          img.style.maxHeight = "14mm";
+          img.style.objectFit = "contain";
+        });
+      });
+    });
+  }
+
+  const oldPrint = window.print;
+  window.print = function(){
+    fitCustomerBills();
+    setTimeout(function(){
+      oldPrint.call(window);
+    }, 80);
+  };
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", fitCustomerBills);
+  }else{
+    fitCustomerBills();
+  }
 })();
 </script>
 
