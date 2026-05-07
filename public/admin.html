@@ -474,8 +474,7 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 @media print{
   @page{size:58mm auto;margin:0;}
   html,body{width:58mm!important;min-width:58mm!important;max-width:58mm!important;margin:0!important;padding:0!important;background:#fff!important;}
-  body>*:not(#thermalPrintRoot){display:none!important;}
-  #thermalPrintRoot{display:block!important;width:58mm!important;max-width:58mm!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;position:static!important;visibility:visible!important;}
+#thermalPrintRoot{display:block!important;width:58mm!important;max-width:58mm!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;position:static!important;visibility:visible!important;}
   #thermalPrintRoot *{visibility:visible!important;color:#000!important;box-sizing:border-box!important;}
   .thermal-bill{width:58mm!important;max-width:58mm!important;padding:3mm 2mm!important;font-family:Arial,sans-serif!important;font-size:10px!important;line-height:1.25!important;}
   .thermal-logo{width:16mm!important;height:16mm!important;object-fit:cover!important;border-radius:50%!important;margin:0 auto 1.5mm!important;display:block!important;}
@@ -493,6 +492,24 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
   .td-amt{width:14mm!important;text-align:right!important;}
   .grand{font-size:13px!important;font-weight:900!important;}
   .foot{text-align:center!important;font-size:9px!important;margin-top:2mm!important;}
+}
+
+
+/* ===== ORDER SECTION VISIBILITY FIX ===== */
+@media screen{
+  #thermalPrintRoot{
+    display:none !important;
+  }
+  #sectionOrders,
+  #ordersList,
+  .orders-list,
+  .order-card{
+    visibility:visible !important;
+  }
+}
+
+/* Print hide rules ONLY in print mode */
+@media print{
 }
 
 </style>
@@ -2075,5 +2092,60 @@ async function loadAdmin(){
     }
 })();
 </script>
+
+<script>
+/* ===== ORDER TAB LOAD SAFETY FIX ===== */
+(function(){
+  function tryLoadOrders(){
+    try{
+      if(typeof window.fetchOrders === "function"){
+        window.fetchOrders();
+        return;
+      }
+      if(typeof window.loadOrders === "function"){
+        window.loadOrders();
+        return;
+      }
+      if(typeof window.renderOrders === "function"){
+        window.renderOrders();
+      }
+    }catch(e){
+      console.warn("Order load safety:", e);
+    }
+  }
+
+  function bindOrderButtons(){
+    ["tabOrdersBtn","ordersTabBtn","showOrdersBtn"].forEach(function(id){
+      const btn = document.getElementById(id);
+      if(btn && !btn.dataset.orderSafetyBound){
+        btn.dataset.orderSafetyBound = "1";
+        btn.addEventListener("click", function(){
+          setTimeout(tryLoadOrders, 150);
+          setTimeout(tryLoadOrders, 700);
+        });
+      }
+    });
+
+    document.querySelectorAll("button, .tab-btn").forEach(function(btn){
+      const text = (btn.innerText || "").toLowerCase();
+      if(text.includes("orders") && !btn.dataset.orderSafetyBound){
+        btn.dataset.orderSafetyBound = "1";
+        btn.addEventListener("click", function(){
+          setTimeout(tryLoadOrders, 150);
+          setTimeout(tryLoadOrders, 700);
+        });
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bindOrderButtons);
+  }else{
+    bindOrderButtons();
+  }
+  setTimeout(bindOrderButtons, 1000);
+})();
+</script>
+
 </body>
 </html> 
