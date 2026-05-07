@@ -599,6 +599,139 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
   }
 }
 
+
+/* ===== FINAL BLANK PRINT FIX + 2 INCH BILL PRINT PAGE ===== */
+#thermalPrintRoot{
+  display:none;
+}
+@media print{
+  @page{
+    size:58mm auto;
+    margin:0;
+  }
+  html, body{
+    width:58mm !important;
+    max-width:58mm !important;
+    min-width:58mm !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+    overflow:visible !important;
+  }
+  body *{
+    visibility:hidden !important;
+  }
+  #thermalPrintRoot,
+  #thermalPrintRoot *{
+    visibility:visible !important;
+  }
+  #thermalPrintRoot{
+    display:block !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    width:58mm !important;
+    max-width:58mm !important;
+    min-width:58mm !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+    color:#000 !important;
+    page-break-after:auto !important;
+    page-break-before:auto !important;
+  }
+  .thermal-bill{
+    width:58mm !important;
+    max-width:58mm !important;
+    padding:3mm 2mm !important;
+    font-family:Arial,sans-serif !important;
+    font-size:10px !important;
+    line-height:1.25 !important;
+    color:#000 !important;
+    background:#fff !important;
+    box-sizing:border-box !important;
+    page-break-after:auto !important;
+  }
+  .thermal-logo{
+    width:15mm !important;
+    height:15mm !important;
+    object-fit:cover !important;
+    border-radius:50% !important;
+    margin:0 auto 1.5mm !important;
+    display:block !important;
+  }
+  .thermal-title{
+    text-align:center !important;
+    font-size:14px !important;
+    font-weight:900 !important;
+    margin:0 0 1mm !important;
+  }
+  .thermal-sub{
+    text-align:center !important;
+    font-size:9px !important;
+    margin:0 0 1mm !important;
+  }
+  .dash{
+    border-top:1px dashed #000 !important;
+    margin:2mm 0 !important;
+    height:0 !important;
+  }
+  .row{
+    display:flex !important;
+    justify-content:space-between !important;
+    gap:2mm !important;
+    margin:1mm 0 !important;
+    font-size:10px !important;
+  }
+  .row span:first-child{
+    max-width:31mm !important;
+    overflow-wrap:anywhere !important;
+  }
+  .addr{
+    font-size:9px !important;
+    overflow-wrap:anywhere !important;
+    margin:1mm 0 !important;
+  }
+  .items-table{
+    width:100% !important;
+    border-collapse:collapse !important;
+    font-size:9px !important;
+  }
+  .items-table th,
+  .items-table td{
+    padding:1mm 0 !important;
+    border-bottom:1px dotted #888 !important;
+    vertical-align:top !important;
+  }
+  .items-table th{
+    text-align:left !important;
+    font-weight:900 !important;
+  }
+  .td-name{
+    width:28mm !important;
+    overflow-wrap:anywhere !important;
+  }
+  .td-qty{
+    width:8mm !important;
+    text-align:center !important;
+  }
+  .td-amt{
+    width:14mm !important;
+    text-align:right !important;
+  }
+  .grand{
+    font-size:13px !important;
+    font-weight:900 !important;
+  }
+  .foot{
+    text-align:center !important;
+    font-size:9px !important;
+    margin-top:2mm !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2235,54 +2368,268 @@ async function loadAdmin(){
 </script>
 
 
+
+
+
 <script>
-/* ===== CUSTOMER ORDER PRINT AUTO FIT 2 INCH ===== */
+/* ===== FINAL 2 INCH PRINT ENGINE FOR CUSTOM + CUSTOMER ORDERS ===== */
 (function(){
-  function fitCustomerBills(){
-    const selectors = [
-      ".invoice-print",
-      ".print-bill",
-      ".invoice-area",
-      ".receipt-print",
-      ".bill-print-area"
-    ];
+  function money(v){
+    if(v === null || v === undefined) return 0;
+    if(typeof v === "number") return v;
+    const n = Number(String(v).replace(/[₹,\s]/g,""));
+    return isNaN(n) ? 0 : n;
+  }
 
-    selectors.forEach(function(sel){
-      document.querySelectorAll(sel).forEach(function(el){
-        el.style.width = "58mm";
-        el.style.maxWidth = "58mm";
-        el.style.minWidth = "58mm";
-        el.style.margin = "0";
-        el.style.padding = "3mm 2mm";
-
-        el.querySelectorAll("table").forEach(function(t){
-          t.style.width = "100%";
-        });
-
-        el.querySelectorAll("img").forEach(function(img){
-          img.style.maxWidth = "14mm";
-          img.style.maxHeight = "14mm";
-          img.style.objectFit = "contain";
-        });
-      });
+  function safe(v){
+    return String(v ?? "").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
     });
   }
 
-  const oldPrint = window.print;
-  window.print = function(){
-    fitCustomerBills();
-    setTimeout(function(){
-      oldPrint.call(window);
-    }, 80);
+  function ensureRoot(){
+    let root = document.getElementById("thermalPrintRoot");
+    if(!root){
+      root = document.createElement("div");
+      root.id = "thermalPrintRoot";
+      document.body.prepend(root);
+    }
+    return root;
+  }
+
+  function orderId(order){
+    return order?.id || order?.orderId || order?.orderID || order?._id || ("ORD-" + Date.now().toString().slice(-6));
+  }
+
+  function orderItems(order){
+    return Array.isArray(order?.items) ? order.items :
+           Array.isArray(order?.products) ? order.products :
+           [];
+  }
+
+  function itemName(item){
+    return item?.name || item?.productName || item?.title || "Item";
+  }
+
+  function itemQty(item){
+    return money(item?.qty || item?.quantity || 1) || 1;
+  }
+
+  function itemPrice(item){
+    return money(item?.price || item?.finalPrice || item?.salePrice || item?.amount || 0);
+  }
+
+  function itemTotal(item){
+    const direct = money(item?.total || item?.lineTotal || item?.subtotal);
+    return direct || (itemPrice(item) * itemQty(item));
+  }
+
+  function deliveryCharge(order){
+    return money(order?.deliveryCharge) || money(order?.shippingCharge) || money(order?.shipping) || money(order?.delivery) || 0;
+  }
+
+  function orderSubtotal(order){
+    const direct = money(order?.subtotal);
+    if(direct) return direct;
+    const totalDirect = money(order?.total) || money(order?.grandTotal) || money(order?.totalAmount) || money(order?.finalTotal) || money(order?.payableAmount) || money(order?.amount);
+    if(totalDirect){
+      const dc = deliveryCharge(order);
+      return Math.max(0, totalDirect - dc);
+    }
+    return orderItems(order).reduce((s,i)=>s + itemTotal(i),0);
+  }
+
+  function orderTotal(order){
+    const direct = money(order?.total) || money(order?.grandTotal) || money(order?.totalAmount) || money(order?.finalTotal) || money(order?.payableAmount) || money(order?.amount);
+    return direct || (orderSubtotal(order) + deliveryCharge(order));
+  }
+
+  function renderThermalBill(data){
+    const root = ensureRoot();
+
+    const itemsRows = (data.items || []).map(function(item){
+      const name = safe(item.name || "Item");
+      const unit = safe(item.unit || item.size || item.weight || "pc");
+      const qty = money(item.qty || item.quantity || 1) || 1;
+      const price = money(item.price || 0);
+      const total = money(item.total || (price * qty));
+      return '<tr>' +
+        '<td class="td-name">' + name + '<br><small>' + unit + ' × ₹' + price.toFixed(0) + '</small></td>' +
+        '<td class="td-qty">' + qty + '</td>' +
+        '<td class="td-amt">₹' + total.toFixed(0) + '</td>' +
+      '</tr>';
+    }).join("");
+
+    root.innerHTML =
+      '<div class="thermal-bill">' +
+        (data.logoHtml || '') +
+        '<div class="thermal-title">SETU MART</div>' +
+        '<div class="thermal-sub">2 Inch Thermal Bill</div>' +
+        '<div class="dash"></div>' +
+        '<div class="row"><span>Bill No</span><b>' + safe(data.billNo) + '</b></div>' +
+        '<div class="row"><span>Date</span><b>' + safe(data.date) + '</b></div>' +
+        '<div class="row"><span>Name</span><b>' + safe(data.name || "Customer") + '</b></div>' +
+        '<div class="row"><span>Phone</span><b>' + safe(data.phone || "N/A") + '</b></div>' +
+        '<div class="row"><span>Payment</span><b>' + safe(data.payment || "Cash") + '</b></div>' +
+        (data.address ? '<div class="addr"><b>Address:</b> ' + safe(data.address) + '</div>' : '') +
+        '<div class="dash"></div>' +
+        '<table class="items-table">' +
+          '<thead><tr><th class="td-name">Item</th><th class="td-qty">Qty</th><th class="td-amt">Amt</th></tr></thead>' +
+          '<tbody>' + itemsRows + '</tbody>' +
+        '</table>' +
+        '<div class="dash"></div>' +
+        '<div class="row"><span>Subtotal</span><b>₹' + money(data.subtotal).toFixed(0) + '</b></div>' +
+        '<div class="row"><span>Delivery</span><b>₹' + money(data.delivery).toFixed(0) + '</b></div>' +
+        '<div class="row grand"><span>Total</span><b>₹' + money(data.total).toFixed(0) + '</b></div>' +
+        '<div class="dash"></div>' +
+        '<div class="foot">Thank you for shopping<br>Setu Mart</div>' +
+      '</div>';
+  }
+
+  function openPrintNow(){
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        window.print();
+      }, 150);
+    });
+  }
+
+  // Custom bill print
+  window.printCustomBill = async function(){
+    const items = (typeof window.collectCustomBillItems === "function") ? window.collectCustomBillItems() : [];
+    if(!items.length){
+      alert("Kam se kam 1 product add karo");
+      return;
+    }
+
+    const delivery = money(document.getElementById("billDeliveryCharge")?.value || 0);
+    const subtotal = items.reduce((s,i)=>s + money(i.total),0);
+    renderThermalBill({
+      billNo: "CB-" + Date.now().toString().slice(-8),
+      date: new Date().toLocaleString("en-IN", {timeZone:"Asia/Kolkata"}),
+      name: document.getElementById("billCustomerName")?.value || "Customer",
+      phone: document.getElementById("billCustomerPhone")?.value || "",
+      address: document.getElementById("billCustomerAddress")?.value || "",
+      payment: document.getElementById("billPaymentMode")?.value || "Cash",
+      items: items,
+      subtotal: subtotal,
+      delivery: delivery,
+      total: subtotal + delivery
+    });
+    openPrintNow();
   };
 
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", fitCustomerBills);
-  }else{
-    fitCustomerBills();
+  // Customer order print engine
+  window.printCustomerOrder2Inch = function(order){
+    if(!order){
+      alert("Order data nahi mila");
+      return;
+    }
+
+    const items = orderItems(order).map(function(it){
+      return {
+        name: itemName(it),
+        qty: itemQty(it),
+        price: itemPrice(it),
+        unit: it.unit || it.weight || it.quantityText || "pc",
+        total: itemTotal(it)
+      };
+    });
+
+    const dc = deliveryCharge(order);
+    const subtotal = orderSubtotal(order);
+    renderThermalBill({
+      billNo: orderId(order),
+      date: order.date || order.createdAt || new Date().toLocaleString("en-IN", {timeZone:"Asia/Kolkata"}),
+      name: order.customerName || order.name || order.customer || "Customer",
+      phone: order.phone || order.customerPhone || order.mobile || "",
+      address: [order.village, order.address || order.fullAddress].filter(Boolean).join(", "),
+      payment: (order.paymentMethod || order.paymentMode || order.payment || "COD"),
+      items: items,
+      subtotal: subtotal,
+      delivery: dc,
+      total: orderTotal(order)
+    });
+    openPrintNow();
+  };
+
+  // Replace/attach click events to old order print buttons.
+  function bindOrderPrintButtons(){
+    const orders = Array.isArray(window.orders) ? window.orders :
+                   Array.isArray(window.allOrders) ? window.allOrders :
+                   Array.isArray(window.orderList) ? window.orderList :
+                   [];
+
+    document.querySelectorAll("button, a").forEach(function(btn){
+      const text = (btn.innerText || btn.textContent || "").toLowerCase();
+      const old = btn.getAttribute("onclick") || "";
+
+      if(text.includes("print") || text.includes("bill") || old.toLowerCase().includes("print") || old.toLowerCase().includes("invoice")){
+        if(btn.dataset.twobound === "1") return;
+        btn.dataset.twobound = "1";
+
+        btn.addEventListener("click", function(e){
+          const card = btn.closest(".order-card,.order-row,tr,.order-item");
+          let idText = "";
+
+          if(card){
+            const fullText = card.innerText || "";
+            const match = fullText.match(/ORD[0-9A-Za-z_-]+|CB-[0-9A-Za-z_-]+|Order ID[:\\s]*([0-9A-Za-z_-]+)/i);
+            idText = match ? (match[1] || match[0]).replace(/Order ID[:\\s]*/i,"") : "";
+          }
+
+          let order = null;
+          if(idText && orders.length){
+            order = orders.find(o => String(orderId(o)) === String(idText) || String(orderId(o)).includes(idText));
+          }
+
+          if(order){
+            e.preventDefault();
+            e.stopPropagation();
+            printCustomerOrder2Inch(order);
+          }
+        }, true);
+      }
+    });
   }
+
+  // Also expose a generic printInvoice/order function override if old code calls these names.
+  ["printInvoice","printOrder","printOrderBill","downloadInvoice","printBill"].forEach(function(fn){
+    const old = window[fn];
+    window[fn] = function(orderOrId){
+      let order = null;
+      const orders = Array.isArray(window.orders) ? window.orders :
+                     Array.isArray(window.allOrders) ? window.allOrders :
+                     Array.isArray(window.orderList) ? window.orderList : [];
+
+      if(typeof orderOrId === "object" && orderOrId){
+        order = orderOrId;
+      }else if(orderOrId && orders.length){
+        order = orders.find(o => String(orderId(o)) === String(orderOrId));
+      }
+
+      if(order){
+        printCustomerOrder2Inch(order);
+      }else if(typeof old === "function"){
+        try{ old.apply(this, arguments); }catch(e){ console.warn(e); }
+      }else{
+        alert("Order data nahi mila");
+      }
+    };
+  });
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){
+      setTimeout(bindOrderPrintButtons, 500);
+      setTimeout(bindOrderPrintButtons, 1500);
+    });
+  }else{
+    setTimeout(bindOrderPrintButtons, 500);
+    setTimeout(bindOrderPrintButtons, 1500);
+  }
+  setInterval(bindOrderPrintButtons, 2500);
 })();
 </script>
 
 </body>
-</html> 
+</html> s
