@@ -848,153 +848,134 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 
 
 
-/* ===== ADMIN PANEL SECTION UI LIKE REFERENCE IMAGE ===== */
+/* ===== EXACT REFERENCE 2 INCH BILL ALIGNMENT - FINAL OVERRIDE ===== */
+#thermalPrintRoot{display:none;}
+@media print{
+  @page{size:58mm auto;margin:0;}
+  html,body{width:58mm!important;max-width:58mm!important;min-width:58mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important;}
+  body *{visibility:hidden!important;}
+  #thermalPrintRoot,#thermalPrintRoot *{visibility:visible!important;}
+  #thermalPrintRoot{display:block!important;position:absolute!important;left:0!important;top:0!important;width:58mm!important;max-width:58mm!important;min-width:58mm!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;}
+  #thermalPrintRoot *{box-sizing:border-box!important;color:#000!important;}
+  #thermalPrintRoot .tm-bill{display:block!important;width:58mm!important;max-width:58mm!important;padding:3mm 2mm!important;margin:0!important;background:#fff!important;font-family:Arial,Helvetica,sans-serif!important;line-height:1.18!important;}
+  #thermalPrintRoot .tm-title{display:block!important;text-align:center!important;font-size:15px!important;font-weight:900!important;letter-spacing:.3px!important;margin:0!important;padding:0!important;line-height:1.05!important;}
+  #thermalPrintRoot .tm-sub{display:block!important;text-align:center!important;font-size:10px!important;font-weight:400!important;margin:1mm 0 2mm!important;padding:0!important;}
+  #thermalPrintRoot .tm-line{display:block!important;border-top:1px dashed #000!important;height:0!important;margin:2mm 0!important;padding:0!important;}
+  #thermalPrintRoot .tm-info{display:table!important;width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;font-size:9px!important;margin:0!important;}
+  #thermalPrintRoot .tm-info tr{display:table-row!important;}
+  #thermalPrintRoot .tm-info td{display:table-cell!important;border:0!important;padding:1.35mm 0!important;vertical-align:top!important;line-height:1.15!important;}
+  #thermalPrintRoot .tm-label{width:16.5mm!important;text-align:left!important;font-weight:900!important;white-space:nowrap!important;}
+  #thermalPrintRoot .tm-colon{width:3mm!important;text-align:center!important;font-weight:900!important;}
+  #thermalPrintRoot .tm-value{width:auto!important;text-align:left!important;font-weight:900!important;word-break:break-word!important;overflow-wrap:anywhere!important;}
+  #thermalPrintRoot .tm-value.normal{font-weight:400!important;}
+  #thermalPrintRoot .tm-table{display:table!important;width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;font-size:10px!important;margin:0!important;}
+  #thermalPrintRoot .tm-table thead{display:table-header-group!important;}
+  #thermalPrintRoot .tm-table tbody{display:table-row-group!important;}
+  #thermalPrintRoot .tm-table tr{display:table-row!important;}
+  #thermalPrintRoot .tm-table th,#thermalPrintRoot .tm-table td{display:table-cell!important;border:0!important;padding:1.4mm 0!important;vertical-align:top!important;line-height:1.15!important;}
+  #thermalPrintRoot .tm-table th{font-weight:900!important;border-bottom:1px dashed #000!important;}
+  #thermalPrintRoot .tm-name{width:31mm!important;text-align:left!important;word-break:break-word!important;overflow-wrap:anywhere!important;}
+  #thermalPrintRoot .tm-qty{width:8mm!important;text-align:center!important;}
+  #thermalPrintRoot .tm-amt{width:15mm!important;text-align:right!important;}
+  #thermalPrintRoot .tm-totalbox{display:table!important;width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;font-size:11px!important;margin:0!important;}
+  #thermalPrintRoot .tm-totalbox tr{display:table-row!important;}
+  #thermalPrintRoot .tm-totalbox td{display:table-cell!important;border:0!important;padding:1.1mm 0!important;vertical-align:middle!important;}
+  #thermalPrintRoot .tm-total-label{text-align:left!important;font-weight:400!important;}
+  #thermalPrintRoot .tm-total-value{text-align:right!important;font-weight:400!important;}
+  #thermalPrintRoot .tm-grand .tm-total-label{font-size:17px!important;font-weight:900!important;}
+  #thermalPrintRoot .tm-grand .tm-total-value{font-size:18px!important;font-weight:900!important;}
+  #thermalPrintRoot .tm-footer{display:block!important;text-align:center!important;font-size:8.5px!important;font-weight:400!important;margin-top:2mm!important;line-height:1.2!important;}
+}
+
+
+
+/* ===== LEFT SIDE VERTICAL ADMIN MENU - FINAL PATCH ===== */
 @media screen{
-  html,body{
-    min-height:100%;
-    background:#1f1f1f !important;
-  }
-  body{
-    padding:0 !important;
-    font-family:Segoe UI,Arial,sans-serif !important;
-    color:#1f2937 !important;
-  }
   .header{
-    width:min(860px, calc(100% - 28px)) !important;
-    margin:18px auto 0 auto !important;
-    border-radius:18px 18px 0 0 !important;
-    background:linear-gradient(135deg,#7a351d,#6f2f19) !important;
-    color:#314047 !important;
-    min-height:78px !important;
-    padding:18px 24px !important;
-    font-size:29px !important;
-    font-weight:900 !important;
-    box-shadow:0 18px 40px rgba(0,0,0,.25) !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:1200 !important;
   }
-  .header>div:first-child{
-    color:#314047 !important;
-    letter-spacing:-.8px !important;
-    text-shadow:0 1px 0 rgba(255,255,255,.08) !important;
-  }
-  .header button{
-    background:#8b0000 !important;
-    color:#fff !important;
-    border:none !important;
-    padding:13px 24px !important;
-    border-radius:12px !important;
-    font-size:16px !important;
-    font-weight:700 !important;
-    box-shadow:0 8px 18px rgba(0,0,0,.2) !important;
-  }
+
   .tabs{
-    width:min(860px, calc(100% - 28px)) !important;
-    margin:0 auto !important;
-    padding:16px 24px 20px !important;
-    background:#f4f4f4 !important;
-    border:0 !important;
-    position:relative !important;
-    top:auto !important;
-    z-index:10 !important;
-    gap:14px !important;
-    box-shadow:0 18px 40px rgba(0,0,0,.20) !important;
+    position:fixed !important;
+    left:0 !important;
+    top:72px !important;
+    width:220px !important;
+    height:calc(100vh - 72px) !important;
+    background:rgba(255,255,255,.96) !important;
+    border-right:1px solid #e8eef5 !important;
+    border-bottom:none !important;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+    padding:14px !important;
+    z-index:1100 !important;
+    overflow-y:auto !important;
+    flex-wrap:nowrap !important;
+    align-items:stretch !important;
+    box-shadow:8px 0 22px rgba(15,23,42,.05) !important;
   }
+
   .tab-btn{
-    min-width:126px !important;
-    padding:17px 22px !important;
-    border-radius:13px !important;
-    background:#dfe4e8 !important;
-    color:#1f2937 !important;
-    border:1px solid #d3d9de !important;
-    font-size:16px !important;
-    font-weight:700 !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.65) !important;
+    width:100% !important;
+    text-align:left !important;
+    justify-content:flex-start !important;
+    padding:12px 14px !important;
+    border-radius:12px !important;
+    margin:0 !important;
+    white-space:normal !important;
   }
-  .tab-btn.active{
-    background:#843818 !important;
-    color:#fff !important;
-    border-color:#843818 !important;
-    box-shadow:0 10px 18px rgba(132,56,24,.22) !important;
-  }
+
   .page-section{
-    width:min(860px, calc(100% - 28px)) !important;
-    margin:0 auto 28px auto !important;
-    padding:0 24px 24px !important;
-    background:#f4f4f4 !important;
-    border-radius:0 0 18px 18px !important;
-    box-shadow:0 22px 45px rgba(0,0,0,.22) !important;
+    margin-left:235px !important;
+    padding:18px !important;
   }
-  .section-card{
-    border-radius:16px !important;
-    background:#fff !important;
-    border:1px solid #e5e7eb !important;
-    padding:22px !important;
-    box-shadow:0 10px 22px rgba(15,23,42,.08) !important;
-  }
-  .section-title{
-    font-size:24px !important;
-    font-weight:900 !important;
-    color:#843818 !important;
-    margin-bottom:16px !important;
-  }
-  .admin-input,.search-box input,.order-search input,.bill-mini-input,.bill-mini-select{
-    border-radius:12px !important;
-    border:1px solid #d1d5db !important;
-    background:#fff !important;
-    color:#1f2937 !important;
-    padding:13px 15px !important;
-    font-size:15px !important;
-    box-shadow:inset 0 1px 2px rgba(0,0,0,.04) !important;
-  }
-  .action-btn{
-    border-radius:12px !important;
-    padding:12px 18px !important;
-    font-size:15px !important;
-    font-weight:800 !important;
-  }
+
+  .modal,
   .lock-screen{
-    background:rgba(0,0,0,.55) !important;
-    backdrop-filter:blur(1.5px) !important;
-    align-items:center !important;
-    justify-content:center !important;
-  }
-  .lock-box{
-    width:min(420px, calc(100% - 32px)) !important;
-    border-radius:18px !important;
-    padding:30px 28px !important;
-    background:#fff !important;
-    box-shadow:0 25px 80px rgba(0,0,0,.35) !important;
-  }
-  .lock-box h2{
-    color:#ff6b35 !important;
-    font-size:28px !important;
-    line-height:1.25 !important;
-    margin-bottom:16px !important;
-    font-weight:900 !important;
-  }
-  .lock-box p{
-    font-size:16px !important;
-    color:#475569 !important;
-    margin-bottom:12px !important;
-  }
-  .lock-box input{
-    padding:14px 16px !important;
-    border-radius:12px !important;
-    font-size:15px !important;
-  }
-  .lock-box button{
-    padding:14px 16px !important;
-    border-radius:12px !important;
-    font-size:16px !important;
-    background:#ff6b35 !important;
-    font-weight:900 !important;
+    margin-left:0 !important;
   }
 }
-@media screen and (max-width:700px){
-  .header,.tabs,.page-section{width:100% !important;margin-left:0 !important;margin-right:0 !important;border-radius:0 !important;}
-  .header{font-size:24px !important;padding:16px !important;}
-  .tabs{padding:12px 14px !important;gap:10px !important;}
-  .tab-btn{min-width:auto !important;flex:1 1 calc(50% - 10px) !important;padding:13px 12px !important;font-size:14px !important;}
-  .page-section{padding:0 14px 18px !important;}
+
+@media screen and (max-width:768px){
+  .tabs{
+    width:130px !important;
+    top:70px !important;
+    height:calc(100vh - 70px) !important;
+    padding:10px !important;
+    gap:10px !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+  }
+
+  .tabs::-webkit-scrollbar{
+    width:4px !important;
+  }
+
+  .tabs::-webkit-scrollbar-thumb{
+    background:#9ca3af !important;
+    border-radius:20px !important;
+  }
+
+  .tab-btn{
+    width:100% !important;
+    min-height:48px !important;
+    font-size:13px !important;
+    padding:10px 8px !important;
+    text-align:center !important;
+    line-height:1.25 !important;
+    white-space:normal !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    overflow:visible !important;
+  }
+
+  .page-section{
+    margin-left:142px !important;
+    padding:12px !important;
+  }
 }
 
 </style>
@@ -1250,7 +1231,7 @@ function tmBuildBill(data){
     const price = tmMoney(item.price || 0);
     const total = tmMoney(item.total || (price * qty));
     return '<tr>' +
-      '<td class="tm-name">' + tmSafe(item.name || "Item") + '<br><small>' + tmSafe(item.unit || "pc") + ' × ₹' + price.toFixed(0) + '</small></td>' +
+      '<td class="tm-name">' + tmSafe(item.name || "Item") + '</td>' +
       '<td class="tm-qty">' + qty + '</td>' +
       '<td class="tm-amt">₹' + total.toFixed(0) + '</td>' +
     '</tr>';
@@ -1259,20 +1240,24 @@ function tmBuildBill(data){
   root.innerHTML =
     '<div class="tm-bill">' +
       '<div class="tm-title">SETU MART</div>' +
-      '<div class="tm-sub">THANK,S FOR ORDER</div>' +
+      '<div class="tm-sub">2 Inch Thermal Bill</div>' +
       '<div class="tm-line"></div>' +
-      '<div class="tm-row"><span>Bill No</span><b>' + tmSafe(data.billNo) + '</b></div>' +
-      '<div class="tm-row"><span>Date</span><b>' + tmSafe(data.date) + '</b></div>' +
-      '<div class="tm-row"><span>Name</span><b>' + tmSafe(data.name || "Customer") + '</b></div>' +
-      '<div class="tm-row"><span>Phone</span><b>' + tmSafe(data.phone || "N/A") + '</b></div>' +
-      '<div class="tm-row"><span>Payment</span><b>' + tmSafe(data.payment || "COD") + '</b></div>' +
-      (data.address ? '<div class="tm-addr"><b>Address:</b> ' + tmSafe(data.address) + '</div>' : '') +
+      '<table class="tm-info"><tbody>' +
+        '<tr><td class="tm-label">Bill No</td><td class="tm-colon">:</td><td class="tm-value">' + tmSafe(data.billNo) + '</td></tr>' +
+        '<tr><td class="tm-label">Date</td><td class="tm-colon">:</td><td class="tm-value">' + tmSafe(data.date) + '</td></tr>' +
+        '<tr><td class="tm-label">Name</td><td class="tm-colon">:</td><td class="tm-value">' + tmSafe(data.name || "Customer") + '</td></tr>' +
+        '<tr><td class="tm-label">Phone</td><td class="tm-colon">:</td><td class="tm-value">' + tmSafe(data.phone || "N/A") + '</td></tr>' +
+        '<tr><td class="tm-label">Payment</td><td class="tm-colon">:</td><td class="tm-value">' + tmSafe(data.payment || "COD") + '</td></tr>' +
+        '<tr><td class="tm-label">Address</td><td class="tm-colon">:</td><td class="tm-value normal">' + tmSafe(data.address || "") + '</td></tr>' +
+      '</tbody></table>' +
       '<div class="tm-line"></div>' +
       '<table class="tm-table"><thead><tr><th class="tm-name">Item</th><th class="tm-qty">Qty</th><th class="tm-amt">Amt</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       '<div class="tm-line"></div>' +
-      '<div class="tm-row"><span>Subtotal</span><b>₹' + tmMoney(data.subtotal).toFixed(0) + '</b></div>' +
-      '<div class="tm-row"><span>Delivery</span><b>₹' + tmMoney(data.delivery).toFixed(0) + '</b></div>' +
-      '<div class="tm-row tm-total"><span>Total</span><b>₹' + tmMoney(data.total).toFixed(0) + '</b></div>' +
+      '<table class="tm-totalbox"><tbody>' +
+        '<tr><td class="tm-total-label">Subtotal</td><td class="tm-total-value">₹' + tmMoney(data.subtotal).toFixed(0) + '</td></tr>' +
+        '<tr><td class="tm-total-label">Delivery</td><td class="tm-total-value">₹' + tmMoney(data.delivery).toFixed(0) + '</td></tr>' +
+        '<tr class="tm-grand"><td class="tm-total-label">Total</td><td class="tm-total-value">₹' + tmMoney(data.total).toFixed(0) + '</td></tr>' +
+      '</tbody></table>' +
       '<div class="tm-line"></div>' +
       '<div class="tm-footer">Thank you for shopping<br>Setu Mart</div>' +
     '</div>';
