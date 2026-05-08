@@ -651,6 +651,25 @@ img{display:block;max-width:100%}
 }
 .customer-call-btn.disabled{background:#94a3b8;pointer-events:none;box-shadow:none;}
 
+.active-summary-time{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:14px;
+}
+.delivery-detail-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+.delivery-detail-actions .action-btn{
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
 </style>
 </head>
 <body>
@@ -1168,6 +1187,24 @@ function getOrderVillageForDelivery(order){
   return order.village || order.gaon || order.gao || order.locationName || order.addressVillage || "Village not available";
 }
 
+function getOrderTimeForDelivery(order){
+  const value = order.createdAt || order.date || order.timestamp || order.orderDate || order.time;
+  if(!value) return "Time not available";
+  const d = new Date(value);
+  if(!isNaN(d.getTime())){
+    return d.toLocaleString("en-IN", {
+      timeZone:"Asia/Kolkata",
+      day:"2-digit",
+      month:"2-digit",
+      year:"numeric",
+      hour:"2-digit",
+      minute:"2-digit",
+      hour12:true
+    });
+  }
+  return String(value);
+}
+
 function escapeDeliveryHtml(value){
   return String(value == null ? "" : value).replace(/[&<>"']/g, function(ch){
     const map = {"&":"&amp;","<":"&lt;",">":"&gt;", "\"":"&quot;", "'":"&#39;"};
@@ -1196,13 +1233,24 @@ function openDeliveredOrderDetail(orderId){
   }).join("") || "No items";
 
   const addressLine = (order.village || "") + (order.address ? ", " + order.address : "");
+  const customerPhone = getCustomerPhoneForDelivery(order);
+  const callBtn = customerPhone
+    ? '<a href="tel:' + escapeDeliveryHtml(customerPhone) + '" class="customer-call-btn" aria-label="Call Customer">📞</a>'
+    : '<a class="customer-call-btn disabled" aria-label="No Customer Number">📞</a>';
+  const startBtn = (order.status === "Pending" || order.status === "Need Confirmation" || order.status === "Confirmed")
+    ? '<button type="button" class="action-btn start detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id) + '" data-status="Out for Delivery">Mark Out for Delivery</button>'
+    : "";
+  const doneBtn = order.status === "Out for Delivery"
+    ? '<button type="button" class="action-btn done detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id) + '" data-status="Delivered">Mark Delivered</button>'
+    : "";
+
   const content = getEl("deliveryDetailContent");
   if(content){
     content.innerHTML =
       '<div class="delivery-detail-line"><b>Order ID:</b> ' + escapeDeliveryHtml(order.id) + '</div>' +
       '<div class="delivery-detail-line"><b>Name:</b> ' + escapeDeliveryHtml(order.customerName || order.name || "N/A") + '</div>' +
-      '<div class="delivery-detail-line"><b>Phone:</b> ' + escapeDeliveryHtml(getCustomerPhoneForDelivery(order) || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Village:</b> ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
+      '<div class="delivery-detail-line"><b>Order Time:</b> ' + escapeDeliveryHtml(getOrderTimeForDelivery(order)) + '</div>' +
       '<div class="delivery-detail-line"><b>Address:</b> ' + escapeDeliveryHtml(addressLine || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Status:</b> ' + escapeDeliveryHtml(order.status || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Order Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + '</div>' +
@@ -1210,7 +1258,19 @@ function openDeliveredOrderDetail(orderId){
       '<div class="delivery-detail-line"><b>Total Earning:</b> ₹' + (getOrderTotalForDelivery(order) + getDeliveryChargeForDelivery(order)).toFixed(0) + '</div>' +
       '<div class="delivery-detail-line"><b>Payment:</b> ' + escapeDeliveryHtml(String(order.paymentMethod || "COD").toUpperCase()) + '</div>' +
       '<div class="delivery-detail-line"><b>Payment Status:</b> ' + escapeDeliveryHtml(order.paymentStatus || "N/A") + '</div>' +
-      '<div class="delivery-detail-line"><b>Items:</b><br>' + itemsHtml + '</div>';
+      '<div class="delivery-detail-line"><b>Items:</b><br>' + itemsHtml + '</div>' +
+      '<div class="customer-call-box">' +
+        '<div><div class="customer-call-label">Customer Number</div><div class="customer-call-number">' + escapeDeliveryHtml(customerPhone || "N/A") + '</div></div>' +
+        callBtn +
+      '</div>' +
+      '<div class="delivery-detail-actions">' + startBtn + doneBtn + '</div>';
+
+    content.querySelectorAll(".detail-status-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        closeDeliveredOrderDetail();
+        updateStatus(this.dataset.orderId, this.dataset.status);
+      });
+    });
   }
 
   const modal = getEl("deliveryDetailModal");
@@ -1311,83 +1371,28 @@ function renderOrders(){
 
   if(statsView === "delivered"){
     list.innerHTML = visibleOrders.map(function(order){
-      return (
-        '<div class="delivered-summary-card" data-delivered-id="' + order.id + '">' +
-          '<div class="delivered-summary-top">' +
-            '<div>' +
-              '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
-              '<div class="delivered-summary-village">Village: ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
-            '</div>' +
-            '<div class="delivered-click-note">Click for details</div>' +
-          '</div>' +
-        '</div>'
-      );
-    }).join("");
-
-    list.querySelectorAll(".delivered-summary-card").forEach(function(card){
-      card.addEventListener("click", function(){
-        openDeliveredOrderDetail(this.getAttribute("data-delivered-id"));
-      });
-    });
-
-    renderStats();
-    return;
-  }
-
-  list.innerHTML = visibleOrders.map(function(order){
-    const customerName = order.customerName || order.name || "N/A";
-    const addressLine = (order.village || "") + (order.address ? ", " + order.address : "");
-    const itemsHtml = (Array.isArray(order.items) ? order.items : []).map(function(item){
-      return "<div>" + escapeDeliveryHtml(item.name) + " x " + escapeDeliveryHtml(item.qty || item.quantity || 1) + "</div>";
-    }).join("");
-    const startBtn = (order.status === "Pending" || order.status === "Need Confirmation" || order.status === "Confirmed")
-      ? '<button type="button" class="action-btn start" data-order-id="' + order.id + '" data-status="Out for Delivery">Mark Out for Delivery</button>'
-      : "";
-    const doneBtn = order.status === "Out for Delivery"
-      ? '<button type="button" class="action-btn done" data-order-id="' + order.id + '" data-status="Delivered">Mark Delivered</button>'
-      : "";
-    const customerPhone = getCustomerPhoneForDelivery(order);
-    const callBtn = customerPhone
-      ? '<a href="tel:' + escapeDeliveryHtml(customerPhone) + '" class="customer-call-btn" aria-label="Call Customer">📞</a>'
-      : '<a class="customer-call-btn disabled" aria-label="No Customer Number">📞</a>';
-    const thumb = getOrderThumb(order);
-    const fallback = getOrderIcon(order);
-
     return (
-      '<div class="order-card">' +
-        '<div class="order-top">' +
-          '<div class="order-left">' +
-            '<div class="order-thumb">' +
-              (thumb ? '<img src="' + thumb + '" alt="item image" onerror="this.parentNode.innerHTML=&quot;<div class=\\&quot;order-thumb-fallback\\&quot;>' + fallback + '</div>&quot;">' : '<div class="order-thumb-fallback">' + fallback + '</div>') +
-            '</div>' +
-            '<div class="order-main">' +
-              '<div class="order-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
-              '<div class="order-customer">' + escapeDeliveryHtml(customerName) + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status) + '</span>' +
-        '</div>' +
-        '<div class="order-meta">' +
-          '<b>Address:</b> ' + escapeDeliveryHtml(addressLine) + '<br>' +
-          '<b>Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + ' · <b>Payment:</b> ' + escapeDeliveryHtml(String(order.paymentMethod || "COD").toUpperCase()) + ' · <b>Payment Status:</b> ' + escapeDeliveryHtml(order.paymentStatus || "N/A") + '<br>' +
-          '<b>Delivery Charge:</b> ₹' + getDeliveryChargeForDelivery(order).toFixed(0) +
-        '</div>' +
-        '<div class="customer-call-box">' +
-          '<div><div class="customer-call-label">Customer Number</div><div class="customer-call-number">' + escapeDeliveryHtml(customerPhone || "N/A") + '</div></div>' +
-          callBtn +
-        '</div>' +
-        '<div class="delivery-profile">' +
-          '<div class="mini-avatar">' + getInitials(order.assignedDeliveryBoyName || (deliveryMe && deliveryMe.name) || "DP") + '</div>' +
+      '<div class="delivered-summary-card" data-active-id="' + escapeDeliveryHtml(order.id) + '">' +
+        '<div class="delivered-summary-top">' +
           '<div>' +
-            '<div class="delivery-profile-name">' + escapeDeliveryHtml(order.assignedDeliveryBoyName || order.deliveryBoyName || (deliveryMe && deliveryMe.name) || "Assigned Delivery Boy") + '</div>' +
-            '<div class="delivery-profile-sub">' + escapeDeliveryHtml(order.assignedDeliveryBoyPhone || order.deliveryBoyPhone || (deliveryMe && deliveryMe.phone) || "Phone not available") + '</div>' +
+            '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
+            '<div class="delivered-summary-village">Village: ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
+            '<div class="active-summary-time">Order Time: ' + escapeDeliveryHtml(getOrderTimeForDelivery(order)) + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status) + '</span>' +
+            '<div class="delivered-click-note" style="margin-top:8px;text-align:right;">Click for details</div>' +
           '</div>' +
         '</div>' +
-        '<div class="items"><b>Items</b>' + itemsHtml + '</div>' +
-        '<div class="actions">' + startBtn + doneBtn + '</div>' +
       '</div>'
     );
   }).join("");
+
+  list.querySelectorAll(".delivered-summary-card[data-active-id]").forEach(function(card){
+    card.addEventListener("click", function(){
+      openDeliveredOrderDetail(this.getAttribute("data-active-id"));
+    });
+  });
 
   list.querySelectorAll("button[data-order-id]").forEach(function(btn){
     btn.addEventListener("click", function(){
