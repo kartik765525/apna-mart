@@ -2041,9 +2041,24 @@ function parseOrderDateValue(order){
 
     return null;
 }
+function isBeforeTodayOrdersReset(){
+    const now = new Date();
+    const istHour = Number(new Intl.DateTimeFormat("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        hour12: false
+    }).format(now));
+
+    // Raat 11:00 PM ke baad Today Orders section khali hoga
+    return istHour < 23;
+}
 function isTodayOrder(order){
     const date = parseOrderDateValue(order);
     if(!date) return false;
+
+    // 11:00 PM IST ke baad aaj ke sab orders Old Orders me dikhne lagenge
+    if(!isBeforeTodayOrdersReset()) return false;
+
     return getISTDateKey(date) === getISTDateKey(new Date());
 }
 function getOrderDisplayDate(order){
@@ -2059,10 +2074,15 @@ function getOrderDisplayDate(order){
     });
 }
 let lastRenderedOrderDateKey = getISTDateKey(new Date());
+let lastTodayResetState = isBeforeTodayOrdersReset();
 setInterval(function(){
     const nowKey = getISTDateKey(new Date());
-    if(nowKey !== lastRenderedOrderDateKey){
+    const resetState = isBeforeTodayOrdersReset();
+
+    // Date change ya 11:00 PM reset cross hote hi sections refresh honge
+    if(nowKey !== lastRenderedOrderDateKey || resetState !== lastTodayResetState){
         lastRenderedOrderDateKey = nowKey;
+        lastTodayResetState = resetState;
         if(activeSection === "orders") renderOrders();
         if(activeSection === "dashboard") renderDashboard();
     }
