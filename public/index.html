@@ -3461,26 +3461,29 @@ document.addEventListener("touchend", function(e){
 
 
 <script>
-/* ===== SETU MART SAFE LOADER + LOCATION PATCH EARLY ===== */
+/* ===== SETU MART SAFE LOADER FIX ===== */
 (function(){
   window.__setuSafeOpen = function(){
     try{
-      var loader = document.getElementById("commerceLoader");
+      var loader = document.getElementById("appStartLoader");
       if(loader){
         loader.classList.add("hidden");
-        loader.style.display = "none";
         loader.style.visibility = "hidden";
         loader.style.pointerEvents = "none";
+        setTimeout(function(){
+          if(loader){ loader.style.display = "none"; }
+        }, 320);
       }
     }catch(e){}
   };
 
-  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 200); });
-  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 200); });
+  window.addEventListener("load", function(){ setTimeout(window.__setuSafeOpen, 1200); });
+  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 300); });
+  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 300); });
 
   document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(window.__setuSafeOpen, 6000);
-    setTimeout(window.__setuSafeOpen, 12000);
+    setTimeout(window.__setuSafeOpen, 5000);
+    setTimeout(window.__setuSafeOpen, 9000);
   });
 })();
 </script>
@@ -3654,7 +3657,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
         <div class="checkout-card">
             <h4>📍 Delivery Address</h4>
             <div class="checkout-location-line" id="checkoutNameLine">Deliver to: Guest User</div>
-            <div class="checkout-location-sub" id="checkoutAddressLine">Detecting address...</div>
+            <div class="checkout-location-sub" id="checkoutAddressLine">Delivery address</div>
             <button class="change-address-btn" style="margin-top:12px;" onclick="openProfilePage()">Change</button>
         </div>
 
@@ -3759,7 +3762,6 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
                 <li>Delivery address, village, and landmark</li>
                 <li>Order details and cart items</li>
                 <li>Payment method such as Cash on Delivery or UPI</li>
-                <li>Location/GPS details at the time of placing an order</li>
             </ul>
             <h4>2. How We Use Your Information</h4>
             <ul>
@@ -3768,10 +3770,8 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
                 <li>To show your order history and delivery status</li>
                 <li>To improve our app, website, products, and services</li>
             </ul>
-            <h4>3. Location Usage</h4>
-            <p>We use your location only to identify the delivery address and help the delivery partner reach you. We do not sell your location data.</p>
             <h4>4. Data Sharing</h4>
-            <p>We do not sell your personal information. We may share limited order, phone, address, and location details with our delivery partner only for completing your order.</p>
+            <p>We do not sell your personal information. We may share limited order, phone and address details with our delivery partner only for completing your order.</p>
             <h4>5. Payments</h4>
             <p>For UPI payments, the payment is completed through the UPI app selected by the customer. We do not store sensitive banking details such as card numbers, UPI PIN, or bank passwords.</p>
             <h4>6. Data Security</h4>
@@ -5237,70 +5237,6 @@ function update() {
 
 
 
-function getCurrentOrderLocation() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            showToast("Location support nahi hai", "error");
-            resolve(null);
-            return;
-        }
-
-        const valid = (loc) => {
-            const lat = Number(loc && loc.latitude);
-            const lng = Number(loc && loc.longitude);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
-            if (lat === 0 && lng === 0) return false;
-            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return false;
-            return true;
-        };
-
-        const getOnce = (timeout) => new Promise((done) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const loc = {
-                        latitude: Number(pos.coords.latitude),
-                        longitude: Number(pos.coords.longitude),
-                        accuracy: Number(pos.coords.accuracy || 0),
-                        capturedAt: new Date().toISOString(),
-                        source: "gps"
-                    };
-                    done(valid(loc) ? loc : null);
-                },
-                (err) => {
-                    console.error("GPS error:", err);
-                    if (err && err.code === 1) {
-                        showToast("Location permission Allow karo", "error");
-                    }
-                    done(null);
-                },
-                { enableHighAccuracy: true, timeout: timeout, maximumAge: 0 }
-            );
-        });
-
-        (async () => {
-            let best = null;
-
-            for (let i = 0; i < 4; i++) {
-                const loc = await getOnce(i === 0 ? 15000 : 22000);
-                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) {
-                    best = loc;
-                }
-                if (best && best.accuracy && best.accuracy <= 80) break;
-                await new Promise(r => setTimeout(r, 700));
-            }
-
-            if (!valid(best)) {
-                showToast("Exact GPS location nahi mili. Location/GPS ON karke dobara try karo.", "error");
-                resolve(null);
-                return;
-            }
-
-            resolve(best);
-        })();
-    });
-}
-
-
 let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
 
@@ -5322,32 +5258,15 @@ function closeCheckoutPanel(){
 async function loadCheckoutDetails(){
     const profile = getSavedProfile() || {};
     const strongName = (profile.name || "Guest User") + (profile.village ? ", " + String(profile.village).toUpperCase() : "");
-    const addressText = profile.address ? `${profile.address}${profile.landmark ? ", " + profile.landmark : ""}` : "Detecting address...";
+    const addressText = profile.address ? `${profile.address}${profile.landmark ? ", " + profile.landmark : ""}` : "Delivery address";
     const nameEl = document.getElementById("checkoutNameLine");
     const addrEl = document.getElementById("checkoutAddressLine");
     if(nameEl) nameEl.innerHTML = `Deliver to: <strong>${strongName}</strong>`;
     if(addrEl) addrEl.textContent = addressText;
 
-    try{
-        const fast = await detectCheckoutLocationFast();
-        if(fast && addrEl && (!profile.address || !String(profile.address).trim())){
-            addrEl.textContent = fast;
-        }
-    }catch(e){}
-
     updateCheckoutSummary();
 }
 
-async function detectCheckoutLocationFast(){
-    try{
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        const parts = [data.city, data.region, data.postal].filter(Boolean);
-        return parts.join(", ") || null;
-    }catch(error){
-        return null;
-    }
-}
 
 function updateCheckoutSummary(){
     const profile = getSavedProfile();
@@ -5443,32 +5362,6 @@ async function placeOrder(){
 }
 
 
-async 
-async function getQuickCheckoutLocation(){
-    try{
-        const loc = await getCurrentOrderLocation();
-        const lat = Number(loc && loc.latitude);
-        const lng = Number(loc && loc.longitude);
-
-        if(
-            loc &&
-            Number.isFinite(lat) &&
-            Number.isFinite(lng) &&
-            !(lat === 0 && lng === 0) &&
-            Math.abs(lat) <= 90 &&
-            Math.abs(lng) <= 180
-        ){
-            return loc;
-        }
-
-        return null;
-    }catch(error){
-        console.error("Checkout location error:", error);
-        return null;
-    }
-}
-
-
 async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
     if(!isLoggedIn){
@@ -5495,19 +5388,6 @@ async function submitCheckoutOrder() {
 
     showPlaceOrderLoader();
 
-    let currentLocation = await getQuickCheckoutLocation();
-
-    if(
-        !currentLocation ||
-        !Number.isFinite(Number(currentLocation.latitude)) ||
-        !Number.isFinite(Number(currentLocation.longitude)) ||
-        (Number(currentLocation.latitude) === 0 && Number(currentLocation.longitude) === 0)
-    ){
-        hidePlaceOrderLoader();
-        showToast("Exact GPS location nahi mili. Location permission Allow karo aur GPS ON karke dobara order karo.", "error");
-        return;
-    }
-
     try {
         const response = await fetch("/api/orders", {
             method: "POST",
@@ -5517,7 +5397,6 @@ async function submitCheckoutOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
-                customerLocation: currentLocation,
                 couponCode: checkoutCouponCode || '',
                 couponDiscount: checkoutCouponDiscount || 0
             })
@@ -6223,26 +6102,8 @@ initApp();
 
 
 <script>
-/* ===== SETU MART 0,0 MAP LINK BLOCK + FINAL LOADER FIX ===== */
+/* ===== SETU MART FINAL LOADER SAFETY ===== */
 (function(){
-  function isBadLatLng(lat,lng){
-    lat = Number(lat); lng = Number(lng);
-    return !Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180;
-  }
-
-  window.setuIsBadLatLng = isBadLatLng;
-
-  // prevent opening 0,0 google maps links
-  document.addEventListener("click", function(e){
-    var a = e.target.closest && e.target.closest("a[href]");
-    if(!a) return;
-    var href = a.getAttribute("href") || "";
-    if(href.includes("0,0") || href.includes("0.0000000,0.0000000") || href.includes("destination=0")) {
-      e.preventDefault();
-      showToast("Is order me exact GPS location nahi mili. Customer ko location allow karke dobara order karna hoga.", "error");
-    }
-  }, true);
-
   setTimeout(function(){
     if(typeof window.__setuSafeOpen === "function") window.__setuSafeOpen();
   }, 6000);
