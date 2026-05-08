@@ -1117,6 +1117,42 @@ function getOrderDateForDelivery(order){
   return d && !isNaN(d.getTime()) ? d : null;
 }
 
+
+
+/* ===== STABLE LOCAL STATUS CACHE FIX =====
+   Server refresh kabhi-kabhi deliveredAt/status wapas nahi bhejta,
+   isliye UI pe pehle sahi dikhta hai phir hide ho jata hai.
+   Ye cache local deliveredAt/status ko preserve karta hai. */
+const DELIVERY_STATUS_CACHE_KEY = "supplySetuDeliveryStatusCacheV1";
+function loadDeliveryStatusCache(){
+  try{ return JSON.parse(localStorage.getItem(DELIVERY_STATUS_CACHE_KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function saveDeliveryStatusCache(cache){
+  try{ localStorage.setItem(DELIVERY_STATUS_CACHE_KEY, JSON.stringify(cache || {})); }
+  catch(e){}
+}
+function rememberLocalOrderStatus(orderId, patch){
+  if(!orderId) return;
+  const cache = loadDeliveryStatusCache();
+  cache[String(orderId)] = Object.assign({}, cache[String(orderId)] || {}, patch || {}, { cachedAt:new Date().toISOString() });
+  saveDeliveryStatusCache(cache);
+}
+function applyLocalStatusCacheToOrders(list){
+  const cache = loadDeliveryStatusCache();
+  return (Array.isArray(list) ? list : []).map(function(order){
+    const id = String(order.id || order.orderId || order._id || order.order_id || "");
+    if(!id || !cache[id]) return order;
+    const patch = cache[id];
+    return Object.assign({}, order, {
+      status: patch.status || order.status,
+      deliveredAt: patch.deliveredAt || order.deliveredAt,
+      completedAt: patch.completedAt || order.completedAt,
+      statusUpdatedAt: patch.statusUpdatedAt || order.statusUpdatedAt
+    });
+  });
+}
+
 function getDeliveryBusinessDayKey(date){
   const d = new Date(date);
   if(!d || isNaN(d.getTime())) return "";
@@ -1443,8 +1479,8 @@ function renderOrders(){
 
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
-      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Auto-hide फिलहाल OFF है.</small></div>'
-      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Auto-hide फिलहाल OFF है.</small></div>';
+      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Day-wise delivered filter stable hai.</small></div>'
+      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Day-wise delivered filter stable hai.</small></div>';
     renderStats();
     return;
   }
@@ -1505,11 +1541,11 @@ async function fetchOrders(){
       return;
     }
 
-    deliveryOrders = Array.isArray(list) ? normalizeDeliveryOrderList(list) : [];
+    deliveryOrders = Array.isArray(list) ? applyLocalStatusCacheToOrders(normalizeDeliveryOrderList(list)) : [];
     renderOrders();
   }catch(error){
     console.error(error);
-    deliveryOrders = [];
+    // Network error par current list clear nahi karenge, warna orders blink/hide honge.
     renderOrders();
   }
 }
@@ -1584,6 +1620,7 @@ async function updateStatus(orderId, status, fastMode){
       patch.completedAt = patch.deliveredAt;
     }
     deliveryOrders[index] = Object.assign({}, deliveryOrders[index], patch);
+    rememberLocalOrderStatus(orderId, patch);
     renderOrders();
     renderStats();
   }
@@ -1613,8 +1650,8 @@ async function updateStatus(orderId, status, fastMode){
       return;
     }
 
-    // Server confirm hone ke baad fresh data silent update.
-    fetchOrders();
+    // Server confirm ho gaya. Immediate fetch nahi karenge, warna WebView me blink/hide hota hai.
+    // Auto refresh 30 sec me silent data update karega aur local cache deliveredAt/status preserve karega.
   }catch(error){
     console.error(error);
     if(oldOrder && index >= 0){
@@ -1645,7 +1682,7 @@ async function loadDelivery(){
   if(ok){
     await fetchOrders();
     if(refreshTimer) clearInterval(refreshTimer);
-    refreshTimer = setInterval(fetchOrders, 10000);
+    refreshTimer = setInterval(fetchOrders, 30000);
   }
 }
 
@@ -1685,7 +1722,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(ok){
       fetchOrders();
       if(refreshTimer) clearInterval(refreshTimer);
-      refreshTimer = setInterval(fetchOrders, 10000);
+      refreshTimer = setInterval(fetchOrders, 30000);
     }
   });
 });
