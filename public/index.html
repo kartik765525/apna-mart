@@ -9,6 +9,16 @@
 <meta name="application-name" content="Setu Mart" />
 
 <style>
+/* ===== INSTANT START LOADER WHITE SCREEN FIX ===== */
+html,body{background:#f7f2e8 !important;}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:#f7f2e8;
+  z-index:1;
+}
+body.loader-ready::before{display:none;}
 :root{
     --blue:#0b4f9c;
     --blue-dark:#083766;
@@ -3609,7 +3619,7 @@ html[data-theme="dark"] .product-load-sub{color:#94a3b8 !important;}
 
 </style>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
 function syncHeaderProfileImageFinal(){
     try{
         const img=document.getElementById("headerProfileImg");
@@ -3660,13 +3670,13 @@ document.addEventListener("touchend", function(e){
 }, {passive:false});
 
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 </head>
 <body>
 
 
-<div class="product-load-overlay show" id="productLoadOverlay">
+<div class="product-load-overlay show" id="productLoadOverlay" style="display:flex;position:fixed;inset:0;align-items:center;justify-content:center;background:#f7f2e8;z-index:1000009;padding:24px;">
   <div class="product-load-card">
     <img 
       class="product-load-animation" 
@@ -3677,6 +3687,15 @@ document.addEventListener("touchend", function(e){
     <div class="product-load-sub">Please wait, products load ho rahe hain.</div>
   </div>
 </div>
+
+<script>
+(function(){
+  function ready(){
+    try{document.body.classList.add('loader-ready');}catch(e){}
+  }
+  if(document.readyState === 'loading'){document.addEventListener('DOMContentLoaded', ready);}else{ready();}
+})();
+</script>
 
 </div>
 
@@ -6521,12 +6540,22 @@ initApp();
 (function(){
   window.showProductLoadOverlay = function(){
     var el = document.getElementById("productLoadOverlay");
-    if(el) el.classList.add("show");
+    if(el){
+      el.style.display = "flex";
+      el.style.visibility = "visible";
+      el.style.pointerEvents = "auto";
+      el.classList.add("show");
+    }
   };
   window.hideProductLoadOverlay = function(){
     var el = document.getElementById("productLoadOverlay");
     if(!el) return;
-    setTimeout(function(){ el.classList.remove("show"); }, 700);
+    setTimeout(function(){
+      el.classList.remove("show");
+      el.style.display = "none";
+      el.style.visibility = "hidden";
+      el.style.pointerEvents = "none";
+    }, 700);
   };
 })();
 </script>
