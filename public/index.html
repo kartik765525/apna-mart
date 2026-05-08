@@ -3404,15 +3404,6 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
-
-/* ===== HARD LOADER HIDE SUPPORT ===== */
-html.setu-loader-force-hide #commerceLoader{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  pointer-events:none !important;
-}
-
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3470,90 +3461,27 @@ document.addEventListener("touchend", function(e){
 
 
 <script>
-/* ===== EARLY LOADER + PRODUCT FETCH FIX ===== */
+/* ===== SETU MART SAFE LOADER + LOCATION PATCH EARLY ===== */
 (function(){
-  window.__setuSafeHideLoader = function(){
+  window.__setuSafeOpen = function(){
     try{
       var loader = document.getElementById("commerceLoader");
-      var app = document.getElementById("app");
-      var login = document.getElementById("loginScreen");
-
       if(loader){
         loader.classList.add("hidden");
         loader.style.display = "none";
         loader.style.visibility = "hidden";
         loader.style.pointerEvents = "none";
       }
-
-      var token =
-        localStorage.getItem("apnaMartUserPhone") ||
-        localStorage.getItem("apnaMartPhone") ||
-        localStorage.getItem("setuMartUserPhone") ||
-        localStorage.getItem("userPhone") ||
-        localStorage.getItem("apnaMartUserToken") ||
-        localStorage.getItem("setuMartUserToken") ||
-        localStorage.getItem("customerToken") ||
-        localStorage.getItem("userToken");
-
-      if(token){
-        document.documentElement.classList.add("apnamart-has-token");
-        if(app) app.style.display = "block";
-        if(login) login.style.display = "none";
-      }else{
-        if(app) app.style.display = "none";
-        if(login) login.style.display = "flex";
-      }
     }catch(e){}
   };
 
-  // Product API agar slow/hang ho to abort karega, page loader stuck nahi rahega
-  var oldFetch = window.fetch;
-  if(oldFetch && !window.__setuFetchPatched){
-    window.__setuFetchPatched = true;
-    window.fetch = function(resource, options){
-      var url = "";
-      try{ url = String(resource && resource.url ? resource.url : resource); }catch(e){}
-
-      if(url.indexOf("/api/products") === -1){
-        return oldFetch.apply(this, arguments);
-      }
-
-      var controller = new AbortController();
-      var finalOptions = Object.assign({}, options || {}, { signal: controller.signal });
-      var timer = setTimeout(function(){ controller.abort(); }, 10000);
-
-      return oldFetch(resource, finalOptions)
-        .catch(function(err){
-          console.warn("Products load timeout/error:", err);
-          return new Response("[]", {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          });
-        })
-        .finally(function(){ clearTimeout(timer); });
-    };
-  }
-
-  window.addEventListener("error", function(e){
-    console.warn("Recovered page error:", e.message);
-    setTimeout(window.__setuSafeHideLoader, 300);
-  });
-
-  window.addEventListener("unhandledrejection", function(e){
-    console.warn("Recovered promise error:", e.reason);
-    setTimeout(window.__setuSafeHideLoader, 300);
-  });
+  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 200); });
+  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 200); });
 
   document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(window.__setuSafeHideLoader, 4500);
-    setTimeout(window.__setuSafeHideLoader, 9000);
+    setTimeout(window.__setuSafeOpen, 6000);
+    setTimeout(window.__setuSafeOpen, 12000);
   });
-
-  setTimeout(function(){
-    if(document.readyState !== "loading"){
-      window.__setuSafeHideLoader();
-    }
-  }, 9000);
 })();
 </script>
 
@@ -5308,73 +5236,70 @@ function update() {
 
 
 
+
 function getCurrentOrderLocation() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
+            showToast("Location support nahi hai", "error");
             resolve(null);
             return;
         }
 
-        function readLocation(callback) {
+        const valid = (loc) => {
+            const lat = Number(loc && loc.latitude);
+            const lng = Number(loc && loc.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+            if (lat === 0 && lng === 0) return false;
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return false;
+            return true;
+        };
+
+        const getOnce = (timeout) => new Promise((done) => {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const latitude = Number(position.coords.latitude);
-                    const longitude = Number(position.coords.longitude);
-                    const accuracy = Number(position.coords.accuracy || 0);
-
-                    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-                        callback(null);
-                        return;
+                (pos) => {
+                    const loc = {
+                        latitude: Number(pos.coords.latitude),
+                        longitude: Number(pos.coords.longitude),
+                        accuracy: Number(pos.coords.accuracy || 0),
+                        capturedAt: new Date().toISOString(),
+                        source: "gps"
+                    };
+                    done(valid(loc) ? loc : null);
+                },
+                (err) => {
+                    console.error("GPS error:", err);
+                    if (err && err.code === 1) {
+                        showToast("Location permission Allow karo", "error");
                     }
-
-                    callback({
-                        latitude,
-                        longitude,
-                        accuracy
-                    });
+                    done(null);
                 },
-                (error) => {
-                    console.error("Current location fetch error:", error);
-                    callback(null);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 20000,
-                    maximumAge: 0
-                }
+                { enableHighAccuracy: true, timeout: timeout, maximumAge: 0 }
             );
-        }
+        });
 
-        readLocation((firstLocation) => {
-            if (!firstLocation) {
+        (async () => {
+            let best = null;
+
+            for (let i = 0; i < 4; i++) {
+                const loc = await getOnce(i === 0 ? 15000 : 22000);
+                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) {
+                    best = loc;
+                }
+                if (best && best.accuracy && best.accuracy <= 80) break;
+                await new Promise(r => setTimeout(r, 700));
+            }
+
+            if (!valid(best)) {
+                showToast("Exact GPS location nahi mili. Location/GPS ON karke dobara try karo.", "error");
                 resolve(null);
                 return;
             }
 
-            if (firstLocation.accuracy > 0 && firstLocation.accuracy <= 50) {
-                resolve(firstLocation);
-                return;
-            }
-
-            setTimeout(() => {
-                readLocation((secondLocation) => {
-                    if (!secondLocation) {
-                        resolve(firstLocation);
-                        return;
-                    }
-
-                    const bestLocation =
-                        secondLocation.accuracy > 0 &&
-                        (firstLocation.accuracy <= 0 || secondLocation.accuracy < firstLocation.accuracy)
-                            ? secondLocation
-                            : firstLocation;
-
-                    resolve(bestLocation);
-                });
-            }, 2000);
-        });
+            resolve(best);
+        })();
     });
 }
+
 
 let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
@@ -5518,30 +5443,31 @@ async function placeOrder(){
 }
 
 
+async 
 async function getQuickCheckoutLocation(){
     try{
-        const fastText = await Promise.race([
-            detectCheckoutLocationFast(),
-            new Promise((resolve)=>setTimeout(()=>resolve(null), 1200))
-        ]);
-        const gpsLocation = await Promise.race([
-            getCurrentOrderLocation(),
-            new Promise((resolve)=>setTimeout(()=>resolve(null), 1800))
-        ]);
+        const loc = await getCurrentOrderLocation();
+        const lat = Number(loc && loc.latitude);
+        const lng = Number(loc && loc.longitude);
 
-        if(gpsLocation && typeof gpsLocation === "object"){
-            return gpsLocation;
-        }
-
-        if(fastText){
-            return { latitude: "", longitude: "", accuracy: 0, addressText: fastText };
+        if(
+            loc &&
+            Number.isFinite(lat) &&
+            Number.isFinite(lng) &&
+            !(lat === 0 && lng === 0) &&
+            Math.abs(lat) <= 90 &&
+            Math.abs(lng) <= 180
+        ){
+            return loc;
         }
 
         return null;
     }catch(error){
+        console.error("Checkout location error:", error);
         return null;
     }
 }
+
 
 async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
@@ -5570,6 +5496,17 @@ async function submitCheckoutOrder() {
     showPlaceOrderLoader();
 
     let currentLocation = await getQuickCheckoutLocation();
+
+    if(
+        !currentLocation ||
+        !Number.isFinite(Number(currentLocation.latitude)) ||
+        !Number.isFinite(Number(currentLocation.longitude)) ||
+        (Number(currentLocation.latitude) === 0 && Number(currentLocation.longitude) === 0)
+    ){
+        hidePlaceOrderLoader();
+        showToast("Exact GPS location nahi mili. Location permission Allow karo aur GPS ON karke dobara order karo.", "error");
+        return;
+    }
 
     try {
         const response = await fetch("/api/orders", {
@@ -6286,16 +6223,29 @@ initApp();
 
 
 <script>
-/* ===== HARD LOADER FINAL FALLBACK ===== */
+/* ===== SETU MART 0,0 MAP LINK BLOCK + FINAL LOADER FIX ===== */
 (function(){
-  function forceHide(){
-    document.documentElement.classList.add("setu-loader-force-hide");
-    if(typeof window.__setuSafeHideLoader === "function"){
-      window.__setuSafeHideLoader();
-    }
+  function isBadLatLng(lat,lng){
+    lat = Number(lat); lng = Number(lng);
+    return !Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180;
   }
-  setTimeout(forceHide, 5000);
-  setTimeout(forceHide, 10000);
+
+  window.setuIsBadLatLng = isBadLatLng;
+
+  // prevent opening 0,0 google maps links
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest("a[href]");
+    if(!a) return;
+    var href = a.getAttribute("href") || "";
+    if(href.includes("0,0") || href.includes("0.0000000,0.0000000") || href.includes("destination=0")) {
+      e.preventDefault();
+      showToast("Is order me exact GPS location nahi mili. Customer ko location allow karke dobara order karna hoga.", "error");
+    }
+  }, true);
+
+  setTimeout(function(){
+    if(typeof window.__setuSafeOpen === "function") window.__setuSafeOpen();
+  }, 6000);
 })();
 </script>
 
