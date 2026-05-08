@@ -670,6 +670,19 @@ img{display:block;max-width:100%}
 }
 
 
+
+/* ===== FAST RESPONSE FINAL PATCH ===== */
+.action-btn.is-updating,
+.action-btn:disabled{
+  opacity:.72 !important;
+  cursor:not-allowed !important;
+  transform:none !important;
+}
+.order-card.updating,
+.delivered-summary-card.updating{
+  opacity:.84 !important;
+}
+
 </style>
 </head>
 <body>
@@ -1267,8 +1280,13 @@ function openDeliveredOrderDetail(orderId){
 
     content.querySelectorAll(".detail-status-btn").forEach(function(btn){
       btn.addEventListener("click", function(){
+        const id = this.dataset.orderId;
+        const nextStatus = this.dataset.status;
+        this.disabled = true;
+        this.classList.add("is-updating");
+        this.textContent = "Updating...";
         closeDeliveredOrderDetail();
-        updateStatus(this.dataset.orderId, this.dataset.status);
+        updateStatus(id, nextStatus, true);
       });
     });
   }
@@ -1416,7 +1434,17 @@ async function fetchOrders(){
   }
 }
 
-async function updateStatus(orderId, status){
+async function updateStatus(orderId, status, fastMode){
+  const index = deliveryOrders.findIndex(function(o){ return String(o.id) === String(orderId); });
+  const oldOrder = index >= 0 ? Object.assign({}, deliveryOrders[index]) : null;
+
+  // Instant UI response: local status change first, server save in background.
+  if(index >= 0){
+    deliveryOrders[index] = Object.assign({}, deliveryOrders[index], { status: status });
+    renderOrders();
+    renderStats();
+  }
+
   try{
     const res = await fetch("/api/delivery/orders/" + orderId + "/status", {
       method: "PATCH",
@@ -1425,12 +1453,24 @@ async function updateStatus(orderId, status){
     });
     const data = await res.json().catch(function(){ return {}; });
     if(!res.ok){
+      if(oldOrder && index >= 0){
+        deliveryOrders[index] = oldOrder;
+        renderOrders();
+        renderStats();
+      }
       alert(data.message || "Status update failed");
       return;
     }
-    await fetchOrders();
+
+    // Server confirm hone ke baad fresh data silent update.
+    fetchOrders();
   }catch(error){
     console.error(error);
+    if(oldOrder && index >= 0){
+      deliveryOrders[index] = oldOrder;
+      renderOrders();
+      renderStats();
+    }
     alert("Status update failed");
   }
 }
