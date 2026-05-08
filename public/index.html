@@ -3558,6 +3558,55 @@ html[data-theme="dark"] .product-load-overlay{
   background:#111827 !important;
 }
 
+
+
+/* ===== RESTORED SIMPLE OPENING LOADER - FINAL OVERRIDE ===== */
+.product-load-overlay{
+  position:fixed !important;
+  inset:0 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:#f7f2e8 !important;
+  z-index:1000009 !important;
+  padding:24px !important;
+}
+.product-load-overlay.show{display:flex !important;}
+.product-load-card{
+  width:min(320px,92vw) !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  text-align:center !important;
+}
+.product-load-animation{
+  width:155px !important;
+  max-width:70vw !important;
+  display:block !important;
+  margin:0 auto 18px !important;
+  animation:setuOldLoaderFloat 1.6s ease-in-out infinite !important;
+  filter:drop-shadow(0 10px 22px rgba(11,79,156,.16)) !important;
+}
+.product-load-title{
+  font-size:21px !important;
+  font-weight:900 !important;
+  color:#0b4f9c !important;
+}
+.product-load-sub{
+  margin-top:7px !important;
+  font-size:14px !important;
+  color:#45607a !important;
+  line-height:1.5 !important;
+}
+@keyframes setuOldLoaderFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-8px) scale(1.03)}
+}
+html[data-theme="dark"] .product-load-overlay{background:#111827 !important;}
+html[data-theme="dark"] .product-load-title{color:#e0f2fe !important;}
+html[data-theme="dark"] .product-load-sub{color:#94a3b8 !important;}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3645,7 +3694,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 </script>
 
 
-<div id="appStartLoader" class="commerce-loader">
+<div id="appStartLoader" class="commerce-loader hidden" style="display:none;">
     <div class="commerce-loader-box">
         <div class="commerce-loader-visual">
             <div class="commerce-loader-ring"></div>
@@ -6381,31 +6430,28 @@ initApp();
 
 
 <script>
-/* ===== INSTANT APP OPEN OVERRIDE ===== */
+/* ===== OLD STYLE OPENING LOADER FLOW ===== */
 (function(){
-  function hideAllLoaders(){
-    ["appStartLoader","commerceLoader"].forEach(function(id){
-      var el = document.getElementById(id);
-      if(el){
-        el.classList.add("hidden");
-        el.style.display = "none";
-        el.style.visibility = "hidden";
-        el.style.opacity = "0";
-        el.style.pointerEvents = "none";
-      }
-    });
+  function hideOnlyNewCommerceLoader(){
+    var el = document.getElementById("appStartLoader");
+    if(el){
+      el.classList.add("hidden");
+      el.style.display = "none";
+      el.style.visibility = "hidden";
+      el.style.opacity = "0";
+      el.style.pointerEvents = "none";
+    }
   }
 
-  window.hideAppStartLoader = hideAllLoaders;
+  window.hideAppStartLoader = hideOnlyNewCommerceLoader;
 
   document.addEventListener("DOMContentLoaded", function(){
-    hideAllLoaders();
-    setTimeout(hideAllLoaders, 500);
-    setTimeout(hideAllLoaders, 1500);
+    hideOnlyNewCommerceLoader();
+    var oldLoader = document.getElementById("productLoadOverlay");
+    if(oldLoader){
+      oldLoader.classList.add("show");
+    }
   });
-
-  window.addEventListener("error", hideAllLoaders);
-  window.addEventListener("unhandledrejection", hideAllLoaders);
 })();
 </script>
 
@@ -6479,7 +6525,8 @@ initApp();
   };
   window.hideProductLoadOverlay = function(){
     var el = document.getElementById("productLoadOverlay");
-    if(el) el.classList.remove("show");
+    if(!el) return;
+    setTimeout(function(){ el.classList.remove("show"); }, 700);
   };
 })();
 </script>
