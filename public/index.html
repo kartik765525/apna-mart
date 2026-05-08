@@ -9,52 +9,25 @@
 <meta name="application-name" content="Setu Mart" />
 
 
-<style id="instant-loader-critical">
-html,body{margin:0;min-height:100%;background:#eaf4fb;}
-#appStartLoader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eaf4fb;z-index:2147483647;opacity:1;visibility:visible;padding:24px;font-family:Segoe UI,sans-serif;transition:opacity .28s ease,visibility .28s ease;}
-#appStartLoader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+<style>
+html,body{margin:0;min-height:100%;background:#eaf4fb;font-family:Segoe UI,Arial,sans-serif;overflow-x:hidden;}
+#appStartLoader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eaf4fb;z-index:2147483647;padding:24px;color:#175a78;}
+#appStartLoader.hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease;}
 #appStartLoader .commerce-loader-box{width:100%;max-width:360px;text-align:center;}
-#appStartLoader .commerce-loader-visual{width:220px;height:220px;margin:0 auto 18px;position:relative;}
-#appStartLoader .commerce-loader-ring{position:absolute;inset:22px;border:3px solid rgba(255,255,255,.95);border-radius:50%;}
-#appStartLoader .commerce-loader-cart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:72px;color:#1696d2;animation:instantLoaderPulse 1.4s ease-in-out infinite;}
-#appStartLoader .commerce-loader-device{position:absolute;color:#1696d2;animation:instantLoaderFloat 2.2s ease-in-out infinite;}
-#appStartLoader .commerce-loader-device.phone{right:8px;top:8px;font-size:64px;}
-#appStartLoader .commerce-loader-device.pos{left:6px;bottom:28px;width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 10px 22px rgba(37,99,235,.18);font-size:0;animation-delay:.3s;}
-#appStartLoader .commerce-loader-device.card{left:26px;top:62px;font-size:34px;animation-delay:.6s;}
-#appStartLoader .commerce-loader-device.tap{right:42px;bottom:24px;font-size:36px;animation-delay:.9s;}
-#appStartLoader .commerce-loader-dot{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.9);animation:instantLoaderBlink 1.6s ease-in-out infinite;}
-#appStartLoader .commerce-loader-dot.dot1{top:24px;left:30px;}
-#appStartLoader .commerce-loader-dot.dot2{top:120px;left:8px;animation-delay:.25s;}
-#appStartLoader .commerce-loader-dot.dot3{right:18px;top:94px;animation-delay:.5s;}
-#appStartLoader .commerce-loader-dot.dot4{right:56px;bottom:8px;animation-delay:.75s;}
+#appStartLoader .commerce-loader-visual{width:150px;height:150px;margin:0 auto 18px;position:relative;}
+#appStartLoader .commerce-loader-ring{position:absolute;inset:18px;border:3px solid rgba(255,255,255,.95);border-top-color:#1696d2;border-radius:50%;animation:setuEarlySpin .8s linear infinite;}
+#appStartLoader .commerce-loader-cart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:54px;}
+#appStartLoader .commerce-loader-device,#appStartLoader .commerce-loader-dot{display:none!important;}
 #appStartLoader .commerce-loader-title{font-size:22px;font-weight:800;color:#175a78;}
 #appStartLoader .commerce-loader-sub{margin-top:8px;font-size:14px;line-height:1.6;color:#5f7e8d;}
-@keyframes instantLoaderPulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.08);}}
-@keyframes instantLoaderFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
-@keyframes instantLoaderBlink{0%,100%{opacity:.35;}50%{opacity:1;}}
-html[data-theme="dark"],html[data-theme="dark"] body{background:#10202a;}
-html[data-theme="dark"] #appStartLoader{background:#10202a;}
-html[data-theme="dark"] #appStartLoader .commerce-loader-ring{border-color:rgba(255,255,255,.14);}
-html[data-theme="dark"] #appStartLoader .commerce-loader-title{color:#e0f2fe;}
-html[data-theme="dark"] #appStartLoader .commerce-loader-sub{color:#94a3b8;}
+@keyframes setuEarlySpin{to{transform:rotate(360deg);}}
 </style>
+<script>
+try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
+</script>
 
 </head>
 <body>
-
-<script>
-function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
-function getProductUnitText(product){return getProductUnit(product) || "piece";}
-(function(){
-    try{
-        if(localStorage.getItem("apnaMartCustomerToken")){
-            document.documentElement.classList.add("apnamart-has-token");
-        }
-        const theme = localStorage.getItem("setuMartThemeMode") || localStorage.getItem("apnaMartTheme") || "";
-        if(theme === "dark") document.documentElement.setAttribute("data-theme","dark");
-    }catch(e){}
-})();
-</script>
 
 <div id="appStartLoader" class="commerce-loader">
     <div class="commerce-loader-box">
@@ -74,6 +47,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
         <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
     </div>
 </div>
+
 <style>
 :root{
     --blue:#0b4f9c;
@@ -3471,6 +3445,10 @@ html[data-theme="dark"] .search-box input{
 }
 
 </style>
+<style>
+/* WEBVIEW BLANK SCREEN FIX: loader is parsed before heavy CSS/scripts */
+#appStartLoader{z-index:2147483647!important;}
+</style>
 
 
 <script>
@@ -3522,8 +3500,24 @@ document.addEventListener("touchend", function(e){
     }
     lastTouchEndFinal = now;
 }, {passive:false});
+
 </script>
-</head>
+
+
+<script>
+function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
+function getProductUnitText(product){return getProductUnit(product) || "piece";}
+
+(function(){
+    try{
+        if(localStorage.getItem("apnaMartCustomerToken")){
+            document.documentElement.classList.add("apnamart-has-token");
+        }
+    }catch(e){}
+})();
+</script>
+
+
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
