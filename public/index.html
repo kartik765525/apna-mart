@@ -3459,35 +3459,6 @@ document.addEventListener("touchend", function(e){
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-
-<script>
-/* ===== SETU MART SAFE LOADER FIX ===== */
-(function(){
-  window.__setuSafeOpen = function(){
-    try{
-      var loader = document.getElementById("appStartLoader");
-      if(loader){
-        loader.classList.add("hidden");
-        loader.style.visibility = "hidden";
-        loader.style.pointerEvents = "none";
-        setTimeout(function(){
-          if(loader){ loader.style.display = "none"; }
-        }, 320);
-      }
-    }catch(e){}
-  };
-
-  window.addEventListener("load", function(){ setTimeout(window.__setuSafeOpen, 1200); });
-  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 300); });
-  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 300); });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(window.__setuSafeOpen, 5000);
-    setTimeout(window.__setuSafeOpen, 9000);
-  });
-})();
-</script>
-
 </head>
 <body>
 <script>
@@ -3657,7 +3628,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
         <div class="checkout-card">
             <h4>📍 Delivery Address</h4>
             <div class="checkout-location-line" id="checkoutNameLine">Deliver to: Guest User</div>
-            <div class="checkout-location-sub" id="checkoutAddressLine">Delivery address</div>
+            <div class="checkout-location-sub" id="checkoutAddressLine">Detecting address...</div>
             <button class="change-address-btn" style="margin-top:12px;" onclick="openProfilePage()">Change</button>
         </div>
 
@@ -3762,6 +3733,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
                 <li>Delivery address, village, and landmark</li>
                 <li>Order details and cart items</li>
                 <li>Payment method such as Cash on Delivery or UPI</li>
+                <li>Location/GPS details at the time of placing an order</li>
             </ul>
             <h4>2. How We Use Your Information</h4>
             <ul>
@@ -3770,8 +3742,10 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
                 <li>To show your order history and delivery status</li>
                 <li>To improve our app, website, products, and services</li>
             </ul>
+            <h4>3. Location Usage</h4>
+            <p>We use your location only to identify the delivery address and help the delivery partner reach you. We do not sell your location data.</p>
             <h4>4. Data Sharing</h4>
-            <p>We do not sell your personal information. We may share limited order, phone and address details with our delivery partner only for completing your order.</p>
+            <p>We do not sell your personal information. We may share limited order, phone, address, and location details with our delivery partner only for completing your order.</p>
             <h4>5. Payments</h4>
             <p>For UPI payments, the payment is completed through the UPI app selected by the customer. We do not store sensitive banking details such as card numbers, UPI PIN, or bank passwords.</p>
             <h4>6. Data Security</h4>
@@ -5236,6 +5210,73 @@ function update() {
 
 
 
+function getCurrentOrderLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+
+        function readLocation(callback) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = Number(position.coords.latitude);
+                    const longitude = Number(position.coords.longitude);
+                    const accuracy = Number(position.coords.accuracy || 0);
+
+                    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                        callback(null);
+                        return;
+                    }
+
+                    callback({
+                        latitude,
+                        longitude,
+                        accuracy
+                    });
+                },
+                (error) => {
+                    console.error("Current location fetch error:", error);
+                    callback(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        readLocation((firstLocation) => {
+            if (!firstLocation) {
+                resolve(null);
+                return;
+            }
+
+            if (firstLocation.accuracy > 0 && firstLocation.accuracy <= 50) {
+                resolve(firstLocation);
+                return;
+            }
+
+            setTimeout(() => {
+                readLocation((secondLocation) => {
+                    if (!secondLocation) {
+                        resolve(firstLocation);
+                        return;
+                    }
+
+                    const bestLocation =
+                        secondLocation.accuracy > 0 &&
+                        (firstLocation.accuracy <= 0 || secondLocation.accuracy < firstLocation.accuracy)
+                            ? secondLocation
+                            : firstLocation;
+
+                    resolve(bestLocation);
+                });
+            }, 2000);
+        });
+    });
+}
 
 let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
@@ -5258,15 +5299,32 @@ function closeCheckoutPanel(){
 async function loadCheckoutDetails(){
     const profile = getSavedProfile() || {};
     const strongName = (profile.name || "Guest User") + (profile.village ? ", " + String(profile.village).toUpperCase() : "");
-    const addressText = profile.address ? `${profile.address}${profile.landmark ? ", " + profile.landmark : ""}` : "Delivery address";
+    const addressText = profile.address ? `${profile.address}${profile.landmark ? ", " + profile.landmark : ""}` : "Detecting address...";
     const nameEl = document.getElementById("checkoutNameLine");
     const addrEl = document.getElementById("checkoutAddressLine");
     if(nameEl) nameEl.innerHTML = `Deliver to: <strong>${strongName}</strong>`;
     if(addrEl) addrEl.textContent = addressText;
 
+    try{
+        const fast = await detectCheckoutLocationFast();
+        if(fast && addrEl && (!profile.address || !String(profile.address).trim())){
+            addrEl.textContent = fast;
+        }
+    }catch(e){}
+
     updateCheckoutSummary();
 }
 
+async function detectCheckoutLocationFast(){
+    try{
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        const parts = [data.city, data.region, data.postal].filter(Boolean);
+        return parts.join(", ") || null;
+    }catch(error){
+        return null;
+    }
+}
 
 function updateCheckoutSummary(){
     const profile = getSavedProfile();
@@ -5362,6 +5420,31 @@ async function placeOrder(){
 }
 
 
+async function getQuickCheckoutLocation(){
+    try{
+        const fastText = await Promise.race([
+            detectCheckoutLocationFast(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1200))
+        ]);
+        const gpsLocation = await Promise.race([
+            getCurrentOrderLocation(),
+            new Promise((resolve)=>setTimeout(()=>resolve(null), 1800))
+        ]);
+
+        if(gpsLocation && typeof gpsLocation === "object"){
+            return gpsLocation;
+        }
+
+        if(fastText){
+            return { latitude: "", longitude: "", accuracy: 0, addressText: fastText };
+        }
+
+        return null;
+    }catch(error){
+        return null;
+    }
+}
+
 async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
     if(!isLoggedIn){
@@ -5388,6 +5471,8 @@ async function submitCheckoutOrder() {
 
     showPlaceOrderLoader();
 
+    let currentLocation = await getQuickCheckoutLocation();
+
     try {
         const response = await fetch("/api/orders", {
             method: "POST",
@@ -5397,6 +5482,7 @@ async function submitCheckoutOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
+                customerLocation: currentLocation,
                 couponCode: checkoutCouponCode || '',
                 couponDiscount: checkoutCouponDiscount || 0
             })
@@ -6097,16 +6183,6 @@ initApp();
             console.warn("Auto refresh skipped:", e);
         }
     }, 30000);
-})();
-</script>
-
-
-<script>
-/* ===== SETU MART FINAL LOADER SAFETY ===== */
-(function(){
-  setTimeout(function(){
-    if(typeof window.__setuSafeOpen === "function") window.__setuSafeOpen();
-  }, 6000);
 })();
 </script>
 
