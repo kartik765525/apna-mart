@@ -1135,8 +1135,7 @@ function getDeliveryBusinessDayKey(date){
   return yyyy + "-" + mm + "-" + dd;
 }
 
-function getOrderDateForDeliveryDay(order){
-  const value = order.createdAt || order.date || order.timestamp || order.orderDate || order.time || order.created_at;
+function parseDeliveryDateValue(value){
   if(!value) return null;
 
   const direct = new Date(value);
@@ -1155,14 +1154,31 @@ function getOrderDateForDeliveryDay(order){
   return null;
 }
 
+function getOrderDateForDeliveryDay(order){
+  return parseDeliveryDateValue(order.createdAt || order.date || order.timestamp || order.orderDate || order.time || order.created_at);
+}
+
+function getDeliveredDateForDeliveryDay(order){
+  // Delivered/earning ko order create time se nahi, delivery complete time se count karo.
+  // Day 1 ka order Day 2 me delivered ho to Day 2 earning/delivered me dikhega.
+  return parseDeliveryDateValue(
+    order.deliveredAt ||
+    order.completedAt ||
+    order.deliveryCompletedAt ||
+    order.statusUpdatedAt ||
+    order.updatedAt ||
+    order.deliveredTime ||
+    order.completedTime
+  );
+}
+
 function isDeliveredInCurrentDeliveryDay(order){
-  const orderDate = getOrderDateForDeliveryDay(order);
+  const deliveredDate = getDeliveredDateForDeliveryDay(order);
 
-  // Date missing ho to delivered order ko hide nahi karenge.
-  // Isse galti se earning/order गायब नहीं होगा.
-  if(!orderDate) return true;
+  // Agar purane data me deliveredAt nahi hai to hide mat karo, warna order/earning गायब हो सकती है.
+  if(!deliveredDate) return true;
 
-  return getDeliveryBusinessDayKey(orderDate) === getDeliveryBusinessDayKey(new Date());
+  return getDeliveryBusinessDayKey(deliveredDate) === getDeliveryBusinessDayKey(new Date());
 }
 
 function isDeliveryPanelOrderVisible(order){
@@ -1562,7 +1578,12 @@ async function updateStatus(orderId, status, fastMode){
 
   // Instant UI response: local status change first, server save in background.
   if(index >= 0){
-    deliveryOrders[index] = Object.assign({}, deliveryOrders[index], { status: status });
+    const patch = { status: status, statusUpdatedAt: new Date().toISOString() };
+    if(normalizeDeliveryStatus(status) === "Delivered"){
+      patch.deliveredAt = new Date().toISOString();
+      patch.completedAt = patch.deliveredAt;
+    }
+    deliveryOrders[index] = Object.assign({}, deliveryOrders[index], patch);
     renderOrders();
     renderStats();
   }
@@ -1571,7 +1592,15 @@ async function updateStatus(orderId, status, fastMode){
     const res = await fetch("/api/delivery/orders/" + orderId + "/status", {
       method: "PATCH",
       headers: headers(true),
-      body: JSON.stringify({ status: status })
+      body: JSON.stringify(normalizeDeliveryStatus(status) === "Delivered" ? {
+        status: status,
+        deliveredAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        statusUpdatedAt: new Date().toISOString()
+      } : {
+        status: status,
+        statusUpdatedAt: new Date().toISOString()
+      })
     });
     const data = await res.json().catch(function(){ return {}; });
     if(!res.ok){
