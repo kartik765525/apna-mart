@@ -1090,17 +1090,13 @@ function isDeliveryPanelOrderVisible(order){
   const resetTime = new Date();
   resetTime.setHours(23,0,0,0);
 
-  // Raat 11 baje ke baad poora delivery panel empty rahega.
+  // 11 PM ke baad delivery panel se orders hide ho jayenge.
   if(now >= resetTime) return false;
 
-  const orderDate = getOrderDateForDelivery(order);
-  if(!orderDate) return true;
-
-  return (
-    orderDate.getDate() === now.getDate() &&
-    orderDate.getMonth() === now.getMonth() &&
-    orderDate.getFullYear() === now.getFullYear()
-  );
+  // 11 PM se pehle backend se jo assigned orders aa rahe hain unhe hide mat karo.
+  // Admin assign ke baad kai baar order.date/createdAt alag format me hota hai,
+  // isliye yahan date ke kaaran assigned order ko block nahi karenge.
+  return true;
 }
 
 function getVisibleDeliveryOrders(){
@@ -1308,7 +1304,7 @@ function renderOrders(){
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
       ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Raat 11 baje ke baad orders delivery panel se hide ho jaate hain.</small></div>'
-      : '<div class="empty">No assigned pending orders right now<br><small>Raat 11 baje ke baad orders delivery panel se hide ho jaate hain.</small></div>';
+      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Raat 11 baje ke baad panel hide ho jayega.</small></div>';
     renderStats();
     return;
   }
