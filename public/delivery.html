@@ -1349,7 +1349,8 @@ function getMapsLink(order){
 
 function renderOrders(){
   const list = getEl("orderList");
-  const visibleOrders = getVisibleDeliveryOrders().filter(function(order){
+  const allVisible = getVisibleDeliveryOrders();
+  const visibleOrders = allVisible.filter(function(order){
     if(statsView === "delivered"){
       return order.status === "Delivered";
     }
@@ -1369,18 +1370,18 @@ function renderOrders(){
     return;
   }
 
-  if(statsView === "delivered"){
-    list.innerHTML = visibleOrders.map(function(order){
+  // Front list me sirf short summary dikhegi. Full detail + call/actions click par modal me khulenge.
+  list.innerHTML = visibleOrders.map(function(order){
     return (
       '<div class="delivered-summary-card" data-active-id="' + escapeDeliveryHtml(order.id) + '">' +
         '<div class="delivered-summary-top">' +
           '<div>' +
-            '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
+            '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id || "N/A") + '</div>' +
             '<div class="delivered-summary-village">Village: ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
             '<div class="active-summary-time">Order Time: ' + escapeDeliveryHtml(getOrderTimeForDelivery(order)) + '</div>' +
           '</div>' +
           '<div>' +
-            '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status) + '</span>' +
+            '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status || "Pending") + '</span>' +
             '<div class="delivered-click-note" style="margin-top:8px;text-align:right;">Click for details</div>' +
           '</div>' +
         '</div>' +
@@ -1391,12 +1392,6 @@ function renderOrders(){
   list.querySelectorAll(".delivered-summary-card[data-active-id]").forEach(function(card){
     card.addEventListener("click", function(){
       openDeliveredOrderDetail(this.getAttribute("data-active-id"));
-    });
-  });
-
-  list.querySelectorAll("button[data-order-id]").forEach(function(btn){
-    btn.addEventListener("click", function(){
-      updateStatus(this.dataset.orderId, this.dataset.status);
     });
   });
 
