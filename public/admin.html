@@ -230,6 +230,61 @@ body{
 .status-delivered{background:#dcfce7;color:#15803d;}
 .status-out{background:#dbeafe;color:#1d4ed8;}
 
+/* ===== TODAY / OLD ORDERS AUTO SEPARATION ===== */
+.order-day-section{
+    margin-top:18px;
+    border:1px solid #e5edf6;
+    border-radius:20px;
+    background:#ffffff;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(15,23,42,.04);
+}
+.order-day-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:16px;
+    background:linear-gradient(180deg,#fff,#f8fbff);
+    border-bottom:1px solid #e6edf5;
+}
+.order-day-title{
+    font-size:18px;
+    font-weight:900;
+    color:#243447;
+}
+.order-day-sub{
+    margin-top:4px;
+    font-size:13px;
+    font-weight:700;
+    color:#6b7c8f;
+}
+.order-day-count{
+    border-radius:999px;
+    padding:8px 14px;
+    background:#fff1eb;
+    color:#ff6b35;
+    font-weight:900;
+    font-size:13px;
+}
+.order-day-body{
+    padding:14px;
+}
+.order-old-section{
+    opacity:.96;
+}
+.order-old-section .order-day-count{
+    background:#eef4fb;
+    color:#3b556e;
+}
+.order-date-small{
+    margin-top:7px;
+    color:#64748b;
+    font-size:12px;
+    font-weight:700;
+}
+
 .order-detail-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -1833,11 +1888,88 @@ function renderProducts(){
         `).join("");
 }
 
+
+function getISTDateKey(dateValue = new Date()){
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    if(isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(date);
+}
+function parseOrderDateValue(order){
+    const candidates = [
+        order?.createdAt,
+        order?.created_at,
+        order?.timestamp,
+        order?.time,
+        order?.date,
+        order?.orderDate
+    ].filter(v => v !== undefined && v !== null && String(v).trim() !== "");
+
+    for(const value of candidates){
+        if(typeof value === "number" || /^\d{10,13}$/.test(String(value).trim())){
+            const n = Number(value);
+            const d = new Date(String(value).trim().length === 10 ? n * 1000 : n);
+            if(!isNaN(d.getTime())) return d;
+        }
+
+        const text = String(value).trim();
+        const direct = new Date(text);
+        if(!isNaN(direct.getTime())) return direct;
+
+        const ddmmyyyy = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+        if(ddmmyyyy){
+            const day = Number(ddmmyyyy[1]);
+            const month = Number(ddmmyyyy[2]) - 1;
+            const year = Number(ddmmyyyy[3].length === 2 ? "20" + ddmmyyyy[3] : ddmmyyyy[3]);
+            const d = new Date(year, month, day);
+            if(!isNaN(d.getTime())) return d;
+        }
+    }
+
+    const idText = String(order?.id || order?.orderId || "");
+    const timeMatch = idText.match(/(\d{13})/);
+    if(timeMatch){
+        const d = new Date(Number(timeMatch[1]));
+        if(!isNaN(d.getTime())) return d;
+    }
+
+    return null;
+}
+function isTodayOrder(order){
+    const date = parseOrderDateValue(order);
+    if(!date) return false;
+    return getISTDateKey(date) === getISTDateKey(new Date());
+}
+function getOrderDisplayDate(order){
+    const date = parseOrderDateValue(order);
+    if(!date) return order?.date || order?.createdAt || "Date not found";
+    return date.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+let lastRenderedOrderDateKey = getISTDateKey(new Date());
+setInterval(function(){
+    const nowKey = getISTDateKey(new Date());
+    if(nowKey !== lastRenderedOrderDateKey){
+        lastRenderedOrderDateKey = nowKey;
+        if(activeSection === "orders") renderOrders();
+        if(activeSection === "dashboard") renderDashboard();
+    }
+}, 60000);
+
 function renderDashboard(){
     const totalOrders = orders.length;
-    const today = new Date().toLocaleDateString("en-IN");
     const todaySales = orders
-        .filter(order => String(order.date || "").includes(today))
+        .filter(order => isTodayOrder(order))
         .reduce((sum, order) => sum + Number(order.total || 0), 0);
     const pendingOrders = orders.filter(order => String(order.status) === "Need Confirmation").length;
     const totalProducts = products.length;
@@ -1860,13 +1992,13 @@ function renderOrders(){
     if(searchValue){
         filteredOrders = filteredOrders.filter(order =>
             String(order.id || "").toLowerCase().includes(searchValue) ||
-            String(order.phone || "").toLowerCase().includes(searchValue)
+            String(order.phone || "").toLowerCase().includes(searchValue) ||
+            String(order.name || order.customerName || "").toLowerCase().includes(searchValue)
         );
     }
 
-    const needList = filteredOrders.filter(order => getOrderSectionName(order.status) === "need");
-    const pendingList = filteredOrders.filter(order => getOrderSectionName(order.status) === "pending");
-    const deliveredList = filteredOrders.filter(order => getOrderSectionName(order.status) === "delivered");
+    const todayOrders = filteredOrders.filter(order => isTodayOrder(order));
+    const oldOrders = filteredOrders.filter(order => !isTodayOrder(order));
 
     const buildCol = (title, list) => `
         <div class="order-column">
@@ -1878,6 +2010,7 @@ function renderOrders(){
                 ${list.length ? list.map(order => `
                     <div class="order-mini-card" onclick="openOrderDetail('${order.id}')">
                         <div class="order-mini-id">${order.id || "N/A"}</div>
+                        <div class="order-date-small">${getOrderDisplayDate(order)}</div>
                         <div class="order-mini-status">${getOrderStatusChip(order.status)}</div>
                     </div>
                 `).join("") : `<div class="order-empty-col">No orders</div>`}
@@ -1885,17 +2018,39 @@ function renderOrders(){
         </div>
     `;
 
+    const buildDaySection = (title, subTitle, list, isOld = false) => {
+        const needList = list.filter(order => getOrderSectionName(order.status) === "need");
+        const pendingList = list.filter(order => getOrderSectionName(order.status) === "pending");
+        const deliveredList = list.filter(order => getOrderSectionName(order.status) === "delivered");
+
+        return `
+            <div class="order-day-section ${isOld ? "order-old-section" : ""}">
+                <div class="order-day-head">
+                    <div>
+                        <div class="order-day-title">${title}</div>
+                        <div class="order-day-sub">${subTitle}</div>
+                    </div>
+                    <div class="order-day-count">${list.length} Orders</div>
+                </div>
+                <div class="order-day-body">
+                    <div class="top-order-stats">
+                        <div class="top-order-stat need"><div class="label">Need Confirmation</div><div class="value">${needList.length}</div></div>
+                        <div class="top-order-stat pending"><div class="label">Pending</div><div class="value">${pendingList.length}</div></div>
+                        <div class="top-order-stat delivered"><div class="label">Delivered</div><div class="value">${deliveredList.length}</div></div>
+                    </div>
+                    <div class="order-board">
+                        ${buildCol("Need Confirmation", needList)}
+                        ${buildCol("Pending / Out for Delivery", pendingList)}
+                        ${buildCol("Delivered", deliveredList)}
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
     container.innerHTML = `
-        <div class="top-order-stats">
-            <div class="top-order-stat need"><div class="label">Need Confirmation</div><div class="value">${needList.length}</div></div>
-            <div class="top-order-stat pending"><div class="label">Pending</div><div class="value">${pendingList.length}</div></div>
-            <div class="top-order-stat delivered"><div class="label">Delivered</div><div class="value">${deliveredList.length}</div></div>
-        </div>
-        <div class="order-board">
-            ${buildCol("Need Confirmation", needList)}
-            ${buildCol("Pending", pendingList)}
-            ${buildCol("Delivered", deliveredList)}
-        </div>
+        ${buildDaySection("📌 Today Orders", "Aaj ke orders yahan rahenge. Raat 12 baje ke baad ye automatic Old Orders me dikhne lagenge.", todayOrders, false)}
+        ${buildDaySection("📁 Old Orders", "Kal ya usse purane orders yahan alag section me rahenge.", oldOrders, true)}
     `;
 }
 
