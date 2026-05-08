@@ -1095,28 +1095,9 @@ function logoutDelivery(){
   showLogin();
 }
 
-function normalizeDeliveryStatus(status){
-  const value = String(status || "Pending").trim().toLowerCase();
-  if(value === "out for delivery" || value === "out" || value === "on the way") return "Out for Delivery";
-  if(value === "delivered" || value === "complete" || value === "completed") return "Delivered";
-  if(value === "need confirmation" || value === "need confirm" || value === "need confermation") return "Need Confirmation";
-  if(value === "confirmed" || value === "confirm" || value === "assigned") return "Confirmed";
-  if(value === "pending" || value === "new") return "Pending";
-  return status || "Pending";
-}
-
-function isDeliveredStatus(status){
-  return normalizeDeliveryStatus(status) === "Delivered";
-}
-
-function isActiveDeliveryStatus(status){
-  return !isDeliveredStatus(status);
-}
-
 function badgeClass(status){
-  const value = normalizeDeliveryStatus(status);
-  if(value === "Out for Delivery") return "out";
-  if(value === "Delivered") return "done";
+  if(status === "Out for Delivery") return "out";
+  if(status === "Delivered") return "done";
   return "pending";
 }
 
@@ -1137,16 +1118,9 @@ function getOrderDateForDelivery(order){
 }
 
 function isDeliveryPanelOrderVisible(order){
-  const now = new Date();
-  const resetTime = new Date();
-  resetTime.setHours(23,0,0,0);
-
-  // 11 PM ke baad delivery panel se orders hide ho jayenge.
-  if(now >= resetTime) return false;
-
-  // 11 PM se pehle backend se jo assigned orders aa rahe hain unhe hide mat karo.
-  // Admin assign ke baad kai baar order.date/createdAt alag format me hota hai,
-  // isliye yahan date ke kaaran assigned order ko block nahi karenge.
+  // TEST / FIX MODE: 11 PM auto-hide फिलहाल OFF है,
+  // ताकि admin panel से assigned orders delivery panel में जरूर दिखें.
+  // बाद में assigned orders दिखने लगें तो hide logic दुबारा safe तरीके से add कर सकते हैं.
   return true;
 }
 
@@ -1161,10 +1135,10 @@ function getCustomerPhoneForDelivery(order){
 function calculateStats(){
   const panelOrders = getVisibleDeliveryOrders();
   const activeOrders = panelOrders.filter(function(o){
-    return isActiveDeliveryStatus(o.status);
+    return o.status === "Pending" || o.status === "Out for Delivery" || o.status === "Need Confirmation" || o.status === "Confirmed";
   });
   const deliveredOrders = panelOrders.filter(function(o){
-    return isDeliveredStatus(o.status);
+    return o.status === "Delivered";
   });
   const deliveredToday = deliveredOrders.length;
 
@@ -1174,11 +1148,8 @@ function calculateStats(){
 
   return {
     activeOrders: activeOrders.length,
-    pending: panelOrders.filter(function(o){
-      const s = normalizeDeliveryStatus(o.status);
-      return s === "Pending" || s === "Need Confirmation" || s === "Confirmed";
-    }).length,
-    out: panelOrders.filter(function(o){ return normalizeDeliveryStatus(o.status) === "Out for Delivery"; }).length,
+    pending: panelOrders.filter(function(o){ return o.status === "Pending" || o.status === "Need Confirmation" || o.status === "Confirmed"; }).length,
+    out: panelOrders.filter(function(o){ return o.status === "Out for Delivery"; }).length,
     deliveredToday: deliveredToday,
     estimatedEarning: totalEarning,
   };
@@ -1260,7 +1231,7 @@ function hideDeliveryFilter(){
 }
 
 function openDeliveredOrderDetail(orderId){
-  const order = getVisibleDeliveryOrders().find(function(o){ return String(o.id || o.orderId) === String(orderId); });
+  const order = getVisibleDeliveryOrders().find(function(o){ return String(o.id) === String(orderId); });
   if(!order) return;
 
   const itemsHtml = (Array.isArray(order.items) ? order.items : []).map(function(item){
@@ -1272,23 +1243,22 @@ function openDeliveredOrderDetail(orderId){
   const callBtn = customerPhone
     ? '<a href="tel:' + escapeDeliveryHtml(customerPhone) + '" class="customer-call-btn" aria-label="Call Customer">📞</a>'
     : '<a class="customer-call-btn disabled" aria-label="No Customer Number">📞</a>';
-  const currentStatus = normalizeDeliveryStatus(order.status);
-  const startBtn = currentStatus !== "Delivered" && currentStatus !== "Out for Delivery"
-    ? '<button type="button" class="action-btn start detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id || order.orderId) + '" data-status="Out for Delivery">Mark Out for Delivery</button>'
+  const startBtn = (order.status === "Pending" || order.status === "Need Confirmation" || order.status === "Confirmed")
+    ? '<button type="button" class="action-btn start detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id) + '" data-status="Out for Delivery">Mark Out for Delivery</button>'
     : "";
-  const doneBtn = currentStatus === "Out for Delivery"
-    ? '<button type="button" class="action-btn done detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id || order.orderId) + '" data-status="Delivered">Mark Delivered</button>'
+  const doneBtn = order.status === "Out for Delivery"
+    ? '<button type="button" class="action-btn done detail-status-btn" data-order-id="' + escapeDeliveryHtml(order.id) + '" data-status="Delivered">Mark Delivered</button>'
     : "";
 
   const content = getEl("deliveryDetailContent");
   if(content){
     content.innerHTML =
-      '<div class="delivery-detail-line"><b>Order ID:</b> ' + escapeDeliveryHtml(order.id || order.orderId) + '</div>' +
+      '<div class="delivery-detail-line"><b>Order ID:</b> ' + escapeDeliveryHtml(order.id) + '</div>' +
       '<div class="delivery-detail-line"><b>Name:</b> ' + escapeDeliveryHtml(order.customerName || order.name || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Village:</b> ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
       '<div class="delivery-detail-line"><b>Order Time:</b> ' + escapeDeliveryHtml(getOrderTimeForDelivery(order)) + '</div>' +
       '<div class="delivery-detail-line"><b>Address:</b> ' + escapeDeliveryHtml(addressLine || "N/A") + '</div>' +
-      '<div class="delivery-detail-line"><b>Status:</b> ' + escapeDeliveryHtml(normalizeDeliveryStatus(order.status) || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Status:</b> ' + escapeDeliveryHtml(order.status || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Order Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + '</div>' +
       '<div class="delivery-detail-line"><b>Delivery Charge:</b> ₹' + getDeliveryChargeForDelivery(order).toFixed(0) + '</div>' +
       '<div class="delivery-detail-line"><b>Total Earning:</b> ₹' + (getOrderTotalForDelivery(order) + getDeliveryChargeForDelivery(order)).toFixed(0) + '</div>' +
@@ -1393,9 +1363,9 @@ function renderOrders(){
   const allVisible = getVisibleDeliveryOrders();
   const visibleOrders = allVisible.filter(function(order){
     if(statsView === "delivered"){
-      return isDeliveredStatus(order.status);
+      return order.status === "Delivered";
     }
-    return isActiveDeliveryStatus(order.status);
+    return order.status === "Pending" || order.status === "Out for Delivery" || order.status === "Need Confirmation" || order.status === "Confirmed";
   });
 
   const sectionTitle = document.querySelector(".section h3");
@@ -1405,8 +1375,8 @@ function renderOrders(){
 
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
-      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Raat 11 baje ke baad orders delivery panel se hide ho jaate hain.</small></div>'
-      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Raat 11 baje ke baad panel hide ho jayega.</small></div>';
+      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Auto-hide फिलहाल OFF है.</small></div>'
+      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Auto-hide फिलहाल OFF है.</small></div>';
     renderStats();
     return;
   }
@@ -1414,15 +1384,15 @@ function renderOrders(){
   // Front list me sirf short summary dikhegi. Full detail + call/actions click par modal me khulenge.
   list.innerHTML = visibleOrders.map(function(order){
     return (
-      '<div class="delivered-summary-card" data-active-id="' + escapeDeliveryHtml(order.id || order.orderId) + '">' +
+      '<div class="delivered-summary-card" data-active-id="' + escapeDeliveryHtml(order.id) + '">' +
         '<div class="delivered-summary-top">' +
           '<div>' +
-            '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id || order.orderId || "N/A") + '</div>' +
+            '<div class="delivered-summary-id">Order ID: ' + escapeDeliveryHtml(order.id || "N/A") + '</div>' +
             '<div class="delivered-summary-village">Village: ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
             '<div class="active-summary-time">Order Time: ' + escapeDeliveryHtml(getOrderTimeForDelivery(order)) + '</div>' +
           '</div>' +
           '<div>' +
-            '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(normalizeDeliveryStatus(order.status) || "Pending") + '</span>' +
+            '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status || "Pending") + '</span>' +
             '<div class="delivered-click-note" style="margin-top:8px;text-align:right;">Click for details</div>' +
           '</div>' +
         '</div>' +
@@ -1441,33 +1411,33 @@ function renderOrders(){
 
 async function fetchOrders(){
   try{
-    const res = await fetch("/api/delivery/orders", { headers: headers(false) });
-    const data = await res.json().catch(function(){ return []; });
-    if(!res.ok){
+    // Delivery endpoint first: normally backend yahi assigned orders deta hai.
+    let res = await fetch("/api/delivery/orders", { headers: headers(false) });
+    let data = await res.json().catch(function(){ return []; });
+
+    // Kuch server responses array nahi, object me orders/data bhejte hain.
+    let list = normalizeDeliveryOrdersResponse(data);
+
+    // Agar delivery endpoint empty aaye, fallback try karo.
+    // Isse admin panel se assigned orders dikhne ke chances badhte hain.
+    if((!Array.isArray(list) || !list.length) && res.ok){
+      try{
+        const res2 = await fetch("/api/orders", { headers: headers(false) });
+        const data2 = await res2.json().catch(function(){ return []; });
+        const list2 = normalizeDeliveryOrdersResponse(data2);
+        if(Array.isArray(list2) && list2.length){
+          list = filterOrdersAssignedToMe(list2);
+        }
+      }catch(e){}
+    }
+
+    if(!res.ok && (!Array.isArray(list) || !list.length)){
       deliveryOrders = [];
       renderOrders();
       return;
     }
 
-    // Backend kabhi direct array bhejta hai, kabhi {orders:[...]} / {data:[...]} format.
-    // Dono support karne se admin se assigned orders hide nahi honge.
-    if(Array.isArray(data)){
-      deliveryOrders = data;
-    }else if(Array.isArray(data.orders)){
-      deliveryOrders = data.orders;
-    }else if(Array.isArray(data.assignedOrders)){
-      deliveryOrders = data.assignedOrders;
-    }else if(Array.isArray(data.data)){
-      deliveryOrders = data.data;
-    }else{
-      deliveryOrders = [];
-    }
-
-    // Status ko normalize karke UI filter stable rakho.
-    deliveryOrders = deliveryOrders.map(function(o){
-      return Object.assign({}, o, { status: normalizeDeliveryStatus(o.status) });
-    });
-
+    deliveryOrders = Array.isArray(list) ? normalizeDeliveryOrderList(list) : [];
     renderOrders();
   }catch(error){
     console.error(error);
@@ -1476,8 +1446,66 @@ async function fetchOrders(){
   }
 }
 
+function normalizeDeliveryOrdersResponse(data){
+  if(Array.isArray(data)) return data;
+  if(!data || typeof data !== "object") return [];
+  if(Array.isArray(data.orders)) return data.orders;
+  if(Array.isArray(data.assignedOrders)) return data.assignedOrders;
+  if(Array.isArray(data.deliveryOrders)) return data.deliveryOrders;
+  if(Array.isArray(data.data)) return data.data;
+  if(data.order && typeof data.order === "object") return [data.order];
+  return [];
+}
+
+function normalizeDeliveryStatus(status){
+  const value = String(status || "Pending").trim().toLowerCase();
+  if(value === "out for delivery" || value === "out_for_delivery" || value === "out-for-delivery" || value === "out") return "Out for Delivery";
+  if(value === "delivered" || value === "done" || value === "completed") return "Delivered";
+  if(value === "need confirmation" || value === "need_confirmation" || value === "need-confirmation") return "Need Confirmation";
+  if(value === "confirmed" || value === "confirm") return "Confirmed";
+  if(value === "pending" || value === "assigned" || value === "active") return "Pending";
+  return status || "Pending";
+}
+
+function normalizeDeliveryOrderList(list){
+  return (Array.isArray(list) ? list : []).map(function(order){
+    const id = order.id || order.orderId || order._id || order.order_id || ("ORD-" + Math.random().toString(36).slice(2,8));
+    return Object.assign({}, order, {
+      id: id,
+      status: normalizeDeliveryStatus(order.status || order.orderStatus || order.deliveryStatus)
+    });
+  });
+}
+
+function normalizePhoneForMatch(v){
+  return String(v || "").replace(/\D/g,"").slice(-10);
+}
+
+function filterOrdersAssignedToMe(list){
+  const me = deliveryMe || loadCachedProfile() || {};
+  const myId = String(me.id || me._id || me.deliveryBoyId || me.uid || "").trim();
+  const myPhone = normalizePhoneForMatch(me.phone || me.mobile || me.number || localStorage.getItem("deliveryPhone") || "");
+  const myName = String(me.name || me.fullName || "").trim().toLowerCase();
+
+  const filtered = (Array.isArray(list) ? list : []).filter(function(order){
+    const assignedId = String(order.assignedDeliveryBoyId || order.deliveryBoyId || order.assignedTo || order.deliveryId || "").trim();
+    const assignedPhone = normalizePhoneForMatch(order.assignedDeliveryBoyPhone || order.deliveryBoyPhone || order.assignedPhone || order.deliveryPhone || "");
+    const assignedName = String(order.assignedDeliveryBoyName || order.deliveryBoyName || order.assignedName || "").trim().toLowerCase();
+
+    if(myId && assignedId && myId === assignedId) return true;
+    if(myPhone && assignedPhone && myPhone === assignedPhone) return true;
+    if(myName && assignedName && myName === assignedName) return true;
+
+    return false;
+  });
+
+  // Agar fallback filter se kuch nahi mila, raw list return mat karo only jab list delivery endpoint ki ho.
+  // /api/orders fallback ke liye empty hi sahi; admin assignment fields match honi chahiye.
+  return filtered;
+}
+
 async function updateStatus(orderId, status, fastMode){
-  const index = deliveryOrders.findIndex(function(o){ return String(o.id || o.orderId) === String(orderId); });
+  const index = deliveryOrders.findIndex(function(o){ return String(o.id) === String(orderId); });
   const oldOrder = index >= 0 ? Object.assign({}, deliveryOrders[index]) : null;
 
   // Instant UI response: local status change first, server save in background.
