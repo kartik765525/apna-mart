@@ -3404,6 +3404,38 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
+
+/* ===== INSTANT APP + NORMAL HEADER + GESTURE BACK FIX ===== */
+#appStartLoader,
+#commerceLoader{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+/* sticky header/category/search remove */
+.header,
+.categories,
+.search-box{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+}
+
+/* panels proper full screen for mobile gesture/back */
+.side-panel,
+.profile-page,
+.order-detail-panel,
+.language-panel,
+.support-panel,
+.checkout-panel{
+  overscroll-behavior:contain !important;
+}
+body{
+  overscroll-behavior-y:auto !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -4480,12 +4512,14 @@ function showApp(){
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
     hideAppStartLoader();
+    hideAppStartLoader();
 }
 
 function showLogin(){
     document.documentElement.classList.remove("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "flex";
     document.getElementById("app").style.display = "none";
+    hideAppStartLoader();
     hideAppStartLoader();
 }
 
@@ -5213,68 +5247,11 @@ function update() {
 
 
 
+
 function getCurrentOrderLocation() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            showToast("Location support nahi hai", "error");
-            resolve(null);
-            return;
-        }
-
-        const validLocation = (loc) => {
-            const lat = Number(loc && loc.latitude);
-            const lng = Number(loc && loc.longitude);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
-            if (lat === 0 && lng === 0) return false;
-            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return false;
-            return true;
-        };
-
-        const getOnce = (timeoutMs) => new Promise((done) => {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const loc = {
-                        latitude: Number(position.coords.latitude),
-                        longitude: Number(position.coords.longitude),
-                        accuracy: Number(position.coords.accuracy || 0),
-                        capturedAt: new Date().toISOString(),
-                        source: "gps"
-                    };
-                    done(validLocation(loc) ? loc : null);
-                },
-                (error) => {
-                    console.error("GPS location error:", error);
-                    if (error && error.code === 1) {
-                        showToast("Location permission Allow karo", "error");
-                    }
-                    done(null);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: timeoutMs,
-                    maximumAge: 0
-                }
-            );
-        });
-
-        (async () => {
-            let best = null;
-            for (let i = 0; i < 3; i++) {
-                const loc = await getOnce(i === 0 ? 15000 : 20000);
-                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) best = loc;
-                if (best && best.accuracy && best.accuracy <= 80) break;
-                await new Promise(r => setTimeout(r, 700));
-            }
-
-            if (!validLocation(best)) {
-                showToast("Exact GPS location nahi mili. GPS ON karke dobara try karo.", "error");
-                resolve(null);
-                return;
-            }
-            resolve(best);
-        })();
-    });
+    return Promise.resolve(null);
 }
+
 
 
 let checkoutCouponDiscount = 0;
@@ -5420,20 +5397,11 @@ async function placeOrder(){
 
 
 
+
 async function getQuickCheckoutLocation(){
-    try{
-        const location = await getCurrentOrderLocation();
-        const lat = Number(location && location.latitude);
-        const lng = Number(location && location.longitude);
-        if(location && Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180){
-            return location;
-        }
-        return null;
-    }catch(error){
-        console.error("Checkout location error:", error);
-        return null;
-    }
+    return null;
 }
+
 
 
 async function submitCheckoutOrder() {
@@ -5464,17 +5432,6 @@ async function submitCheckoutOrder() {
 
     let currentLocation = await getQuickCheckoutLocation();
 
-    if(
-        !currentLocation ||
-        !Number.isFinite(Number(currentLocation.latitude)) ||
-        !Number.isFinite(Number(currentLocation.longitude)) ||
-        (Number(currentLocation.latitude) === 0 && Number(currentLocation.longitude) === 0)
-    ){
-        hidePlaceOrderLoader();
-        showToast("Exact GPS location nahi mili. Location permission Allow karo aur GPS ON karke dobara order karo.", "error");
-        return;
-    }
-
     try {
         const response = await fetch("/api/orders", {
             method: "POST",
@@ -5484,7 +5441,7 @@ async function submitCheckoutOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
-                customerLocation: currentLocation,
+                customerLocation: null,
                 couponCode: checkoutCouponCode || '',
                 couponDiscount: checkoutCouponDiscount || 0
             })
@@ -6128,6 +6085,7 @@ function timeoutPromise(ms, fallbackValue = null){
     return new Promise(resolve => setTimeout(() => resolve(fallbackValue), ms));
 }
 
+
 async function initApp(){
     applyThemeMode();
     applyLanguage();
@@ -6136,11 +6094,12 @@ async function initApp(){
     renderTopProfile();
     updateCartDeliveryBox();
 
+    hideAppStartLoader();
+
     try{
-        // Login check slow ho sakta hai; loader ko stuck nahi hone dena
         const loginResult = await Promise.race([
             checkCustomerLogin(),
-            timeoutPromise(4500, "timeout")
+            new Promise(resolve => setTimeout(() => resolve("timeout"), 1500))
         ]);
 
         if(loginResult === "timeout"){
@@ -6149,15 +6108,11 @@ async function initApp(){
             else showLogin();
         }
 
+        hideAppStartLoader();
         syncPanelWithHash();
 
-        await Promise.race([
-            fetchProducts(),
-            timeoutPromise(7000, "products-timeout")
-        ]);
-
-        hideAppStartLoader();
-
+        // products background me load honge; app turant dikhega
+        fetchProducts().catch(console.error).finally(() => hideAppStartLoader());
         fetchLiveOffers().catch(console.error);
         refreshCartFromFirebase().catch(console.error);
         startAutoRefresh();
@@ -6167,12 +6122,9 @@ async function initApp(){
         if(customerToken) showApp();
         else showLogin();
         hideAppStartLoader();
-    }finally{
-        // final guarantee
-        setTimeout(hideAppStartLoader, 300);
-        setTimeout(hideAppStartLoader, 1500);
     }
 }
+
 
 
 initApp();
@@ -6261,6 +6213,96 @@ initApp();
       showToast("Is order me exact GPS location nahi mili. Customer ko GPS allow karke dobara order karna hoga.", "error");
     }
   }, true);
+})();
+</script>
+
+
+<script>
+/* ===== INSTANT APP OPEN OVERRIDE ===== */
+(function(){
+  function hideAllLoaders(){
+    ["appStartLoader","commerceLoader"].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){
+        el.classList.add("hidden");
+        el.style.display = "none";
+        el.style.visibility = "hidden";
+        el.style.opacity = "0";
+        el.style.pointerEvents = "none";
+      }
+    });
+  }
+
+  window.hideAppStartLoader = hideAllLoaders;
+
+  document.addEventListener("DOMContentLoaded", function(){
+    hideAllLoaders();
+    setTimeout(hideAllLoaders, 500);
+    setTimeout(hideAllLoaders, 1500);
+  });
+
+  window.addEventListener("error", hideAllLoaders);
+  window.addEventListener("unhandledrejection", hideAllLoaders);
+})();
+</script>
+
+
+<script>
+/* ===== LOCATION REMOVED: MAP LINK DISABLED ===== */
+(function(){
+  document.addEventListener("click", function(e){
+    var link = e.target.closest && e.target.closest("a[href]");
+    if(!link) return;
+    var href = link.getAttribute("href") || "";
+    if(href.includes("google.com/maps") || href.includes("maps.google")){
+      e.preventDefault();
+      showToast("Location feature abhi disabled hai", "info");
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* ===== BACK / GESTURE NAVIGATION FIX ===== */
+(function(){
+  function closeTopPanel(){
+    var selectors = [
+      "#orderDetailPanel.open",
+      "#checkoutPanel.open",
+      "#cartPanel.open",
+      "#ordersPanel.open",
+      "#profilePage.open",
+      "#languagePanel.open",
+      "#supportPanel.open"
+    ];
+    for(var i=0;i<selectors.length;i++){
+      var el = document.querySelector(selectors[i]);
+      if(el){
+        el.classList.remove("open");
+        document.body.classList.remove("panel-open");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  window.addEventListener("popstate", function(e){
+    if(closeTopPanel()){
+      history.pushState({setuPanel:true}, "", location.href);
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    try{
+      if(!history.state || !history.state.setuInit){
+        history.replaceState({setuInit:true}, "", location.href);
+        history.pushState({setuPanel:true}, "", location.href);
+      }
+    }catch(e){}
+  });
+
+  window.setuCloseTopPanel = closeTopPanel;
 })();
 </script>
 
