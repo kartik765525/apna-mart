@@ -3404,6 +3404,16 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
+
+/* ===== SAFE LOADER FIX ONLY ===== */
+html.setu-loader-done #commerceLoader,
+#commerceLoader.setu-force-hide{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3458,32 +3468,6 @@ document.addEventListener("touchend", function(e){
 
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-
-<script>
-/* ===== SETU MART SAFE LOADER + LOCATION PATCH EARLY ===== */
-(function(){
-  window.__setuSafeOpen = function(){
-    try{
-      var loader = document.getElementById("commerceLoader");
-      if(loader){
-        loader.classList.add("hidden");
-        loader.style.display = "none";
-        loader.style.visibility = "hidden";
-        loader.style.pointerEvents = "none";
-      }
-    }catch(e){}
-  };
-
-  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 200); });
-  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 200); });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(window.__setuSafeOpen, 6000);
-    setTimeout(window.__setuSafeOpen, 12000);
-  });
-})();
-</script>
 
 </head>
 <body>
@@ -5245,7 +5229,7 @@ function getCurrentOrderLocation() {
             return;
         }
 
-        const valid = (loc) => {
+        const validLocation = (loc) => {
             const lat = Number(loc && loc.latitude);
             const lng = Number(loc && loc.longitude);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
@@ -5254,43 +5238,50 @@ function getCurrentOrderLocation() {
             return true;
         };
 
-        const getOnce = (timeout) => new Promise((done) => {
+        const getOnce = (timeoutMs) => new Promise((done) => {
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
+                (position) => {
                     const loc = {
-                        latitude: Number(pos.coords.latitude),
-                        longitude: Number(pos.coords.longitude),
-                        accuracy: Number(pos.coords.accuracy || 0),
+                        latitude: Number(position.coords.latitude),
+                        longitude: Number(position.coords.longitude),
+                        accuracy: Number(position.coords.accuracy || 0),
                         capturedAt: new Date().toISOString(),
                         source: "gps"
                     };
-                    done(valid(loc) ? loc : null);
+                    done(validLocation(loc) ? loc : null);
                 },
-                (err) => {
-                    console.error("GPS error:", err);
-                    if (err && err.code === 1) {
+                (error) => {
+                    console.error("GPS location error:", error);
+                    if (error && error.code === 1) {
                         showToast("Location permission Allow karo", "error");
                     }
                     done(null);
                 },
-                { enableHighAccuracy: true, timeout: timeout, maximumAge: 0 }
+                {
+                    enableHighAccuracy: true,
+                    timeout: timeoutMs,
+                    maximumAge: 0
+                }
             );
         });
 
         (async () => {
             let best = null;
 
-            for (let i = 0; i < 4; i++) {
-                const loc = await getOnce(i === 0 ? 15000 : 22000);
+            // 3 retry: first GPS result weak ho sakta hai, isliye best accuracy choose karta hai
+            for (let i = 0; i < 3; i++) {
+                const loc = await getOnce(i === 0 ? 15000 : 20000);
+
                 if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) {
                     best = loc;
                 }
+
                 if (best && best.accuracy && best.accuracy <= 80) break;
                 await new Promise(r => setTimeout(r, 700));
             }
 
-            if (!valid(best)) {
-                showToast("Exact GPS location nahi mili. Location/GPS ON karke dobara try karo.", "error");
+            if (!validLocation(best)) {
+                showToast("Exact GPS location nahi mili. GPS ON karke dobara try karo.", "error");
                 resolve(null);
                 return;
             }
@@ -5446,19 +5437,20 @@ async function placeOrder(){
 async 
 async function getQuickCheckoutLocation(){
     try{
-        const loc = await getCurrentOrderLocation();
-        const lat = Number(loc && loc.latitude);
-        const lng = Number(loc && loc.longitude);
+        const location = await getCurrentOrderLocation();
+
+        const lat = Number(location && location.latitude);
+        const lng = Number(location && location.longitude);
 
         if(
-            loc &&
+            location &&
             Number.isFinite(lat) &&
             Number.isFinite(lng) &&
             !(lat === 0 && lng === 0) &&
             Math.abs(lat) <= 90 &&
             Math.abs(lng) <= 180
         ){
-            return loc;
+            return location;
         }
 
         return null;
@@ -6223,29 +6215,17 @@ initApp();
 
 
 <script>
-/* ===== SETU MART 0,0 MAP LINK BLOCK + FINAL LOADER FIX ===== */
+/* ===== BLOCK 0,0 MAP LINK ONLY ===== */
 (function(){
-  function isBadLatLng(lat,lng){
-    lat = Number(lat); lng = Number(lng);
-    return !Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180;
-  }
-
-  window.setuIsBadLatLng = isBadLatLng;
-
-  // prevent opening 0,0 google maps links
   document.addEventListener("click", function(e){
-    var a = e.target.closest && e.target.closest("a[href]");
-    if(!a) return;
-    var href = a.getAttribute("href") || "";
+    var link = e.target.closest && e.target.closest("a[href]");
+    if(!link) return;
+    var href = link.getAttribute("href") || "";
     if(href.includes("0,0") || href.includes("0.0000000,0.0000000") || href.includes("destination=0")) {
       e.preventDefault();
-      showToast("Is order me exact GPS location nahi mili. Customer ko location allow karke dobara order karna hoga.", "error");
+      showToast("Is order me exact GPS location nahi mili. Customer ko GPS allow karke dobara order karna hoga.", "error");
     }
   }, true);
-
-  setTimeout(function(){
-    if(typeof window.__setuSafeOpen === "function") window.__setuSafeOpen();
-  }, 6000);
 })();
 </script>
 
