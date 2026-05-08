@@ -6221,5 +6221,76 @@ initApp();
 })();
 </script>
 
+
+<script>
+/* ===== LOADING PRODUCTS STUCK SAFETY FIX ===== */
+(function(){
+  function safeHideCommerceLoader(){
+    try{
+      var loader = document.getElementById("commerceLoader");
+      var app = document.getElementById("app");
+      var login = document.getElementById("loginScreen");
+
+      if(loader){
+        loader.classList.add("hidden");
+        loader.style.display = "none";
+      }
+
+      var token = localStorage.getItem("apnaMartUserToken") ||
+                  localStorage.getItem("setuMartUserToken") ||
+                  localStorage.getItem("customerToken") ||
+                  localStorage.getItem("userToken");
+
+      if(token && app){
+        app.style.display = "block";
+        document.documentElement.classList.add("apnamart-has-token");
+      }else if(login && app && app.style.display !== "block"){
+        login.style.display = "flex";
+      }
+    }catch(e){}
+  }
+
+  window.addEventListener("error", function(e){
+    console.warn("Customer panel recovered:", e.message);
+    setTimeout(safeHideCommerceLoader, 300);
+  });
+
+  window.addEventListener("unhandledrejection", function(){
+    setTimeout(safeHideCommerceLoader, 300);
+  });
+
+  setTimeout(function(){
+    var loader = document.getElementById("commerceLoader");
+    if(loader && !loader.classList.contains("hidden")){
+      safeHideCommerceLoader();
+    }
+  }, 4500);
+})();
+</script>
+
+
+<script>
+/* ===== PRODUCT FETCH TIMEOUT SAFETY ===== */
+(function(){
+  const oldFetch = window.fetch;
+  if(!oldFetch || window.__fetchTimeoutPatched) return;
+  window.__fetchTimeoutPatched = true;
+
+  window.fetch = function(resource, options){
+    const url = String(resource && resource.url ? resource.url : resource);
+    const isProductApi = url.includes("/api/products");
+    if(!isProductApi){
+      return oldFetch.apply(this, arguments);
+    }
+
+    const controller = new AbortController();
+    const finalOptions = Object.assign({}, options || {}, { signal: controller.signal });
+    const timer = setTimeout(() => controller.abort(), 12000);
+
+    return oldFetch(resource, finalOptions).finally(() => clearTimeout(timer));
+  };
+})();
+</script>
+
 </body>
 </html>
