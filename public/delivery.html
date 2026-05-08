@@ -622,6 +622,35 @@ img{display:block;max-width:100%}
   color:#0f172a;
 }
 
+
+/* ===== CUSTOMER CALL + 11PM HIDE PATCH ===== */
+.customer-call-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#ecfdf5,#eff6ff);
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.customer-call-label{font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.35px;}
+.customer-call-number{font-size:17px;font-weight:900;color:#0f172a;margin-top:5px;word-break:break-word;}
+.customer-call-btn{
+  min-width:58px;
+  height:58px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  text-decoration:none;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:#fff;
+  font-size:26px;
+  box-shadow:0 12px 24px rgba(34,197,94,.20);
+}
+.customer-call-btn.disabled{background:#94a3b8;pointer-events:none;box-shadow:none;}
+
 </style>
 </head>
 <body>
@@ -1050,35 +1079,58 @@ function sameDateAsToday(value){
   return text.indexOf(dd + "/" + mm + "/" + yyyy) !== -1 || text.indexOf(dd + "-" + mm + "-" + yyyy) !== -1 || text.indexOf(yyyy + "-" + mm + "-" + dd) !== -1;
 }
 
-function calculateStats(){
-  const activeOrders = deliveryOrders.filter(function(o){
-    return o.status === "Pending" || o.status === "Out for Delivery" || o.status === "Need Confirmation" || o.status === "Confirmed";
-  }).length;
+function getOrderDateForDelivery(order){
+  const value = order.createdAt || order.date || order.timestamp || order.orderDate || order.time;
+  const d = value ? new Date(value) : null;
+  return d && !isNaN(d.getTime()) ? d : null;
+}
 
-  const deliveredOrders = deliveryOrders.filter(function(o){
+function isDeliveryPanelOrderVisible(order){
+  const now = new Date();
+  const resetTime = new Date();
+  resetTime.setHours(23,0,0,0);
+
+  // Raat 11 baje ke baad poora delivery panel empty rahega.
+  if(now >= resetTime) return false;
+
+  const orderDate = getOrderDateForDelivery(order);
+  if(!orderDate) return true;
+
+  return (
+    orderDate.getDate() === now.getDate() &&
+    orderDate.getMonth() === now.getMonth() &&
+    orderDate.getFullYear() === now.getFullYear()
+  );
+}
+
+function getVisibleDeliveryOrders(){
+  return deliveryOrders.filter(isDeliveryPanelOrderVisible);
+}
+
+function getCustomerPhoneForDelivery(order){
+  return String(order.phone || order.customerPhone || order.mobile || order.customerMobile || '').trim();
+}
+
+function calculateStats(){
+  const panelOrders = getVisibleDeliveryOrders();
+  const activeOrders = panelOrders.filter(function(o){
+    return o.status === "Pending" || o.status === "Out for Delivery" || o.status === "Need Confirmation" || o.status === "Confirmed";
+  });
+  const deliveredOrders = panelOrders.filter(function(o){
     return o.status === "Delivered";
   });
-
-  const deliveredToday = deliveredOrders.filter(function(o){
-    const d = o.deliveredAt || o.updatedAt || o.date || o.time;
-    return sameDateAsToday(d) || !d;
-  }).length || deliveredOrders.length;
+  const deliveredToday = deliveredOrders.length;
 
   const totalEarning = deliveredOrders.reduce(function(sum, o){
-    const orderTotal = getOrderTotalForDelivery(o);
-    const shipping = getDeliveryChargeForDelivery(o);
-    return sum + orderTotal + shipping;
+    return sum + getOrderTotalForDelivery(o) + getDeliveryChargeForDelivery(o);
   }, 0);
 
-  const todayPending = activeOrders;
-
   return {
-    pending: deliveryOrders.filter(function(o){ return o.status === "Pending" || o.status === "Need Confirmation" || o.status === "Confirmed"; }).length,
-    out: deliveryOrders.filter(function(o){ return o.status === "Out for Delivery"; }).length,
-    activeOrders: activeOrders,
+    activeOrders: activeOrders.length,
+    pending: panelOrders.filter(function(o){ return o.status === "Pending" || o.status === "Need Confirmation" || o.status === "Confirmed"; }).length,
+    out: panelOrders.filter(function(o){ return o.status === "Out for Delivery"; }).length,
     deliveredToday: deliveredToday,
     estimatedEarning: totalEarning,
-    todayPending: todayPending
   };
 }
 
@@ -1140,7 +1192,7 @@ function hideDeliveryFilter(){
 }
 
 function openDeliveredOrderDetail(orderId){
-  const order = deliveryOrders.find(function(o){ return String(o.id) === String(orderId); });
+  const order = getVisibleDeliveryOrders().find(function(o){ return String(o.id) === String(orderId); });
   if(!order) return;
 
   const itemsHtml = (Array.isArray(order.items) ? order.items : []).map(function(item){
@@ -1153,7 +1205,7 @@ function openDeliveredOrderDetail(orderId){
     content.innerHTML =
       '<div class="delivery-detail-line"><b>Order ID:</b> ' + escapeDeliveryHtml(order.id) + '</div>' +
       '<div class="delivery-detail-line"><b>Name:</b> ' + escapeDeliveryHtml(order.customerName || order.name || "N/A") + '</div>' +
-      '<div class="delivery-detail-line"><b>Phone:</b> ' + escapeDeliveryHtml(order.phone || "N/A") + '</div>' +
+      '<div class="delivery-detail-line"><b>Phone:</b> ' + escapeDeliveryHtml(getCustomerPhoneForDelivery(order) || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Village:</b> ' + escapeDeliveryHtml(getOrderVillageForDelivery(order)) + '</div>' +
       '<div class="delivery-detail-line"><b>Address:</b> ' + escapeDeliveryHtml(addressLine || "N/A") + '</div>' +
       '<div class="delivery-detail-line"><b>Status:</b> ' + escapeDeliveryHtml(order.status || "N/A") + '</div>' +
@@ -1241,7 +1293,7 @@ function getMapsLink(order){
 
 function renderOrders(){
   const list = getEl("orderList");
-  const visibleOrders = deliveryOrders.filter(function(order){
+  const visibleOrders = getVisibleDeliveryOrders().filter(function(order){
     if(statsView === "delivered"){
       return order.status === "Delivered";
     }
@@ -1255,8 +1307,8 @@ function renderOrders(){
 
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
-      ? '<div class="empty">Delivered orders yahan dikhenge</div>'
-      : '<div class="empty">No assigned pending orders right now</div>';
+      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Raat 11 baje ke baad orders delivery panel se hide ho jaate hain.</small></div>'
+      : '<div class="empty">No assigned pending orders right now<br><small>Raat 11 baje ke baad orders delivery panel se hide ho jaate hain.</small></div>';
     renderStats();
     return;
   }
@@ -1298,9 +1350,10 @@ function renderOrders(){
     const doneBtn = order.status === "Out for Delivery"
       ? '<button type="button" class="action-btn done" data-order-id="' + order.id + '" data-status="Delivered">Mark Delivered</button>'
       : "";
-    const mapBtn = getMapsLink(order)
-      ? '<a href="' + getMapsLink(order) + '" target="_blank" class="action-btn start" style="text-decoration:none;display:inline-flex;align-items:center;">Open in Maps</a>'
-      : "";
+    const customerPhone = getCustomerPhoneForDelivery(order);
+    const callBtn = customerPhone
+      ? '<a href="tel:' + escapeDeliveryHtml(customerPhone) + '" class="customer-call-btn" aria-label="Call Customer">📞</a>'
+      : '<a class="customer-call-btn disabled" aria-label="No Customer Number">📞</a>';
     const thumb = getOrderThumb(order);
     const fallback = getOrderIcon(order);
 
@@ -1313,7 +1366,7 @@ function renderOrders(){
             '</div>' +
             '<div class="order-main">' +
               '<div class="order-id">Order ID: ' + escapeDeliveryHtml(order.id) + '</div>' +
-              '<div class="order-customer">' + escapeDeliveryHtml(customerName) + ' · ' + escapeDeliveryHtml(order.phone || "N/A") + '</div>' +
+              '<div class="order-customer">' + escapeDeliveryHtml(customerName) + '</div>' +
             '</div>' +
           '</div>' +
           '<span class="badge ' + badgeClass(order.status) + '">' + escapeDeliveryHtml(order.status) + '</span>' +
@@ -1323,6 +1376,10 @@ function renderOrders(){
           '<b>Total:</b> ₹' + getOrderTotalForDelivery(order).toFixed(0) + ' · <b>Payment:</b> ' + escapeDeliveryHtml(String(order.paymentMethod || "COD").toUpperCase()) + ' · <b>Payment Status:</b> ' + escapeDeliveryHtml(order.paymentStatus || "N/A") + '<br>' +
           '<b>Delivery Charge:</b> ₹' + getDeliveryChargeForDelivery(order).toFixed(0) +
         '</div>' +
+        '<div class="customer-call-box">' +
+          '<div><div class="customer-call-label">Customer Number</div><div class="customer-call-number">' + escapeDeliveryHtml(customerPhone || "N/A") + '</div></div>' +
+          callBtn +
+        '</div>' +
         '<div class="delivery-profile">' +
           '<div class="mini-avatar">' + getInitials(order.assignedDeliveryBoyName || (deliveryMe && deliveryMe.name) || "DP") + '</div>' +
           '<div>' +
@@ -1331,7 +1388,7 @@ function renderOrders(){
           '</div>' +
         '</div>' +
         '<div class="items"><b>Items</b>' + itemsHtml + '</div>' +
-        '<div class="actions">' + startBtn + doneBtn + mapBtn + '</div>' +
+        '<div class="actions">' + startBtn + doneBtn + '</div>' +
       '</div>'
     );
   }).join("");
