@@ -3515,6 +3515,49 @@ html[data-theme="dark"] .product-load-card{
   border-color:#263244;
 }
 
+
+/* ===== WARM WHITE OPENING ANIMATION ===== */
+.product-load-overlay{
+  background:#f7f2e8 !important;
+}
+
+.product-load-card{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+.product-load-animation{
+  width:170px;
+  max-width:72vw;
+  display:block;
+  margin:0 auto 18px;
+  animation:setuFloat 2.8s ease-in-out infinite;
+  filter:drop-shadow(0 10px 24px rgba(37,99,235,.14));
+}
+
+.product-load-title{
+  font-size:20px;
+  font-weight:900;
+  color:#0f4c81 !important;
+  letter-spacing:.2px;
+}
+
+.product-load-sub{
+  font-size:14px;
+  color:#45607a !important;
+}
+
+@keyframes setuFloat{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-7px)}
+  100%{transform:translateY(0)}
+}
+
+html[data-theme="dark"] .product-load-overlay{
+  background:#111827 !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3573,12 +3616,19 @@ document.addEventListener("touchend", function(e){
 </head>
 <body>
 
-<div class="product-load-overlay" id="productLoadOverlay">
+
+<div class="product-load-overlay show" id="productLoadOverlay">
   <div class="product-load-card">
-    <div class="product-load-spinner"></div>
+    <img 
+      class="product-load-animation" 
+      src="https://cdn-icons-png.flaticon.com/512/3144/3144456.png"
+      alt="Loading"
+    >
     <div class="product-load-title">Loading products...</div>
-    <div class="product-load-sub">Please wait, products are loading</div>
+    <div class="product-load-sub">Please wait, products load ho rahe hain.</div>
   </div>
+</div>
+
 </div>
 
 <script>
@@ -6459,6 +6509,19 @@ initApp();
   }else{
     setTimeout(bind, 100);
   }
+})();
+</script>
+
+
+<script>
+/* ===== SHOW PREMIUM OPENING ANIMATION ===== */
+(function(){
+  document.addEventListener("DOMContentLoaded", function(){
+    var overlay = document.getElementById("productLoadOverlay");
+    if(overlay){
+      overlay.classList.add("show");
+    }
+  });
 })();
 </script>
 
