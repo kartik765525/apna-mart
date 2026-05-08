@@ -3404,16 +3404,6 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
-
-/* ===== SAFE LOADER FIX ONLY ===== */
-html.setu-loader-done #commerceLoader,
-#commerceLoader.setu-force-hide{
-  display:none !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -4489,12 +4479,14 @@ function showApp(){
     document.documentElement.classList.add("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
+    hideAppStartLoader();
 }
 
 function showLogin(){
     document.documentElement.classList.remove("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "flex";
     document.getElementById("app").style.display = "none";
+    hideAppStartLoader();
 }
 
 function getCustomerHeaders(includeJson=true){
@@ -5267,15 +5259,9 @@ function getCurrentOrderLocation() {
 
         (async () => {
             let best = null;
-
-            // 3 retry: first GPS result weak ho sakta hai, isliye best accuracy choose karta hai
             for (let i = 0; i < 3; i++) {
                 const loc = await getOnce(i === 0 ? 15000 : 20000);
-
-                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) {
-                    best = loc;
-                }
-
+                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) best = loc;
                 if (best && best.accuracy && best.accuracy <= 80) break;
                 await new Promise(r => setTimeout(r, 700));
             }
@@ -5285,7 +5271,6 @@ function getCurrentOrderLocation() {
                 resolve(null);
                 return;
             }
-
             resolve(best);
         })();
     });
@@ -5434,25 +5419,15 @@ async function placeOrder(){
 }
 
 
-async 
+
 async function getQuickCheckoutLocation(){
     try{
         const location = await getCurrentOrderLocation();
-
         const lat = Number(location && location.latitude);
         const lng = Number(location && location.longitude);
-
-        if(
-            location &&
-            Number.isFinite(lat) &&
-            Number.isFinite(lng) &&
-            !(lat === 0 && lng === 0) &&
-            Math.abs(lat) <= 90 &&
-            Math.abs(lng) <= 180
-        ){
+        if(location && Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180){
             return location;
         }
-
         return null;
     }catch(error){
         console.error("Checkout location error:", error);
@@ -6148,6 +6123,11 @@ function setLanguage(lang){
     closeLanguagePanel();
 }
 
+
+function timeoutPromise(ms, fallbackValue = null){
+    return new Promise(resolve => setTimeout(() => resolve(fallbackValue), ms));
+}
+
 async function initApp(){
     applyThemeMode();
     applyLanguage();
@@ -6155,13 +6135,45 @@ async function initApp(){
     renderSavedProfile();
     renderTopProfile();
     updateCartDeliveryBox();
-    await checkCustomerLogin();
-    syncPanelWithHash();
-    await fetchProducts();
-    await fetchLiveOffers();
-    await refreshCartFromFirebase();
-    startAutoRefresh();
+
+    try{
+        // Login check slow ho sakta hai; loader ko stuck nahi hone dena
+        const loginResult = await Promise.race([
+            checkCustomerLogin(),
+            timeoutPromise(4500, "timeout")
+        ]);
+
+        if(loginResult === "timeout"){
+            customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
+            if(customerToken) showApp();
+            else showLogin();
+        }
+
+        syncPanelWithHash();
+
+        await Promise.race([
+            fetchProducts(),
+            timeoutPromise(7000, "products-timeout")
+        ]);
+
+        hideAppStartLoader();
+
+        fetchLiveOffers().catch(console.error);
+        refreshCartFromFirebase().catch(console.error);
+        startAutoRefresh();
+    }catch(error){
+        console.error("initApp safe error:", error);
+        customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
+        if(customerToken) showApp();
+        else showLogin();
+        hideAppStartLoader();
+    }finally{
+        // final guarantee
+        setTimeout(hideAppStartLoader, 300);
+        setTimeout(hideAppStartLoader, 1500);
+    }
 }
+
 
 initApp();
 </script>
@@ -6210,6 +6222,29 @@ initApp();
             console.warn("Auto refresh skipped:", e);
         }
     }, 30000);
+})();
+</script>
+
+
+<script>
+/* ===== FINAL LOADING PRODUCTS STUCK FIX ===== */
+(function(){
+    function hardHideLoader(){
+        try{
+            var loader = document.getElementById("appStartLoader");
+            if(loader){
+                loader.classList.add("hidden");
+                loader.style.display = "none";
+                loader.style.visibility = "hidden";
+                loader.style.pointerEvents = "none";
+            }
+        }catch(e){}
+    }
+    window.addEventListener("error", function(){ setTimeout(hardHideLoader, 200); });
+    window.addEventListener("unhandledrejection", function(){ setTimeout(hardHideLoader, 200); });
+    document.addEventListener("DOMContentLoaded", function(){
+        setTimeout(hardHideLoader, 8000);
+    });
 })();
 </script>
 
