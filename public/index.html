@@ -5210,73 +5210,94 @@ function update() {
 
 
 
+
 function getCurrentOrderLocation() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
+            showToast("Is device/browser me location support nahi hai", "error");
             resolve(null);
             return;
         }
 
-        function readLocation(callback) {
+        const isBadLocation = (loc) => {
+            if (!loc) return true;
+            const lat = Number(loc.latitude);
+            const lng = Number(loc.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return true;
+            if (lat === 0 && lng === 0) return true;
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return true;
+            return false;
+        };
+
+        const readOnce = (timeout = 18000) => new Promise((done) => {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const latitude = Number(position.coords.latitude);
                     const longitude = Number(position.coords.longitude);
                     const accuracy = Number(position.coords.accuracy || 0);
 
-                    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-                        callback(null);
+                    const location = {
+                        latitude,
+                        longitude,
+                        accuracy,
+                        capturedAt: new Date().toISOString(),
+                        source: "gps"
+                    };
+
+                    if (isBadLocation(location)) {
+                        done(null);
                         return;
                     }
 
-                    callback({
-                        latitude,
-                        longitude,
-                        accuracy
-                    });
+                    done(location);
                 },
                 (error) => {
                     console.error("Current location fetch error:", error);
-                    callback(null);
+                    if (error && error.code === 1) {
+                        showToast("Location permission allow karo, tabhi exact delivery location milegi", "error");
+                    }
+                    done(null);
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 20000,
+                    timeout,
                     maximumAge: 0
                 }
             );
-        }
+        });
 
-        readLocation((firstLocation) => {
-            if (!firstLocation) {
+        (async () => {
+            let bestLocation = null;
+
+            // 3 attempts: GPS kabhi-kabhi first try me inaccurate / slow hota hai
+            for (let i = 0; i < 3; i++) {
+                const loc = await readOnce(i === 0 ? 18000 : 22000);
+                if (!loc) continue;
+
+                if (
+                    !bestLocation ||
+                    (loc.accuracy > 0 && (bestLocation.accuracy <= 0 || loc.accuracy < bestLocation.accuracy))
+                ) {
+                    bestLocation = loc;
+                }
+
+                // 50m ke andar mil gaya to best maan lo
+                if (loc.accuracy > 0 && loc.accuracy <= 50) break;
+
+                await new Promise(r => setTimeout(r, 900));
+            }
+
+            if (isBadLocation(bestLocation)) {
+                showToast("Exact GPS location nahi mili. GPS/Location ON karke dobara order karo.", "error");
                 resolve(null);
                 return;
             }
 
-            if (firstLocation.accuracy > 0 && firstLocation.accuracy <= 50) {
-                resolve(firstLocation);
-                return;
-            }
-
-            setTimeout(() => {
-                readLocation((secondLocation) => {
-                    if (!secondLocation) {
-                        resolve(firstLocation);
-                        return;
-                    }
-
-                    const bestLocation =
-                        secondLocation.accuracy > 0 &&
-                        (firstLocation.accuracy <= 0 || secondLocation.accuracy < firstLocation.accuracy)
-                            ? secondLocation
-                            : firstLocation;
-
-                    resolve(bestLocation);
-                });
-            }, 2000);
-        });
+            resolve(bestLocation);
+        })();
     });
 }
+
 
 let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
@@ -5420,30 +5441,33 @@ async function placeOrder(){
 }
 
 
+async 
 async function getQuickCheckoutLocation(){
     try{
-        const fastText = await Promise.race([
-            detectCheckoutLocationFast(),
-            new Promise((resolve)=>setTimeout(()=>resolve(null), 1200))
-        ]);
-        const gpsLocation = await Promise.race([
-            getCurrentOrderLocation(),
-            new Promise((resolve)=>setTimeout(()=>resolve(null), 1800))
-        ]);
+        const gpsLocation = await getCurrentOrderLocation();
 
         if(gpsLocation && typeof gpsLocation === "object"){
-            return gpsLocation;
-        }
+            const lat = Number(gpsLocation.latitude);
+            const lng = Number(gpsLocation.longitude);
 
-        if(fastText){
-            return { latitude: "", longitude: "", accuracy: 0, addressText: fastText };
+            if(
+                Number.isFinite(lat) &&
+                Number.isFinite(lng) &&
+                !(lat === 0 && lng === 0) &&
+                Math.abs(lat) <= 90 &&
+                Math.abs(lng) <= 180
+            ){
+                return gpsLocation;
+            }
         }
 
         return null;
     }catch(error){
+        console.error("Checkout GPS location error:", error);
         return null;
     }
 }
+
 
 async function submitCheckoutOrder() {
     const isLoggedIn = await checkCustomerLogin();
@@ -5472,6 +5496,17 @@ async function submitCheckoutOrder() {
     showPlaceOrderLoader();
 
     let currentLocation = await getQuickCheckoutLocation();
+
+    if(
+        !currentLocation ||
+        !Number.isFinite(Number(currentLocation.latitude)) ||
+        !Number.isFinite(Number(currentLocation.longitude)) ||
+        (Number(currentLocation.latitude) === 0 && Number(currentLocation.longitude) === 0)
+    ){
+        hidePlaceOrderLoader();
+        showToast("Exact location nahi mili. Mobile GPS/Location ON karke Allow karo, phir order place karo.", "error");
+        return;
+    }
 
     try {
         const response = await fetch("/api/orders", {
