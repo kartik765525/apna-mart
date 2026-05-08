@@ -1117,10 +1117,55 @@ function getOrderDateForDelivery(order){
   return d && !isNaN(d.getTime()) ? d : null;
 }
 
+function getDeliveryDayKey(date){
+  const d = new Date(date);
+  if(!d || isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+}
+
+function parseDeliveryOrderDate(order){
+  const value = order.createdAt || order.date || order.timestamp || order.orderDate || order.time || order.created_at;
+  if(!value) return null;
+
+  const direct = new Date(value);
+  if(!isNaN(direct.getTime())) return direct;
+
+  const text = String(value).trim();
+  const match = text.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  if(match){
+    const dd = String(match[1]).padStart(2, "0");
+    const mm = String(match[2]).padStart(2, "0");
+    const yyyy = match[3];
+    const parsed = new Date(yyyy + "-" + mm + "-" + dd + "T00:00:00+05:30");
+    if(!isNaN(parsed.getTime())) return parsed;
+  }
+
+  return null;
+}
+
+function isAfterDeliveryDayCutoff(){
+  const now = new Date();
+  const istHour = Number(now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", hour12: false }));
+  return istHour >= 23;
+}
+
 function isDeliveryPanelOrderVisible(order){
-  // TEST / FIX MODE: 11 PM auto-hide फिलहाल OFF है,
-  // ताकि admin panel से assigned orders delivery panel में जरूर दिखें.
-  // बाद में assigned orders दिखने लगें तो hide logic दुबारा safe तरीके से add कर सकते हैं.
+  const orderDate = parseDeliveryOrderDate(order);
+
+  // Agar date missing/invalid hai to order ko hide nahi karenge,
+  // taki admin assigned order galti se गायब na ho.
+  if(!orderDate) return true;
+
+  const todayKey = getDeliveryDayKey(new Date());
+  const orderKey = getDeliveryDayKey(orderDate);
+
+  // Day 1 ke orders Day 2 me kabhi nahi dikhेंगे.
+  if(orderKey !== todayKey) return false;
+
+  // Same day orders 11 PM ke baad hide ho जाएंगे: assigned + delivered + earning sab.
+  if(isAfterDeliveryDayCutoff()) return false;
+
+  // Day 2 me Day 2 ke assigned / delivered / earning sab normal दिखेंगे.
   return true;
 }
 
@@ -1375,8 +1420,8 @@ function renderOrders(){
 
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
-      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Auto-hide फिलहाल OFF है.</small></div>'
-      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Auto-hide फिलहाल OFF है.</small></div>';
+      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>11 PM ke baad purane day orders hide honge.</small></div>'
+      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. 11 PM ke baad purane day orders hide honge.</small></div>';
     renderStats();
     return;
   }
