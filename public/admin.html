@@ -1033,6 +1033,32 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
   }
 }
 
+
+
+/* ===== NESTED ORDERS LEFT MENU ===== */
+.side-menu-group{width:100%;display:flex;flex-direction:column;gap:8px;}
+.order-submenu,.order-status-submenu{display:none;flex-direction:column;gap:7px;width:100%;}
+.order-submenu.open,.order-status-submenu.open{display:flex;}
+.order-submenu{padding-left:10px;border-left:3px solid #ffe1d4;margin-top:2px;}
+.order-status-submenu{padding-left:10px;margin-top:2px;}
+.order-sub-btn,.order-status-btn{
+  width:100%;border:none;cursor:pointer;font-weight:800;text-align:left;
+  border-radius:12px;padding:10px 12px;background:#f8fbff;color:#41556b;
+  border:1px solid #e2ebf5;transition:.16s ease;font-size:13px;
+}
+.order-sub-btn:hover,.order-status-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,23,42,.05);}
+.order-sub-btn.active,.order-status-btn.active{background:linear-gradient(135deg,#ff8b5c,#ff6b35);color:#fff;border-color:transparent;}
+.order-status-btn{font-size:12px;padding:9px 10px;background:#fff;}
+.order-filter-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.order-filter-title h3{color:#243447;font-size:20px;margin:0;}
+.order-filter-pill{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:999px;padding:7px 12px;font-weight:900;font-size:13px;}
+.order-filter-empty{padding:26px 14px;text-align:center;color:#64748b;background:#f8fbff;border:1px dashed #cbd5e1;border-radius:16px;font-weight:700;}
+@media screen and (max-width:768px){
+  .order-submenu{padding-left:5px;border-left:2px solid #ffe1d4;}
+  .order-status-submenu{padding-left:5px;}
+  .order-sub-btn,.order-status-btn{font-size:11px;padding:9px 6px;text-align:center;}
+}
+
 </style>
 </head>
 <body>
@@ -1058,7 +1084,23 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
     <button class="tab-btn" id="tabStockBtn" onclick="showSection('stock')">Stock Manage</button>
     <button class="tab-btn" id="tabDashboardBtn" onclick="showSection('dashboard')">Dashboard</button>
     <button class="tab-btn" id="tabCustomBillBtn" onclick="showSection('customBill')">Custom Bill</button>
-    <button class="tab-btn" id="tabOrdersBtn" onclick="showSection('orders')">Orders</button>
+    <div class="side-menu-group" id="ordersMenuGroup">
+        <button class="tab-btn" id="tabOrdersBtn" onclick="toggleOrdersMenu()">🧾 Orders ▾</button>
+        <div class="order-submenu" id="ordersSubMenu">
+            <button class="order-sub-btn" id="orderTodayBtn" onclick="toggleOrderDayMenu('today')">📌 Today Orders ▾</button>
+            <div class="order-status-submenu" id="orderTodayStatusMenu">
+                <button class="order-status-btn" id="orderTodayNeedBtn" onclick="showOrdersBy('today','need')">Need Confirmation</button>
+                <button class="order-status-btn" id="orderTodayPendingBtn" onclick="showOrdersBy('today','pending')">Pending / Out</button>
+                <button class="order-status-btn" id="orderTodayDeliveredBtn" onclick="showOrdersBy('today','delivered')">Delivered</button>
+            </div>
+            <button class="order-sub-btn" id="orderOldBtn" onclick="toggleOrderDayMenu('old')">📁 Old Orders ▾</button>
+            <div class="order-status-submenu" id="orderOldStatusMenu">
+                <button class="order-status-btn" id="orderOldNeedBtn" onclick="showOrdersBy('old','need')">Need Confirmation</button>
+                <button class="order-status-btn" id="orderOldPendingBtn" onclick="showOrdersBy('old','pending')">Pending / Out</button>
+                <button class="order-status-btn" id="orderOldDeliveredBtn" onclick="showOrdersBy('old','delivered')">Delivered</button>
+            </div>
+        </div>
+    </div>
     <button class="tab-btn" id="tabDeliveryBtn" onclick="showSection('delivery')">Delivery Boys</button>
     <button class="tab-btn" id="tabOffersBtn" onclick="showSection('offers')">Offers</button>
     <button class="tab-btn" id="tabCouponsBtn" onclick="showSection('coupons')">Coupons</button>
@@ -1401,6 +1443,8 @@ let hasInitializedOrderWatcher = false;
 let currentOrderDetailId = null;
 let softAlertResolver = null;
 let loadedTabs = { products:false, orders:false, delivery:false, offers:false, coupons:false, customBill:false };
+let currentOrderDayFilter = localStorage.getItem("adminOrderDayFilter") || "today";
+let currentOrderStatusFilter = localStorage.getItem("adminOrderStatusFilter") || "need";
 const ADMIN_STORAGE_KEY = "apnaMartAdminToken";
 let adminToken = localStorage.getItem(ADMIN_STORAGE_KEY) || "";
 
@@ -1651,6 +1695,58 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 });
 
+
+function openOrdersMenu(){
+    document.getElementById("ordersSubMenu")?.classList.add("open");
+}
+function closeOrdersMenu(){
+    document.getElementById("ordersSubMenu")?.classList.remove("open");
+    document.getElementById("orderTodayStatusMenu")?.classList.remove("open");
+    document.getElementById("orderOldStatusMenu")?.classList.remove("open");
+}
+function toggleOrdersMenu(){
+    const menu = document.getElementById("ordersSubMenu");
+    if(!menu) return;
+    menu.classList.toggle("open");
+}
+function toggleOrderDayMenu(day){
+    openOrdersMenu();
+    const isToday = day === "today";
+    document.getElementById(isToday ? "orderTodayStatusMenu" : "orderOldStatusMenu")?.classList.toggle("open");
+    document.getElementById(isToday ? "orderOldStatusMenu" : "orderTodayStatusMenu")?.classList.remove("open");
+    document.getElementById("orderTodayBtn")?.classList.toggle("active", isToday);
+    document.getElementById("orderOldBtn")?.classList.toggle("active", !isToday);
+}
+function clearOrderMenuActive(){
+    document.querySelectorAll(".order-sub-btn,.order-status-btn").forEach(btn => btn.classList.remove("active"));
+}
+function updateOrderMenuActive(){
+    clearOrderMenuActive();
+    openOrdersMenu();
+    const day = currentOrderDayFilter === "old" ? "old" : "today";
+    const status = currentOrderStatusFilter || "need";
+    if(day === "today"){
+        document.getElementById("orderTodayStatusMenu")?.classList.add("open");
+        document.getElementById("orderOldStatusMenu")?.classList.remove("open");
+        document.getElementById("orderTodayBtn")?.classList.add("active");
+    }else{
+        document.getElementById("orderOldStatusMenu")?.classList.add("open");
+        document.getElementById("orderTodayStatusMenu")?.classList.remove("open");
+        document.getElementById("orderOldBtn")?.classList.add("active");
+    }
+    const id = "order" + (day === "today" ? "Today" : "Old") + (status === "need" ? "Need" : status === "delivered" ? "Delivered" : "Pending") + "Btn";
+    document.getElementById(id)?.classList.add("active");
+}
+async function showOrdersBy(day, status){
+    currentOrderDayFilter = day === "old" ? "old" : "today";
+    currentOrderStatusFilter = status || "need";
+    localStorage.setItem("adminOrderDayFilter", currentOrderDayFilter);
+    localStorage.setItem("adminOrderStatusFilter", currentOrderStatusFilter);
+    await showSection("orders");
+    updateOrderMenuActive();
+    renderOrders();
+}
+
 async function showSection(name){
     setActiveSection(name);
     document.getElementById("sectionAdd").classList.remove("active");
@@ -1670,6 +1766,11 @@ async function showSection(name){
     document.getElementById("tabDeliveryBtn").classList.remove("active");
     document.getElementById("tabOffersBtn").classList.remove("active");
     document.getElementById("tabCouponsBtn").classList.remove("active");
+    clearOrderMenuActive();
+
+    if(name !== "orders"){
+        closeOrdersMenu();
+    }
 
     if(name === "add"){
         document.getElementById("sectionAdd").classList.add("active");
@@ -1695,6 +1796,7 @@ async function showSection(name){
     }else{
         document.getElementById("sectionOrders").classList.add("active");
         document.getElementById("tabOrdersBtn").classList.add("active");
+        updateOrderMenuActive();
     }
 
     if(name === "stock" && !loadedTabs.products){
@@ -1984,9 +2086,16 @@ function renderDashboard(){
     `;
 }
 
+function getOrderFilterLabels(){
+    const dayLabel = currentOrderDayFilter === "old" ? "Old Orders" : "Today Orders";
+    const statusLabel = currentOrderStatusFilter === "need" ? "Need Confirmation" : currentOrderStatusFilter === "delivered" ? "Delivered" : "Pending / Out for Delivery";
+    const icon = currentOrderDayFilter === "old" ? "📁" : "📌";
+    return { dayLabel, statusLabel, icon };
+}
 function renderOrders(){
     const searchValue = (document.getElementById("orderSearch")?.value || "").trim().toLowerCase();
     const container = document.getElementById("ordersManager");
+    if(!container) return;
 
     let filteredOrders = [...orders];
     if(searchValue){
@@ -1997,63 +2106,38 @@ function renderOrders(){
         );
     }
 
-    const todayOrders = filteredOrders.filter(order => isTodayOrder(order));
-    const oldOrders = filteredOrders.filter(order => !isTodayOrder(order));
-
-    const buildCol = (title, list) => `
-        <div class="order-column">
-            <div class="order-column-head">
-                <div class="order-column-title">${title}</div>
-                <div class="order-count">${list.length}</div>
-            </div>
-            <div class="order-list">
-                ${list.length ? list.map(order => `
-                    <div class="order-mini-card" onclick="openOrderDetail('${order.id}')">
-                        <div class="order-mini-id">${order.id || "N/A"}</div>
-                        <div class="order-date-small">${getOrderDisplayDate(order)}</div>
-                        <div class="order-mini-status">${getOrderStatusChip(order.status)}</div>
-                    </div>
-                `).join("") : `<div class="order-empty-col">No orders</div>`}
-            </div>
-        </div>
-    `;
-
-    const buildDaySection = (title, subTitle, list, isOld = false) => {
-        const needList = list.filter(order => getOrderSectionName(order.status) === "need");
-        const pendingList = list.filter(order => getOrderSectionName(order.status) === "pending");
-        const deliveredList = list.filter(order => getOrderSectionName(order.status) === "delivered");
-
-        return `
-            <div class="order-day-section ${isOld ? "order-old-section" : ""}">
-                <div class="order-day-head">
-                    <div>
-                        <div class="order-day-title">${title}</div>
-                        <div class="order-day-sub">${subTitle}</div>
-                    </div>
-                    <div class="order-day-count">${list.length} Orders</div>
-                </div>
-                <div class="order-day-body">
-                    <div class="top-order-stats">
-                        <div class="top-order-stat need"><div class="label">Need Confirmation</div><div class="value">${needList.length}</div></div>
-                        <div class="top-order-stat pending"><div class="label">Pending</div><div class="value">${pendingList.length}</div></div>
-                        <div class="top-order-stat delivered"><div class="label">Delivered</div><div class="value">${deliveredList.length}</div></div>
-                    </div>
-                    <div class="order-board">
-                        ${buildCol("Need Confirmation", needList)}
-                        ${buildCol("Pending / Out for Delivery", pendingList)}
-                        ${buildCol("Delivered", deliveredList)}
-                    </div>
-                </div>
-            </div>
-        `;
-    };
+    const dayFiltered = filteredOrders.filter(order => currentOrderDayFilter === "old" ? !isTodayOrder(order) : isTodayOrder(order));
+    const finalOrders = dayFiltered.filter(order => getOrderSectionName(order.status) === currentOrderStatusFilter);
+    const needList = dayFiltered.filter(order => getOrderSectionName(order.status) === "need");
+    const pendingList = dayFiltered.filter(order => getOrderSectionName(order.status) === "pending");
+    const deliveredList = dayFiltered.filter(order => getOrderSectionName(order.status) === "delivered");
+    const labels = getOrderFilterLabels();
 
     container.innerHTML = `
-        ${buildDaySection("📌 Today Orders", "Aaj ke orders yahan rahenge. Raat 12 baje ke baad ye automatic Old Orders me dikhne lagenge.", todayOrders, false)}
-        ${buildDaySection("📁 Old Orders", "Kal ya usse purane orders yahan alag section me rahenge.", oldOrders, true)}
+        <div class="order-filter-title">
+            <h3>${labels.icon} ${labels.dayLabel} → ${labels.statusLabel}</h3>
+            <span class="order-filter-pill">${finalOrders.length} Orders</span>
+        </div>
+        <div class="top-order-stats">
+            <div class="top-order-stat need"><div class="label">Need Confirmation</div><div class="value">${needList.length}</div></div>
+            <div class="top-order-stat pending"><div class="label">Pending / Out</div><div class="value">${pendingList.length}</div></div>
+            <div class="top-order-stat delivered"><div class="label">Delivered</div><div class="value">${deliveredList.length}</div></div>
+        </div>
+        <div class="order-list" style="max-height:none;overflow:visible;padding:0;">
+            ${finalOrders.length ? finalOrders.map(order => `
+                <div class="order-mini-card" onclick="openOrderDetail('${order.id}')">
+                    <div class="order-mini-id">${order.id || "N/A"}</div>
+                    <div class="order-date-small">${getOrderDisplayDate(order)}</div>
+                    <div class="order-mini-status">${getOrderStatusChip(order.status)}</div>
+                    <div style="margin-top:8px;color:#64748b;font-size:13px;font-weight:700;">
+                        ${order.name || order.customerName || "Customer"} ${order.phone ? " · " + order.phone : ""} ${order.total ? " · ₹" + Number(order.total || 0).toFixed(2) : ""}
+                    </div>
+                </div>
+            `).join("") : `<div class="order-filter-empty">Is section me abhi koi order nahi hai</div>`}
+        </div>
     `;
+    updateOrderMenuActive();
 }
-
 function renderDeliveryUsers(){
     const container = document.getElementById("deliveryUsersManager");
     const searchValue = (document.getElementById("deliveryUserSearch")?.value || "").trim().toLowerCase();
