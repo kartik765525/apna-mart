@@ -1059,6 +1059,22 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
   .order-sub-btn,.order-status-btn{font-size:11px;padding:9px 6px;text-align:center;}
 }
 
+
+
+/* ===== ADMIN FAST CLICK RESPONSE PATCH ===== */
+.action-btn.is-updating,
+.action-btn:disabled,
+.tab-btn.is-updating,
+.cat-btn.is-updating{
+  opacity:.72 !important;
+  cursor:not-allowed !important;
+  pointer-events:none !important;
+}
+.fast-saving-note{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-left:8px;color:#64748b;font-size:12px;font-weight:800;
+}
+
 </style>
 </head>
 <body>
@@ -1453,6 +1469,40 @@ function getAuthHeaders(includeJson = true){
     if(includeJson) headers["Content-Type"] = "application/json";
     if(adminToken) headers["Authorization"] = `Bearer ${adminToken}`;
     return headers;
+}
+
+/* ===== ADMIN FAST CLICK RESPONSE HELPERS ===== */
+function getClickedButton(){
+    const el = document.activeElement;
+    return (el && el.tagName === "BUTTON") ? el : null;
+}
+function setButtonBusy(btn, text){
+    if(!btn) return function(){};
+    const oldText = btn.innerHTML;
+    btn.dataset.oldText = oldText;
+    btn.innerHTML = text || "Updating...";
+    btn.disabled = true;
+    btn.classList.add("is-updating");
+    return function(){
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        btn.classList.remove("is-updating");
+    };
+}
+function backgroundRefreshProducts(){
+    setTimeout(async function(){
+        try{ await fetchProducts(); renderProducts(); renderDashboard(); }catch(e){}
+    }, 800);
+}
+function backgroundRefreshOrders(){
+    setTimeout(async function(){
+        try{ await fetchOrders(); renderOrders(); renderDashboard(); }catch(e){}
+    }, 800);
+}
+function backgroundRefreshDeliveryUsers(){
+    setTimeout(async function(){
+        try{ await fetchDeliveryUsers(); renderDeliveryUsers(); }catch(e){}
+    }, 800);
 }
 
 
@@ -1926,25 +1976,41 @@ async function assignDeliveryBoy(orderId, deliveryBoyId, fromModal = false){
         await showSoftAlert("Select delivery boy first", "Delivery Boy", "OK", "🚚");
         return;
     }
-
-    const res = await fetch(`/api/admin/orders/${orderId}/assign-delivery`, {
-        method: "PATCH",
-        headers: getAuthHeaders(true),
-        body: JSON.stringify({ deliveryBoyId })
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){
-        await showSoftAlert(data.message || "Assign failed", "Delivery Boy", "OK", "🚚");
-        return;
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Assigning...");
+    const oldOrders = JSON.parse(JSON.stringify(orders || []));
+    const selectedUser = (deliveryUsers || []).find(u => String(u.id) === String(deliveryBoyId)) || {};
+    const idx = (orders || []).findIndex(o => String(o.id) === String(orderId));
+    if(idx >= 0){
+        orders[idx] = {
+            ...orders[idx],
+            assignedDeliveryBoyId: deliveryBoyId,
+            assignedDeliveryBoyName: selectedUser.name || orders[idx].assignedDeliveryBoyName || "Assigned",
+            assignedDeliveryBoyPhone: selectedUser.phone || orders[idx].assignedDeliveryBoyPhone || ""
+        };
+        renderOrders();
+        if(fromModal) openOrderDetail(orderId);
     }
-
-    await fetchOrders();
-    await fetchDeliveryUsers();
-    loadedTabs.orders = true;
-    loadedTabs.delivery = true;
-    renderOrders();
-    if(fromModal) await openOrderDetail(orderId);
+    try{
+        const res = await fetch(`/api/admin/orders/${orderId}/assign-delivery`, {
+            method: "PATCH",
+            headers: getAuthHeaders(true),
+            body: JSON.stringify({ deliveryBoyId })
+        });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Assign failed");
+        loadedTabs.orders = true;
+        loadedTabs.delivery = true;
+        backgroundRefreshOrders();
+        backgroundRefreshDeliveryUsers();
+    }catch(error){
+        orders = oldOrders;
+        renderOrders();
+        if(fromModal) openOrderDetail(orderId);
+        await showSoftAlert(error.message || "Assign failed", "Delivery Boy", "OK", "🚚");
+    }finally{
+        releaseBtn();
+    }
 }
 
 function renderProducts(){
@@ -2561,55 +2627,30 @@ function closeInvoiceModal(){
 
 
 async function addNewProduct(){
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Adding...");
     const name = document.getElementById("newName").value.trim();
     const price = document.getElementById("newPrice").value.trim();
     const original = document.getElementById("newOriginal").value.trim();
     const category = document.getElementById("newCategory").value.trim();
     const stock = document.getElementById("newStock").value.trim();
     const imageFile = document.getElementById("newImage").files[0];
-
-    if(!name || !price){
-        await showSoftAlert("Name aur price required hain", "Add Product", "OK", "📦");
-        return;
-    }
-
+    if(!name || !price){ releaseBtn(); await showSoftAlert("Name aur price required hain", "Add Product", "OK", "📦"); return; }
+    let tempId = "temp-" + Date.now();
     let imageUrl = "";
     try{
         if(imageFile){
             const formData = new FormData();
             formData.append("image", imageFile);
-            const uploadRes = await fetch("/upload", {
-                method: "POST",
-                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-                body: formData
-            });
+            const uploadRes = await fetch("/upload", { method:"POST", headers: adminToken ? { Authorization:`Bearer ${adminToken}` } : {}, body: formData });
             const uploadData = await uploadRes.json().catch(() => ({}));
-            if(!uploadRes.ok){
-                await showSoftAlert(uploadData.message || "Image upload failed", "Add Product", "OK", "📦");
-                return;
-            }
+            if(!uploadRes.ok) throw new Error(uploadData.message || "Image upload failed");
             imageUrl = uploadData.imageUrl || "";
         }
-
-        const res = await fetch("/api/products", {
-            method: "POST",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({
-                name,
-                price: Number(price),
-                original: Number(original || price),
-                category,
-                stock: Number(stock || 0),
-                image: imageUrl
-            })
-        });
-
-        const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            await showSoftAlert(data.message || "Add product failed", "Add Product", "OK", "📦");
-            return;
-        }
-
+        const optimisticProduct = { id: tempId, name, price:Number(price), original:Number(original || price), category, stock:Number(stock || 0), image:imageUrl };
+        products.unshift(optimisticProduct);
+        renderProducts();
+        renderDashboard();
         document.getElementById("newName").value = "";
         document.getElementById("newPrice").value = "";
         document.getElementById("newOriginal").value = "";
@@ -2617,210 +2658,188 @@ async function addNewProduct(){
         document.getElementById("newStock").value = "";
         document.getElementById("newImage").value = "";
         document.getElementById("imageUploadStatus").textContent = "No image selected";
-
-        await fetchProducts();
-        renderProducts();
-        renderDashboard();
-        await showSoftAlert("Product added successfully", "Add Product", "OK", "✅");
+        const res = await fetch("/api/products", { method:"POST", headers:getAuthHeaders(true), body:JSON.stringify(optimisticProduct) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Add product failed");
+        backgroundRefreshProducts();
     }catch(error){
-        console.error("Add product error:", error);
-        alert("Add product failed");
-    }
+        products = (products || []).filter(p => String(p.id) !== String(tempId));
+        renderProducts(); renderDashboard();
+        await showSoftAlert(error.message || "Add product failed", "Add Product", "OK", "📦");
+    }finally{ releaseBtn(); }
 }
 
 async function saveProductChanges(productId){
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Saving...");
     const stockValue = document.getElementById(`stock-${productId}`)?.value || 0;
     const categoryValue = document.getElementById(`category-${productId}`)?.value || "";
-
-    const product = products.find(p => Number(p.id) === Number(productId));
-    if(!product) return await showSoftAlert("Product not found", "Product", "OK", "📦");
-
+    const idx = products.findIndex(p => String(p.id) === String(productId));
+    if(idx < 0){ releaseBtn(); return await showSoftAlert("Product not found", "Product", "OK", "📦"); }
+    const oldProduct = {...products[idx]};
+    products[idx] = {...products[idx], stock:Number(stockValue), category:categoryValue};
+    renderProducts(); renderDashboard();
     try{
-        const res = await fetch(`/api/products/${productId}`, {
-            method: "PUT",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({
-                ...product,
-                stock: Number(stockValue),
-                category: categoryValue
-            })
-        });
-
+        const res = await fetch(`/api/products/${productId}`, { method:"PUT", headers:getAuthHeaders(true), body:JSON.stringify(products[idx]) });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            await showSoftAlert(data.message || "Save failed", "Product", "OK", "📦");
-            return;
-        }
-
-        await fetchProducts();
-        renderProducts();
-        renderDashboard();
-        await showSoftAlert("Product updated successfully", "Product", "OK", "✅");
+        if(!res.ok) throw new Error(data.message || "Save failed");
+        backgroundRefreshProducts();
     }catch(error){
-        console.error("Save product error:", error);
-        alert("Save failed");
-    }
+        const restoreIdx = products.findIndex(p => String(p.id) === String(productId));
+        if(restoreIdx >= 0) products[restoreIdx] = oldProduct;
+        renderProducts(); renderDashboard();
+        await showSoftAlert(error.message || "Save failed", "Product", "OK", "📦");
+    }finally{ releaseBtn(); }
 }
 
 async function deleteProduct(productId){
     const yes = await showSoftConfirm("Delete this product?", "Delete Product", "Delete", "Cancel", "📦");
     if(!yes) return;
-
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Deleting...");
+    const oldProducts = [...(products || [])];
+    products = (products || []).filter(p => String(p.id) !== String(productId));
+    renderProducts(); renderDashboard();
     try{
-        const res = await fetch(`/api/products/${productId}`, {
-            method: "DELETE",
-            headers: getAuthHeaders(false)
-        });
-
+        const res = await fetch(`/api/products/${productId}`, { method:"DELETE", headers:getAuthHeaders(false) });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            await showSoftAlert(data.message || "Delete failed", "Delete Order", "OK", "🗑️");
-            return;
-        }
-
-        await fetchProducts();
-        renderProducts();
-        renderDashboard();
-        alert("Product deleted successfully");
+        if(!res.ok) throw new Error(data.message || "Delete failed");
+        backgroundRefreshProducts();
     }catch(error){
-        console.error("Delete product error:", error);
-        await showSoftAlert("Delete failed", "Delete", "OK", "🗑️");
-    }
+        products = oldProducts;
+        renderProducts(); renderDashboard();
+        await showSoftAlert(error.message || "Delete failed", "Delete", "OK", "🗑️");
+    }finally{ releaseBtn(); }
 }
 
 async function moveToPending(orderId, fromModal = false){
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Updating...");
+    const oldOrders = JSON.parse(JSON.stringify(orders || []));
+    const idx = (orders || []).findIndex(o => String(o.id) === String(orderId));
+    if(idx >= 0){ orders[idx] = {...orders[idx], status:"Pending"}; renderOrders(); renderDashboard(); if(fromModal) openOrderDetail(orderId); }
     try{
-        const res = await fetch(`/api/admin/orders/${orderId}/status`, {
-            method: "PATCH",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({ status: "Pending" })
-        });
-
+        const res = await fetch(`/api/admin/orders/${orderId}/status`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ status:"Pending" }) });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            await showSoftAlert(data.message || "Status update failed", "Order Status", "OK", "⚠️");
-            return;
-        }
-
-        await fetchOrders();
+        if(!res.ok) throw new Error(data.message || "Status update failed");
         loadedTabs.orders = true;
-        renderOrders();
-        renderDashboard();
-        if(fromModal) await openOrderDetail(orderId);
+        backgroundRefreshOrders();
     }catch(error){
-        console.error("Move to pending error:", error);
-        alert("Status update failed");
-    }
+        orders = oldOrders; renderOrders(); renderDashboard(); if(fromModal) openOrderDetail(orderId);
+        await showSoftAlert(error.message || "Status update failed", "Order Status", "OK", "⚠️");
+    }finally{ releaseBtn(); }
 }
 
 async function confirmPayment(orderId, fromModal = false){
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Confirming...");
+    const oldOrders = JSON.parse(JSON.stringify(orders || []));
+    const idx = (orders || []).findIndex(o => String(o.id) === String(orderId));
+    if(idx >= 0){ orders[idx] = {...orders[idx], paymentStatus:"Payment Confirmed"}; renderOrders(); renderDashboard(); if(fromModal) openOrderDetail(orderId); }
     try{
-        const res = await fetch(`/api/admin/orders/${orderId}/status`, {
-            method: "PATCH",
-            headers: getAuthHeaders(true),
-            body: JSON.stringify({ paymentStatus: "Payment Confirmed" })
-        });
-
+        const res = await fetch(`/api/admin/orders/${orderId}/status`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ paymentStatus:"Payment Confirmed" }) });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            await showSoftAlert(data.message || "Payment confirm failed", "Payment", "OK", "💳");
-            return;
-        }
-
-        await fetchOrders();
-        renderOrders();
-        renderDashboard();
+        if(!res.ok) throw new Error(data.message || "Payment confirm failed");
+        backgroundRefreshOrders();
     }catch(error){
-        console.error("Payment confirm error:", error);
-        alert("Payment confirm failed");
-    }
+        orders = oldOrders; renderOrders(); renderDashboard(); if(fromModal) openOrderDetail(orderId);
+        await showSoftAlert(error.message || "Payment confirm failed", "Payment", "OK", "💳");
+    }finally{ releaseBtn(); }
 }
 
 async function deleteOrder(orderId, fromModal = false){
     const yes = await showSoftConfirm("Delete this order?", "Delete Order", "Delete", "Cancel", "🗑️");
     if(!yes) return;
-
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Deleting...");
+    const oldOrders = [...(orders || [])];
+    orders = (orders || []).filter(o => String(o.id) !== String(orderId));
+    renderOrders(); renderDashboard();
+    if(fromModal) closeOrderDetailModal();
     try{
-        const res = await fetch(`/api/admin/orders/${orderId}`, {
-            method: "DELETE",
-            headers: getAuthHeaders(false)
-        });
-
+        const res = await fetch(`/api/admin/orders/${orderId}`, { method:"DELETE", headers:getAuthHeaders(false) });
         const data = await res.json().catch(() => ({}));
-        if(!res.ok){
-            alert(data.message || "Delete failed");
-            return;
-        }
-
-        await fetchOrders();
-        renderOrders();
-        renderDashboard();
+        if(!res.ok) throw new Error(data.message || "Delete failed");
+        backgroundRefreshOrders();
     }catch(error){
-        console.error("Delete order error:", error);
-        await showSoftAlert("Delete failed", "Delete", "OK", "🗑️");
-    }
+        orders = oldOrders; renderOrders(); renderDashboard();
+        await showSoftAlert(error.message || "Delete failed", "Delete", "OK", "🗑️");
+    }finally{ releaseBtn(); }
 }
 
 async function approveDeliveryUser(userId){
-    const res = await fetch(`/api/admin/delivery-users/${userId}`, {
-        method: "PATCH",
-        headers: getAuthHeaders(true),
-        body: JSON.stringify({ action: "approve" })
-    });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){ await showSoftAlert(data.message || "Approval failed", "Delivery Boy", "OK", "🚚"); return; }
-    await fetchDeliveryUsers();
-    renderDeliveryUsers();
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Approving...");
+    const oldUsers = JSON.parse(JSON.stringify(deliveryUsers || []));
+    const idx = (deliveryUsers || []).findIndex(u => String(u.id) === String(userId));
+    if(idx >= 0){ deliveryUsers[idx] = {...deliveryUsers[idx], status:"Approved"}; renderDeliveryUsers(); }
+    try{
+        const res = await fetch(`/api/admin/delivery-users/${userId}`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ action:"approve" }) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Approval failed");
+        backgroundRefreshDeliveryUsers();
+    }catch(error){ deliveryUsers = oldUsers; renderDeliveryUsers(); await showSoftAlert(error.message || "Approval failed", "Delivery Boy", "OK", "🚚"); }
+    finally{ releaseBtn(); }
 }
 
 async function rejectDeliveryUser(userId){
-    const res = await fetch(`/api/admin/delivery-users/${userId}`, {
-        method: "PATCH",
-        headers: getAuthHeaders(true),
-        body: JSON.stringify({ action: "reject" })
-    });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){ await showSoftAlert(data.message || "Reject failed", "Delivery Boy", "OK", "🚚"); return; }
-    await fetchDeliveryUsers();
-    renderDeliveryUsers();
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Rejecting...");
+    const oldUsers = JSON.parse(JSON.stringify(deliveryUsers || []));
+    const idx = (deliveryUsers || []).findIndex(u => String(u.id) === String(userId));
+    if(idx >= 0){ deliveryUsers[idx] = {...deliveryUsers[idx], status:"Rejected"}; renderDeliveryUsers(); }
+    try{
+        const res = await fetch(`/api/admin/delivery-users/${userId}`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ action:"reject" }) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Reject failed");
+        backgroundRefreshDeliveryUsers();
+    }catch(error){ deliveryUsers = oldUsers; renderDeliveryUsers(); await showSoftAlert(error.message || "Reject failed", "Delivery Boy", "OK", "🚚"); }
+    finally{ releaseBtn(); }
 }
 
 async function saveDeliveryUser(userId){
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Saving...");
     const name = document.getElementById(`db-name-${userId}`)?.value?.trim() || "";
     const phone = document.getElementById(`db-phone-${userId}`)?.value?.trim() || "";
-    const res = await fetch(`/api/admin/delivery-users/${userId}`, {
-        method: "PATCH",
-        headers: getAuthHeaders(true),
-        body: JSON.stringify({ name, phone })
-    });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){ await showSoftAlert(data.message || "Save failed", "Product", "OK", "📦"); return; }
-    await fetchDeliveryUsers();
-    renderDeliveryUsers();
+    const oldUsers = JSON.parse(JSON.stringify(deliveryUsers || []));
+    const idx = (deliveryUsers || []).findIndex(u => String(u.id) === String(userId));
+    if(idx >= 0){ deliveryUsers[idx] = {...deliveryUsers[idx], name, phone}; renderDeliveryUsers(); }
+    try{
+        const res = await fetch(`/api/admin/delivery-users/${userId}`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ name, phone }) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Save failed");
+        backgroundRefreshDeliveryUsers();
+    }catch(error){ deliveryUsers = oldUsers; renderDeliveryUsers(); await showSoftAlert(error.message || "Save failed", "Delivery Boy", "OK", "🚚"); }
+    finally{ releaseBtn(); }
 }
 
 async function resetDeliveryDevice(userId){
-    const res = await fetch(`/api/admin/delivery-users/${userId}`, {
-        method: "PATCH",
-        headers: getAuthHeaders(true),
-        body: JSON.stringify({ resetDevice: true })
-    });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){ await showSoftAlert(data.message || "Reset device failed", "Delivery Boy", "OK", "🚚"); return; }
-    await fetchDeliveryUsers();
-    renderDeliveryUsers();
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Resetting...");
+    try{
+        const res = await fetch(`/api/admin/delivery-users/${userId}`, { method:"PATCH", headers:getAuthHeaders(true), body:JSON.stringify({ resetDevice:true }) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Reset device failed");
+        backgroundRefreshDeliveryUsers();
+    }catch(error){ await showSoftAlert(error.message || "Reset device failed", "Delivery Boy", "OK", "🚚"); }
+    finally{ releaseBtn(); }
 }
 
 async function deleteDeliveryUser(userId){
     if(!(await showSoftConfirm("Delete this delivery ID?", "Delivery Boy", "Delete", "Cancel", "🚚"))) return;
-    const res = await fetch(`/api/admin/delivery-users/${userId}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(false)
-    });
-    const data = await res.json().catch(() => ({}));
-    if(!res.ok){ alert(data.message || "Delete failed"); return; }
-    await fetchDeliveryUsers();
+    const btn = getClickedButton();
+    const releaseBtn = setButtonBusy(btn, "Deleting...");
+    const oldUsers = [...(deliveryUsers || [])];
+    deliveryUsers = (deliveryUsers || []).filter(u => String(u.id) !== String(userId));
     renderDeliveryUsers();
+    try{
+        const res = await fetch(`/api/admin/delivery-users/${userId}`, { method:"DELETE", headers:getAuthHeaders(false) });
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(data.message || "Delete failed");
+        backgroundRefreshDeliveryUsers();
+    }catch(error){ deliveryUsers = oldUsers; renderDeliveryUsers(); await showSoftAlert(error.message || "Delete failed", "Delivery Boy", "OK", "🚚"); }
+    finally{ releaseBtn(); }
 }
 
 function showNewOrderPopup(){
