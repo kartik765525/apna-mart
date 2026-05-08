@@ -9,16 +9,6 @@
 <meta name="application-name" content="Setu Mart" />
 
 <style>
-/* ===== INSTANT START LOADER WHITE SCREEN FIX ===== */
-html,body{background:#f7f2e8 !important;}
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:#f7f2e8;
-  z-index:1;
-}
-body.loader-ready::before{display:none;}
 :root{
     --blue:#0b4f9c;
     --blue-dark:#083766;
@@ -3414,212 +3404,9 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
-
-/* ===== INSTANT APP + NORMAL HEADER + GESTURE BACK FIX ===== */
-#appStartLoader,
-#commerceLoader{
-  display:none !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  pointer-events:none !important;
-}
-
-/* sticky header/category/search remove */
-.header,
-.categories,
-.search-box{
-  position:relative !important;
-  top:auto !important;
-  z-index:auto !important;
-}
-
-/* panels proper full screen for mobile gesture/back */
-.side-panel,
-.profile-page,
-.order-detail-panel,
-.language-panel,
-.support-panel,
-.checkout-panel{
-  overscroll-behavior:contain !important;
-}
-body{
-  overscroll-behavior-y:auto !important;
-}
-
-
-/* ===== NORMAL NON STICKY HEADER ===== */
-.header,
-.header-wrap,
-.top-header,
-.search-section,
-.search-box,
-.categories,
-.category-tabs,
-.sticky-header,
-.sticky-search{
-  position: relative !important;
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: auto !important;
-  transform: none !important;
-}
-body{
-  padding-top: 0 !important;
-}
-
-
-/* ===== PRODUCT LOAD ANIMATION UNTIL PRODUCTS READY ===== */
-.product-load-overlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(247,251,255,.96);
-  z-index:1000005;
-  padding:24px;
-}
-.product-load-overlay.show{
-  display:flex;
-}
-.product-load-card{
-  width:min(320px,92vw);
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:22px;
-  padding:22px 18px;
-  text-align:center;
-  box-shadow:0 18px 45px rgba(15,23,42,.12);
-}
-.product-load-spinner{
-  width:54px;
-  height:54px;
-  margin:0 auto 14px;
-  border-radius:50%;
-  border:5px solid #dbeafe;
-  border-top-color:var(--blue);
-  border-right-color:var(--green);
-  animation:productLoadSpin .85s linear infinite;
-}
-.product-load-title{
-  font-size:20px;
-  font-weight:900;
-  color:var(--blue);
-}
-.product-load-sub{
-  margin-top:7px;
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.5;
-}
-@keyframes productLoadSpin{to{transform:rotate(360deg)}}
-
-html[data-theme="dark"] .product-load-overlay{
-  background:rgba(15,23,42,.96);
-}
-html[data-theme="dark"] .product-load-card{
-  background:#111827;
-  border-color:#263244;
-}
-
-
-/* ===== WARM WHITE OPENING ANIMATION ===== */
-.product-load-overlay{
-  background:#f7f2e8 !important;
-}
-
-.product-load-card{
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-
-.product-load-animation{
-  width:170px;
-  max-width:72vw;
-  display:block;
-  margin:0 auto 18px;
-  animation:setuFloat 2.8s ease-in-out infinite;
-  filter:drop-shadow(0 10px 24px rgba(37,99,235,.14));
-}
-
-.product-load-title{
-  font-size:20px;
-  font-weight:900;
-  color:#0f4c81 !important;
-  letter-spacing:.2px;
-}
-
-.product-load-sub{
-  font-size:14px;
-  color:#45607a !important;
-}
-
-@keyframes setuFloat{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-7px)}
-  100%{transform:translateY(0)}
-}
-
-html[data-theme="dark"] .product-load-overlay{
-  background:#111827 !important;
-}
-
-
-
-/* ===== RESTORED SIMPLE OPENING LOADER - FINAL OVERRIDE ===== */
-.product-load-overlay{
-  position:fixed !important;
-  inset:0 !important;
-  display:none !important;
-  align-items:center !important;
-  justify-content:center !important;
-  background:#f7f2e8 !important;
-  z-index:1000009 !important;
-  padding:24px !important;
-}
-.product-load-overlay.show{display:flex !important;}
-.product-load-card{
-  width:min(320px,92vw) !important;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-  padding:0 !important;
-  text-align:center !important;
-}
-.product-load-animation{
-  width:155px !important;
-  max-width:70vw !important;
-  display:block !important;
-  margin:0 auto 18px !important;
-  animation:setuOldLoaderFloat 1.6s ease-in-out infinite !important;
-  filter:drop-shadow(0 10px 22px rgba(11,79,156,.16)) !important;
-}
-.product-load-title{
-  font-size:21px !important;
-  font-weight:900 !important;
-  color:#0b4f9c !important;
-}
-.product-load-sub{
-  margin-top:7px !important;
-  font-size:14px !important;
-  color:#45607a !important;
-  line-height:1.5 !important;
-}
-@keyframes setuOldLoaderFloat{
-  0%,100%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-8px) scale(1.03)}
-}
-html[data-theme="dark"] .product-load-overlay{background:#111827 !important;}
-html[data-theme="dark"] .product-load-title{color:#e0f2fe !important;}
-html[data-theme="dark"] .product-load-sub{color:#94a3b8 !important;}
-
 </style>
 
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
 function syncHeaderProfileImageFinal(){
     try{
         const img=document.getElementById("headerProfileImg");
@@ -3670,35 +3457,36 @@ document.addEventListener("touchend", function(e){
 }, {passive:false});
 
 </script>
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-</head>
-<body>
-
-
-<div class="product-load-overlay show" id="productLoadOverlay" style="display:flex;position:fixed;inset:0;align-items:center;justify-content:center;background:#f7f2e8;z-index:1000009;padding:24px;">
-  <div class="product-load-card">
-    <img 
-      class="product-load-animation" 
-      src="https://cdn-icons-png.flaticon.com/512/3144/3144456.png"
-      alt="Loading"
-    >
-    <div class="product-load-title">Loading products...</div>
-    <div class="product-load-sub">Please wait, products load ho rahe hain.</div>
-  </div>
-</div>
 
 <script>
+/* ===== SETU MART SAFE LOADER + LOCATION PATCH EARLY ===== */
 (function(){
-  function ready(){
-    try{document.body.classList.add('loader-ready');}catch(e){}
-  }
-  if(document.readyState === 'loading'){document.addEventListener('DOMContentLoaded', ready);}else{ready();}
+  window.__setuSafeOpen = function(){
+    try{
+      var loader = document.getElementById("commerceLoader");
+      if(loader){
+        loader.classList.add("hidden");
+        loader.style.display = "none";
+        loader.style.visibility = "hidden";
+        loader.style.pointerEvents = "none";
+      }
+    }catch(e){}
+  };
+
+  window.addEventListener("error", function(){ setTimeout(window.__setuSafeOpen, 200); });
+  window.addEventListener("unhandledrejection", function(){ setTimeout(window.__setuSafeOpen, 200); });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(window.__setuSafeOpen, 6000);
+    setTimeout(window.__setuSafeOpen, 12000);
+  });
 })();
 </script>
 
-</div>
-
+</head>
+<body>
 <script>
 function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
 function getProductUnitText(product){return getProductUnit(product) || "piece";}
@@ -3713,7 +3501,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 </script>
 
 
-<div id="appStartLoader" class="commerce-loader hidden" style="display:none;">
+<div id="appStartLoader" class="commerce-loader">
     <div class="commerce-loader-box">
         <div class="commerce-loader-visual">
             <div class="commerce-loader-ring"></div>
@@ -4717,16 +4505,12 @@ function showApp(){
     document.documentElement.classList.add("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
-    hideAppStartLoader();
-    hideAppStartLoader();
 }
 
 function showLogin(){
     document.documentElement.classList.remove("apnamart-has-token");
     document.getElementById("loginScreen").style.display = "flex";
     document.getElementById("app").style.display = "none";
-    hideAppStartLoader();
-    hideAppStartLoader();
 }
 
 function getCustomerHeaders(includeJson=true){
@@ -5453,11 +5237,68 @@ function update() {
 
 
 
-
 function getCurrentOrderLocation() {
-    return Promise.resolve(null);
-}
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            showToast("Location support nahi hai", "error");
+            resolve(null);
+            return;
+        }
 
+        const valid = (loc) => {
+            const lat = Number(loc && loc.latitude);
+            const lng = Number(loc && loc.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+            if (lat === 0 && lng === 0) return false;
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return false;
+            return true;
+        };
+
+        const getOnce = (timeout) => new Promise((done) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const loc = {
+                        latitude: Number(pos.coords.latitude),
+                        longitude: Number(pos.coords.longitude),
+                        accuracy: Number(pos.coords.accuracy || 0),
+                        capturedAt: new Date().toISOString(),
+                        source: "gps"
+                    };
+                    done(valid(loc) ? loc : null);
+                },
+                (err) => {
+                    console.error("GPS error:", err);
+                    if (err && err.code === 1) {
+                        showToast("Location permission Allow karo", "error");
+                    }
+                    done(null);
+                },
+                { enableHighAccuracy: true, timeout: timeout, maximumAge: 0 }
+            );
+        });
+
+        (async () => {
+            let best = null;
+
+            for (let i = 0; i < 4; i++) {
+                const loc = await getOnce(i === 0 ? 15000 : 22000);
+                if (loc && (!best || (loc.accuracy && (!best.accuracy || loc.accuracy < best.accuracy)))) {
+                    best = loc;
+                }
+                if (best && best.accuracy && best.accuracy <= 80) break;
+                await new Promise(r => setTimeout(r, 700));
+            }
+
+            if (!valid(best)) {
+                showToast("Exact GPS location nahi mili. Location/GPS ON karke dobara try karo.", "error");
+                resolve(null);
+                return;
+            }
+
+            resolve(best);
+        })();
+    });
+}
 
 
 let checkoutCouponDiscount = 0;
@@ -5602,12 +5443,30 @@ async function placeOrder(){
 }
 
 
-
-
+async 
 async function getQuickCheckoutLocation(){
-    return null;
-}
+    try{
+        const loc = await getCurrentOrderLocation();
+        const lat = Number(loc && loc.latitude);
+        const lng = Number(loc && loc.longitude);
 
+        if(
+            loc &&
+            Number.isFinite(lat) &&
+            Number.isFinite(lng) &&
+            !(lat === 0 && lng === 0) &&
+            Math.abs(lat) <= 90 &&
+            Math.abs(lng) <= 180
+        ){
+            return loc;
+        }
+
+        return null;
+    }catch(error){
+        console.error("Checkout location error:", error);
+        return null;
+    }
+}
 
 
 async function submitCheckoutOrder() {
@@ -5638,6 +5497,17 @@ async function submitCheckoutOrder() {
 
     let currentLocation = await getQuickCheckoutLocation();
 
+    if(
+        !currentLocation ||
+        !Number.isFinite(Number(currentLocation.latitude)) ||
+        !Number.isFinite(Number(currentLocation.longitude)) ||
+        (Number(currentLocation.latitude) === 0 && Number(currentLocation.longitude) === 0)
+    ){
+        hidePlaceOrderLoader();
+        showToast("Exact GPS location nahi mili. Location permission Allow karo aur GPS ON karke dobara order karo.", "error");
+        return;
+    }
+
     try {
         const response = await fetch("/api/orders", {
             method: "POST",
@@ -5647,7 +5517,7 @@ async function submitCheckoutOrder() {
                 address: fullAddress,
                 paymentMethod: payment,
                 items: cart.map(i => ({ id: i.id, qty: i.qty })),
-                customerLocation: null,
+                customerLocation: currentLocation,
                 couponCode: checkoutCouponCode || '',
                 couponDiscount: checkoutCouponDiscount || 0
             })
@@ -6286,13 +6156,6 @@ function setLanguage(lang){
     closeLanguagePanel();
 }
 
-
-function timeoutPromise(ms, fallbackValue = null){
-    return new Promise(resolve => setTimeout(() => resolve(fallbackValue), ms));
-}
-
-
-
 async function initApp(){
     applyThemeMode();
     applyLanguage();
@@ -6300,63 +6163,13 @@ async function initApp(){
     renderSavedProfile();
     renderTopProfile();
     updateCartDeliveryBox();
-
-    hideAppStartLoader();
-
-    try{
-        const loginResult = await Promise.race([
-            checkCustomerLogin(),
-            new Promise(resolve => setTimeout(() => resolve("timeout"), 1500))
-        ]);
-
-        if(loginResult === "timeout"){
-            customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
-            if(customerToken) showApp();
-            else showLogin();
-        }
-
-        hideAppStartLoader();
-        syncPanelWithHash();
-
-        if(typeof showProductLoadOverlay === "function") showProductLoadOverlay();
-
-        try{
-            await fetchProducts();
-            // Ensure home page par all products render ho
-            if(typeof selectedCategory !== "undefined") selectedCategory = "All";
-            if(typeof currentCategory !== "undefined") currentCategory = "All";
-            if(typeof activeCategory !== "undefined") activeCategory = "All";
-
-            document.querySelectorAll(".cat").forEach(btn => {
-                const t = (btn.textContent || "").trim().toLowerCase();
-                btn.classList.toggle("active", t === "all" || t === "सभी");
-            });
-
-            if(typeof renderProducts === "function") renderProducts();
-        }catch(productError){
-            console.error("Products load error:", productError);
-            if(typeof renderProducts === "function") renderProducts();
-            if(typeof showToast === "function") showToast("Products load nahi ho paye. Refresh karke try karo.", "error");
-        }finally{
-            if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
-            hideAppStartLoader();
-        }
-
-        fetchLiveOffers().catch(console.error);
-        refreshCartFromFirebase().catch(console.error);
-        startAutoRefresh();
-    }catch(error){
-        console.error("initApp safe error:", error);
-        customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
-        if(customerToken) showApp();
-        else showLogin();
-        hideAppStartLoader();
-        if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
-    }
+    await checkCustomerLogin();
+    syncPanelWithHash();
+    await fetchProducts();
+    await fetchLiveOffers();
+    await refreshCartFromFirebase();
+    startAutoRefresh();
 }
-
-
-
 
 initApp();
 </script>
@@ -6410,194 +6223,29 @@ initApp();
 
 
 <script>
-/* ===== FINAL LOADING PRODUCTS STUCK FIX ===== */
+/* ===== SETU MART 0,0 MAP LINK BLOCK + FINAL LOADER FIX ===== */
 (function(){
-    function hardHideLoader(){
-        try{
-            var loader = document.getElementById("appStartLoader");
-            if(loader){
-                loader.classList.add("hidden");
-                loader.style.display = "none";
-                loader.style.visibility = "hidden";
-                loader.style.pointerEvents = "none";
-            }
-        }catch(e){}
-    }
-    window.addEventListener("error", function(){ setTimeout(hardHideLoader, 200); });
-    window.addEventListener("unhandledrejection", function(){ setTimeout(hardHideLoader, 200); });
-    document.addEventListener("DOMContentLoaded", function(){
-        setTimeout(hardHideLoader, 8000);
-    });
-})();
-</script>
+  function isBadLatLng(lat,lng){
+    lat = Number(lat); lng = Number(lng);
+    return !Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180;
+  }
 
+  window.setuIsBadLatLng = isBadLatLng;
 
-<script>
-/* ===== BLOCK 0,0 MAP LINK ONLY ===== */
-(function(){
+  // prevent opening 0,0 google maps links
   document.addEventListener("click", function(e){
-    var link = e.target.closest && e.target.closest("a[href]");
-    if(!link) return;
-    var href = link.getAttribute("href") || "";
+    var a = e.target.closest && e.target.closest("a[href]");
+    if(!a) return;
+    var href = a.getAttribute("href") || "";
     if(href.includes("0,0") || href.includes("0.0000000,0.0000000") || href.includes("destination=0")) {
       e.preventDefault();
-      showToast("Is order me exact GPS location nahi mili. Customer ko GPS allow karke dobara order karna hoga.", "error");
+      showToast("Is order me exact GPS location nahi mili. Customer ko location allow karke dobara order karna hoga.", "error");
     }
   }, true);
-})();
-</script>
 
-
-<script>
-/* ===== OLD STYLE OPENING LOADER FLOW ===== */
-(function(){
-  function hideOnlyNewCommerceLoader(){
-    var el = document.getElementById("appStartLoader");
-    if(el){
-      el.classList.add("hidden");
-      el.style.display = "none";
-      el.style.visibility = "hidden";
-      el.style.opacity = "0";
-      el.style.pointerEvents = "none";
-    }
-  }
-
-  window.hideAppStartLoader = hideOnlyNewCommerceLoader;
-
-  document.addEventListener("DOMContentLoaded", function(){
-    hideOnlyNewCommerceLoader();
-    var oldLoader = document.getElementById("productLoadOverlay");
-    if(oldLoader){
-      oldLoader.classList.add("show");
-    }
-  });
-})();
-</script>
-
-
-<script>
-/* ===== LOCATION REMOVED: MAP LINK DISABLED ===== */
-(function(){
-  document.addEventListener("click", function(e){
-    var link = e.target.closest && e.target.closest("a[href]");
-    if(!link) return;
-    var href = link.getAttribute("href") || "";
-    if(href.includes("google.com/maps") || href.includes("maps.google")){
-      e.preventDefault();
-      showToast("Location feature abhi disabled hai", "info");
-    }
-  }, true);
-})();
-</script>
-
-
-<script>
-/* ===== BACK / GESTURE NAVIGATION FIX ===== */
-(function(){
-  function closeTopPanel(){
-    var selectors = [
-      "#orderDetailPanel.open",
-      "#checkoutPanel.open",
-      "#cartPanel.open",
-      "#ordersPanel.open",
-      "#profilePage.open",
-      "#languagePanel.open",
-      "#supportPanel.open"
-    ];
-    for(var i=0;i<selectors.length;i++){
-      var el = document.querySelector(selectors[i]);
-      if(el){
-        el.classList.remove("open");
-        document.body.classList.remove("panel-open");
-        return true;
-      }
-    }
-    return false;
-  }
-
-  window.addEventListener("popstate", function(e){
-    if(closeTopPanel()){
-      history.pushState({setuPanel:true}, "", location.href);
-    }
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-    try{
-      if(!history.state || !history.state.setuInit){
-        history.replaceState({setuInit:true}, "", location.href);
-        history.pushState({setuPanel:true}, "", location.href);
-      }
-    }catch(e){}
-  });
-
-  window.setuCloseTopPanel = closeTopPanel;
-})();
-</script>
-
-
-<script>
-/* ===== PRODUCT LOADING FLOW FIX ===== */
-(function(){
-  window.showProductLoadOverlay = function(){
-    var el = document.getElementById("productLoadOverlay");
-    if(el){
-      el.style.display = "flex";
-      el.style.visibility = "visible";
-      el.style.pointerEvents = "auto";
-      el.classList.add("show");
-    }
-  };
-  window.hideProductLoadOverlay = function(){
-    var el = document.getElementById("productLoadOverlay");
-    if(!el) return;
-    setTimeout(function(){
-      el.classList.remove("show");
-      el.style.display = "none";
-      el.style.visibility = "hidden";
-      el.style.pointerEvents = "none";
-    }, 700);
-  };
-})();
-</script>
-
-
-<script>
-/* ===== PRODUCT LOAD OVERLAY FETCH PATCH ===== */
-(function(){
-  const bind = function(){
-    if(typeof window.fetchProducts === "function" && !window.fetchProducts.__overlayPatched){
-      const oldFetchProducts = window.fetchProducts;
-      window.fetchProducts = async function(){
-        if(typeof showProductLoadOverlay === "function") showProductLoadOverlay();
-        try{
-          return await oldFetchProducts.apply(this, arguments);
-        }finally{
-          setTimeout(function(){
-            if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
-          }, 250);
-        }
-      };
-      window.fetchProducts.__overlayPatched = true;
-    }
-  };
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", function(){ setTimeout(bind, 100); });
-  }else{
-    setTimeout(bind, 100);
-  }
-})();
-</script>
-
-
-<script>
-/* ===== SHOW PREMIUM OPENING ANIMATION ===== */
-(function(){
-  document.addEventListener("DOMContentLoaded", function(){
-    var overlay = document.getElementById("productLoadOverlay");
-    if(overlay){
-      overlay.classList.add("show");
-    }
-  });
+  setTimeout(function(){
+    if(typeof window.__setuSafeOpen === "function") window.__setuSafeOpen();
+  }, 6000);
 })();
 </script>
 
