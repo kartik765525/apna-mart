@@ -3436,6 +3436,85 @@ body{
   overscroll-behavior-y:auto !important;
 }
 
+
+/* ===== NORMAL NON STICKY HEADER ===== */
+.header,
+.header-wrap,
+.top-header,
+.search-section,
+.search-box,
+.categories,
+.category-tabs,
+.sticky-header,
+.sticky-search{
+  position: relative !important;
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+  transform: none !important;
+}
+body{
+  padding-top: 0 !important;
+}
+
+
+/* ===== PRODUCT LOAD ANIMATION UNTIL PRODUCTS READY ===== */
+.product-load-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(247,251,255,.96);
+  z-index:1000005;
+  padding:24px;
+}
+.product-load-overlay.show{
+  display:flex;
+}
+.product-load-card{
+  width:min(320px,92vw);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:22px 18px;
+  text-align:center;
+  box-shadow:0 18px 45px rgba(15,23,42,.12);
+}
+.product-load-spinner{
+  width:54px;
+  height:54px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  border:5px solid #dbeafe;
+  border-top-color:var(--blue);
+  border-right-color:var(--green);
+  animation:productLoadSpin .85s linear infinite;
+}
+.product-load-title{
+  font-size:20px;
+  font-weight:900;
+  color:var(--blue);
+}
+.product-load-sub{
+  margin-top:7px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.5;
+}
+@keyframes productLoadSpin{to{transform:rotate(360deg)}}
+
+html[data-theme="dark"] .product-load-overlay{
+  background:rgba(15,23,42,.96);
+}
+html[data-theme="dark"] .product-load-card{
+  background:#111827;
+  border-color:#263244;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
@@ -3493,6 +3572,15 @@ document.addEventListener("touchend", function(e){
 
 </head>
 <body>
+
+<div class="product-load-overlay" id="productLoadOverlay">
+  <div class="product-load-card">
+    <div class="product-load-spinner"></div>
+    <div class="product-load-title">Loading products...</div>
+    <div class="product-load-sub">Please wait, products are loading</div>
+  </div>
+</div>
+
 <script>
 function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
 function getProductUnitText(product){return getProductUnit(product) || "piece";}
@@ -6086,6 +6174,7 @@ function timeoutPromise(ms, fallbackValue = null){
 }
 
 
+
 async function initApp(){
     applyThemeMode();
     applyLanguage();
@@ -6111,8 +6200,30 @@ async function initApp(){
         hideAppStartLoader();
         syncPanelWithHash();
 
-        // products background me load honge; app turant dikhega
-        fetchProducts().catch(console.error).finally(() => hideAppStartLoader());
+        if(typeof showProductLoadOverlay === "function") showProductLoadOverlay();
+
+        try{
+            await fetchProducts();
+            // Ensure home page par all products render ho
+            if(typeof selectedCategory !== "undefined") selectedCategory = "All";
+            if(typeof currentCategory !== "undefined") currentCategory = "All";
+            if(typeof activeCategory !== "undefined") activeCategory = "All";
+
+            document.querySelectorAll(".cat").forEach(btn => {
+                const t = (btn.textContent || "").trim().toLowerCase();
+                btn.classList.toggle("active", t === "all" || t === "सभी");
+            });
+
+            if(typeof renderProducts === "function") renderProducts();
+        }catch(productError){
+            console.error("Products load error:", productError);
+            if(typeof renderProducts === "function") renderProducts();
+            if(typeof showToast === "function") showToast("Products load nahi ho paye. Refresh karke try karo.", "error");
+        }finally{
+            if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
+            hideAppStartLoader();
+        }
+
         fetchLiveOffers().catch(console.error);
         refreshCartFromFirebase().catch(console.error);
         startAutoRefresh();
@@ -6122,8 +6233,10 @@ async function initApp(){
         if(customerToken) showApp();
         else showLogin();
         hideAppStartLoader();
+        if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
     }
 }
+
 
 
 
@@ -6303,6 +6416,49 @@ initApp();
   });
 
   window.setuCloseTopPanel = closeTopPanel;
+})();
+</script>
+
+
+<script>
+/* ===== PRODUCT LOADING FLOW FIX ===== */
+(function(){
+  window.showProductLoadOverlay = function(){
+    var el = document.getElementById("productLoadOverlay");
+    if(el) el.classList.add("show");
+  };
+  window.hideProductLoadOverlay = function(){
+    var el = document.getElementById("productLoadOverlay");
+    if(el) el.classList.remove("show");
+  };
+})();
+</script>
+
+
+<script>
+/* ===== PRODUCT LOAD OVERLAY FETCH PATCH ===== */
+(function(){
+  const bind = function(){
+    if(typeof window.fetchProducts === "function" && !window.fetchProducts.__overlayPatched){
+      const oldFetchProducts = window.fetchProducts;
+      window.fetchProducts = async function(){
+        if(typeof showProductLoadOverlay === "function") showProductLoadOverlay();
+        try{
+          return await oldFetchProducts.apply(this, arguments);
+        }finally{
+          setTimeout(function(){
+            if(typeof hideProductLoadOverlay === "function") hideProductLoadOverlay();
+          }, 250);
+        }
+      };
+      window.fetchProducts.__overlayPatched = true;
+    }
+  };
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(bind, 100); });
+  }else{
+    setTimeout(bind, 100);
+  }
 })();
 </script>
 
