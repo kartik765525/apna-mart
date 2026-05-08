@@ -8,46 +8,6 @@
 <title>Setu Mart</title>
 <meta name="application-name" content="Setu Mart" />
 
-
-<style>
-html,body{margin:0;min-height:100%;background:#eaf4fb;font-family:Segoe UI,Arial,sans-serif;overflow-x:hidden;}
-#appStartLoader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eaf4fb;z-index:2147483647;padding:24px;color:#175a78;}
-#appStartLoader.hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease;}
-#appStartLoader .commerce-loader-box{width:100%;max-width:360px;text-align:center;}
-#appStartLoader .commerce-loader-visual{width:150px;height:150px;margin:0 auto 18px;position:relative;}
-#appStartLoader .commerce-loader-ring{position:absolute;inset:18px;border:3px solid rgba(255,255,255,.95);border-top-color:#1696d2;border-radius:50%;animation:setuEarlySpin .8s linear infinite;}
-#appStartLoader .commerce-loader-cart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:54px;}
-#appStartLoader .commerce-loader-device,#appStartLoader .commerce-loader-dot{display:none!important;}
-#appStartLoader .commerce-loader-title{font-size:22px;font-weight:800;color:#175a78;}
-#appStartLoader .commerce-loader-sub{margin-top:8px;font-size:14px;line-height:1.6;color:#5f7e8d;}
-@keyframes setuEarlySpin{to{transform:rotate(360deg);}}
-</style>
-<script>
-try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
-</script>
-
-</head>
-<body>
-
-<div id="appStartLoader" class="commerce-loader">
-    <div class="commerce-loader-box">
-        <div class="commerce-loader-visual">
-            <div class="commerce-loader-ring"></div>
-            <div class="commerce-loader-cart">🛒</div>
-            <div class="commerce-loader-device phone">📱</div>
-            <div class="commerce-loader-device pos"></div>
-            <div class="commerce-loader-device card">💳</div>
-            <div class="commerce-loader-device tap">✅</div>
-            <div class="commerce-loader-dot dot1"></div>
-            <div class="commerce-loader-dot dot2"></div>
-            <div class="commerce-loader-dot dot3"></div>
-            <div class="commerce-loader-dot dot4"></div>
-        </div>
-        <div class="commerce-loader-title">Loading products...</div>
-        <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
-    </div>
-</div>
-
 <style>
 :root{
     --blue:#0b4f9c;
@@ -3445,13 +3405,8 @@ html[data-theme="dark"] .search-box input{
 }
 
 </style>
-<style>
-/* WEBVIEW BLANK SCREEN FIX: loader is parsed before heavy CSS/scripts */
-#appStartLoader{z-index:2147483647!important;}
-</style>
 
-
-<script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
 function syncHeaderProfileImageFinal(){
     try{
         const img=document.getElementById("headerProfileImg");
@@ -3502,8 +3457,10 @@ document.addEventListener("touchend", function(e){
 }, {passive:false});
 
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-
+</head>
+<body>
 <script>
 function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
 function getProductUnitText(product){return getProductUnit(product) || "piece";}
@@ -3518,6 +3475,24 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 </script>
 
 
+<div id="appStartLoader" class="commerce-loader">
+    <div class="commerce-loader-box">
+        <div class="commerce-loader-visual">
+            <div class="commerce-loader-ring"></div>
+            <div class="commerce-loader-cart">🛒</div>
+            <div class="commerce-loader-device phone">📱</div>
+            <div class="commerce-loader-device pos"></div>
+            <div class="commerce-loader-device card">💳</div>
+            <div class="commerce-loader-device tap">✅</div>
+            <div class="commerce-loader-dot dot1"></div>
+            <div class="commerce-loader-dot dot2"></div>
+            <div class="commerce-loader-dot dot3"></div>
+            <div class="commerce-loader-dot dot4"></div>
+        </div>
+        <div class="commerce-loader-title">Loading products...</div>
+        <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
+    </div>
+</div>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
@@ -4012,6 +3987,7 @@ function goToOrders(){
 let products = [];
 let filteredProducts = [];
 let cart = [];
+const LOCAL_CART_KEY = "setuMartLocalCartBackup";
 const CUSTOMER_TOKEN_KEY = "apnaMartCustomerToken";
 let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 
@@ -4087,6 +4063,41 @@ function sanitizeCartItem(item){
     };
 }
 
+
+function loadCartFromLocalFallback(){
+    try{
+        const saved = localStorage.getItem(LOCAL_CART_KEY);
+        if(saved){
+            const parsed = JSON.parse(saved);
+            if(Array.isArray(parsed) && parsed.length){
+                cart = sanitizeCartItems(parsed);
+                return cart;
+            }
+        }
+    }catch(error){
+        console.warn("Local cart load failed", error);
+    }
+    if(!Array.isArray(cart)) cart = [];
+    return cart;
+}
+
+function saveCartToLocalFallback(){
+    try{
+        localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(sanitizeCartItems(cart)));
+    }catch(error){
+        console.warn("Local cart save failed", error);
+    }
+}
+
+function getActiveCartForCheckout(){
+    if(!Array.isArray(cart) || !cart.length){
+        loadCartFromLocalFallback();
+    }
+    normalizeCartWithProducts();
+    saveCartToLocalFallback();
+    return Array.isArray(cart) ? cart : [];
+}
+
 function sanitizeCartItems(items){
     if(!Array.isArray(items)) return [];
     return items.map(sanitizeCartItem).filter(Boolean);
@@ -4114,16 +4125,22 @@ function normalizeCartWithProducts(){
 async function loadCartFromFirebase(phone){
     const cleanPhone = normalizePhone(phone);
     if(!firebaseCartReady || !firebaseCartDb || !cleanPhone){
-        cart = [];
-        return [];
+        loadCartFromLocalFallback();
+        normalizeCartWithProducts();
+        return cart;
     }
 
     try{
         const doc = await firebaseCartDb.collection("carts").doc(cleanPhone).get();
         const data = doc.exists ? (doc.data() || {}) : {};
         const items = sanitizeCartItems(data.items || []);
+        if(!items.length && Array.isArray(cart) && cart.length){
+            saveCartToLocalFallback();
+            return cart;
+        }
         cart = items;
         normalizeCartWithProducts();
+        saveCartToLocalFallback();
         return cart;
     }catch(error){
         console.error("Cart load failed:", error);
@@ -4133,8 +4150,9 @@ async function loadCartFromFirebase(phone){
 
 async function saveCartToFirebase(){
     const cleanPhone = getCurrentCartPhone();
+    saveCartToLocalFallback();
     if(!firebaseCartReady || !firebaseCartDb || !cleanPhone || cartSyncInProgress){
-        return false;
+        return true;
     }
 
     try{
@@ -4167,7 +4185,7 @@ async function saveCartToFirebase(){
 async function refreshCartFromFirebase(){
     const cleanPhone = getCurrentCartPhone();
     if(!cleanPhone){
-        cart = [];
+        loadCartFromLocalFallback();
         update();
         return;
     }
@@ -5227,6 +5245,7 @@ function update() {
                 </div>
             `).join("");
 
+    saveCartToLocalFallback();
     calculateTotal();
     renderSavedProfile();
     renderTopProfile();
@@ -5307,7 +5326,8 @@ let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
 
 function openCheckoutPanel(addToHistory = true){
-    if (cart.length === 0) {
+    getActiveCartForCheckout();
+    if (!cart || cart.length === 0) {
         showToast("Cart is empty!", "error");
         return;
     }
@@ -5487,7 +5507,9 @@ async function submitCheckoutOrder() {
 
     const payment = document.querySelector('input[name="checkoutPayment"]:checked')?.value || 'cod';
 
-    if (cart.length === 0) {
+    getActiveCartForCheckout();
+
+    if (!cart || cart.length === 0) {
         showToast("Cart is empty!", "error");
         return;
     }
@@ -5523,6 +5545,7 @@ async function submitCheckoutOrder() {
 
         if (payment === "cod") {
             cart = [];
+            saveCartToLocalFallback();
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
             const checkoutCouponInput = document.getElementById("checkoutCouponInput");
@@ -5540,6 +5563,7 @@ async function submitCheckoutOrder() {
 
         if (payment === "upi") {
             cart = [];
+            saveCartToLocalFallback();
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
             const checkoutCouponInput = document.getElementById("checkoutCouponInput");
@@ -5668,7 +5692,8 @@ function orderOnWhatsApp() {
         return;
     }
 
-    if (cart.length === 0) { showToast("Cart is empty!", "error"); return; }
+    getActiveCartForCheckout();
+    if (!cart || cart.length === 0) { showToast("Cart is empty!", "error"); return; }
 
     let message = "🛒 *New Order - Setu Mart* %0A%0A";
 
@@ -6153,6 +6178,8 @@ async function initApp(){
     renderSavedProfile();
     renderTopProfile();
     updateCartDeliveryBox();
+    loadCartFromLocalFallback();
+    update();
     await checkCustomerLogin();
     syncPanelWithHash();
     await fetchProducts();
