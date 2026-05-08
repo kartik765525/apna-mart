@@ -1117,13 +1117,25 @@ function getOrderDateForDelivery(order){
   return d && !isNaN(d.getTime()) ? d : null;
 }
 
-function getDeliveryDayKey(date){
+function getDeliveryBusinessDayKey(date){
   const d = new Date(date);
   if(!d || isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+
+  // Delivery day raat 11 baje reset hota hai.
+  // 11 PM ke baad wale orders next delivery day me count honge.
+  const ist = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const keyDate = new Date(ist);
+  if(ist.getHours() >= 23){
+    keyDate.setDate(keyDate.getDate() + 1);
+  }
+
+  const yyyy = keyDate.getFullYear();
+  const mm = String(keyDate.getMonth() + 1).padStart(2, "0");
+  const dd = String(keyDate.getDate()).padStart(2, "0");
+  return yyyy + "-" + mm + "-" + dd;
 }
 
-function parseDeliveryOrderDate(order){
+function getOrderDateForDeliveryDay(order){
   const value = order.createdAt || order.date || order.timestamp || order.orderDate || order.time || order.created_at;
   if(!value) return null;
 
@@ -1143,30 +1155,25 @@ function parseDeliveryOrderDate(order){
   return null;
 }
 
-function isAfterDeliveryDayCutoff(){
-  const now = new Date();
-  const istHour = Number(now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", hour12: false }));
-  return istHour >= 23;
+function isDeliveredInCurrentDeliveryDay(order){
+  const orderDate = getOrderDateForDeliveryDay(order);
+
+  // Date missing ho to delivered order ko hide nahi karenge.
+  // Isse galti se earning/order गायब नहीं होगा.
+  if(!orderDate) return true;
+
+  return getDeliveryBusinessDayKey(orderDate) === getDeliveryBusinessDayKey(new Date());
 }
 
 function isDeliveryPanelOrderVisible(order){
-  const orderDate = parseDeliveryOrderDate(order);
+  const status = normalizeDeliveryStatus(order.status || order.orderStatus || order.deliveryStatus);
 
-  // Agar date missing/invalid hai to order ko hide nahi karenge,
-  // taki admin assigned order galti se गायब na ho.
-  if(!orderDate) return true;
+  // Assigned / Pending / Out for Delivery कभी hide नहीं होंगे.
+  // Admin se assign hua order हमेशा दिखेगा.
+  if(status !== "Delivered") return true;
 
-  const todayKey = getDeliveryDayKey(new Date());
-  const orderKey = getDeliveryDayKey(orderDate);
-
-  // Day 1 ke orders Day 2 me kabhi nahi dikhेंगे.
-  if(orderKey !== todayKey) return false;
-
-  // Same day orders 11 PM ke baad hide ho जाएंगे: assigned + delivered + earning sab.
-  if(isAfterDeliveryDayCutoff()) return false;
-
-  // Day 2 me Day 2 ke assigned / delivered / earning sab normal दिखेंगे.
-  return true;
+  // Sirf delivered orders aur earning 11 PM delivery-day logic se filter honge.
+  return isDeliveredInCurrentDeliveryDay(order);
 }
 
 function getVisibleDeliveryOrders(){
@@ -1420,8 +1427,8 @@ function renderOrders(){
 
   if(!visibleOrders.length){
     list.innerHTML = statsView === 'delivered'
-      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>11 PM ke baad purane day orders hide honge.</small></div>'
-      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. 11 PM ke baad purane day orders hide honge.</small></div>';
+      ? '<div class="empty">Delivered orders yahan dikhenge<br><small>Auto-hide फिलहाल OFF है.</small></div>'
+      : '<div class="empty">No assigned pending orders right now<br><small>Admin se assign hote hi order yahan dikhega. Auto-hide फिलहाल OFF है.</small></div>';
     renderStats();
     return;
   }
