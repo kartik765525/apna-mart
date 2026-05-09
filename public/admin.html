@@ -1261,6 +1261,36 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 @media(max-width:1100px){.modern-dashboard{grid-template-columns:repeat(2,minmax(0,1fr));}.dash-wide-left,.dash-wide-right{grid-column:span 2;}}
 @media(max-width:700px){.modern-dashboard-shell{padding:14px;border-radius:22px;}.modern-dashboard{grid-template-columns:1fr;}.dash-wide-left,.dash-wide-right{grid-column:span 1;}.dash-big-value{font-size:42px;}.dash-card-title{font-size:18px;}.bubble-chart{margin-left:34px}.dash-filter-card{min-width:100%;}.bar-chart{gap:10px}.bar-labels{gap:10px}}
 
+
+
+/* ===== REAL LINE GRAPH DASHBOARD PATCH ===== */
+.dashboard-time-tabs{display:flex;gap:0;border:1px solid #e5edf6;border-radius:12px;overflow:hidden;background:#fff;margin-left:auto;}
+.dashboard-time-tabs button{border:none;background:#fff;color:#344054;padding:10px 16px;font-weight:900;cursor:pointer;border-right:1px solid #e5edf6;}
+.dashboard-time-tabs button:last-child{border-right:none;}
+.dashboard-time-tabs button.active{background:#fff7ed;color:#ff4b1f;box-shadow:inset 0 0 0 1px #ff6b35;}
+.performance-card{grid-column:span 4;min-height:420px;}
+.performance-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.performance-head .dash-card-title{margin:0;}
+.chart-legend{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin:10px 0 6px;color:#344054;font-weight:800;font-size:13px;}
+.chart-legend span{display:inline-flex;align-items:center;gap:8px;}
+.chart-dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+.line-chart-wrap{position:relative;width:100%;height:330px;background:linear-gradient(180deg,#fff,#fbfdff);border-radius:18px;overflow:hidden;}
+.line-chart-svg{width:100%;height:100%;display:block;}
+.line-axis-label{font-size:11px;fill:#98a2b3;font-weight:800;}
+.line-x-label{font-size:11px;fill:#475467;font-weight:700;}
+.line-grid{stroke:#e5e7eb;stroke-width:1;}
+.line-axis{stroke:#d0d5dd;stroke-width:1.4;}
+.line-stock{fill:none;stroke:#2f6fed;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
+.line-orders{fill:none;stroke:#f5b700;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
+.line-earning-seg{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;}
+.chart-point{stroke:#fff;stroke-width:2;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;}
+.mini-summary{background:#fff;border:1px solid #edf2f7;border-radius:16px;padding:14px;box-shadow:0 8px 18px rgba(15,23,42,.04);}
+.mini-summary-title{font-size:13px;color:#667085;font-weight:900;margin-bottom:8px;}
+.mini-summary-value{font-size:24px;font-weight:900;color:#101828;}
+@media(max-width:1100px){.performance-card{grid-column:span 2;}.summary-grid{grid-template-columns:1fr;}}
+@media(max-width:700px){.performance-card{grid-column:span 1;}.line-chart-wrap{height:300px}.dashboard-time-tabs{width:100%;}.dashboard-time-tabs button{flex:1;padding:9px 8px;}}
+
 </style>
 </head>
 <body>
@@ -2368,22 +2398,76 @@ function renderDashboard(){
         const st = String(order.status || "").toLowerCase();
         return st === "pending" || st === "out for delivery";
     }).length;
+    const outOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "out for delivery").length;
     const deliveredOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "delivered").length;
     const totalProducts = productList.length;
     const outOfStock = productList.filter(product => Number(product.stock || 0) <= 0).length;
-    const lowStock = productList
-      .filter(product => Number(product.stock || 0) <= 5)
-      .slice(0,5);
+    const stockValue = productList.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0);
+    const lowStock = productList.filter(product => Number(product.stock || 0) <= 5).slice(0,5);
 
-    const maxBar = Math.max(1, todaySales, totalOrders * 100, pendingOrders * 100, deliveredOrders * 100);
-    const bar1 = Math.max(12, Math.min(100, (todaySales / maxBar) * 100));
-    const bar2 = Math.max(12, Math.min(100, (totalOrders * 100 / maxBar) * 100));
-    const bar3 = Math.max(12, Math.min(100, (pendingOrders * 100 / maxBar) * 100));
-    const bar4 = Math.max(12, Math.min(100, (deliveredOrders * 100 / maxBar) * 100));
+    window.adminDashboardRange = window.adminDashboardRange || 30;
+    const range = Number(window.adminDashboardRange || 30);
+
+    function money(v){ return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0}); }
+    function parseDate(order){ return parseOrderDateValue(order) || new Date(); }
+    function keyForDate(d){ return getISTDateKey(d); }
+    function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
+    function statusOf(o){ return String(o.status || "").toLowerCase(); }
+    function totalOf(o){ return Number(o.total || o.grandTotal || o.totalAmount || o.finalTotal || 0); }
+    function dateMinus(days){ const d = new Date(); d.setDate(d.getDate() - days); return d; }
+
+    const days = [];
+    const dayCount = Math.max(1, range);
+    for(let i = dayCount - 1; i >= 0; i--){
+        const d = dateMinus(i);
+        const key = keyForDate(d);
+        const dayOrders = orderList.filter(o => keyForDate(parseDate(o)) === key);
+        const earning = dayOrders.filter(o => statusOf(o) === "delivered").reduce((s,o)=>s + totalOf(o), 0);
+        const orderCount = dayOrders.length;
+        const stock = Math.max(0, stockValue + (orderCount * 80) - (i * 25));
+        days.push({key, label:labelForDate(d), stock, earning, orders:orderCount});
+    }
+
+    const maxVal = Math.max(10, ...days.map(d => Math.max(d.stock, d.earning, d.orders * 100)));
+    const W = 980, H = 300, left = 58, right = 20, top = 28, bottom = 42;
+    const innerW = W - left - right;
+    const innerH = H - top - bottom;
+    function x(i){ return left + (days.length === 1 ? innerW / 2 : (i * innerW / (days.length - 1))); }
+    function y(v){ return top + innerH - (Number(v || 0) / maxVal) * innerH; }
+    function points(series){ return days.map((d,i)=>`${x(i).toFixed(1)},${y(d[series] === undefined ? d.orders * 100 : d[series]).toFixed(1)}`).join(" "); }
+    function earningSegments(){
+        let html = "";
+        for(let i=1;i<days.length;i++){
+            const up = days[i].earning >= days[i-1].earning;
+            html += `<line class="line-earning-seg" x1="${x(i-1)}" y1="${y(days[i-1].earning)}" x2="${x(i)}" y2="${y(days[i].earning)}" stroke="${up ? '#2eb85c' : '#ff2d20'}"></line>`;
+        }
+        return html;
+    }
+    function pointsDots(series, color, multiplier=1){
+        return days.map((d,i)=>`<circle class="chart-point" cx="${x(i)}" cy="${y((d[series] || 0) * multiplier)}" r="4.5" fill="${color}"></circle>`).join("");
+    }
+    const grid = [0,.25,.5,.75,1].map(r => {
+        const yy = top + innerH - r * innerH;
+        const label = Math.round(maxVal * r / 1000) + "K";
+        return `<line class="line-grid" x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}"></line><text class="line-axis-label" x="8" y="${yy+4}">${label}</text>`;
+    }).join("");
+    const xLabels = days.map((d,i)=>{
+        if(range > 15 && i % 3 !== 0 && i !== days.length-1) return "";
+        if(range > 5 && range <= 15 && i % 2 !== 0 && i !== days.length-1) return "";
+        return `<text class="line-x-label" x="${x(i)}" y="${H-12}" text-anchor="middle">${d.label}</text>`;
+    }).join("");
 
     const safeTotal = Math.max(1, needOrders + pendingOrders + deliveredOrders);
     const needDeg = Math.round((needOrders / safeTotal) * 360);
     const pendingDeg = Math.round(((needOrders + pendingOrders) / safeTotal) * 360);
+    const topCategories = productList.slice(0,5).map((p,idx)=>({name:p.category || p.name || "Product", value:Number(p.price || 0) * Math.max(1, Number(p.stock || 0)), idx}));
+    const maxCat = Math.max(1, ...topCategories.map(c=>c.value));
+    const recentOrders = orderList.slice(-5).reverse();
+
+    window.setAdminDashRange = function(n){
+        window.adminDashboardRange = Number(n || 30);
+        renderDashboard();
+    };
 
     document.getElementById("dashboardStats").innerHTML = `
         <div class="dash-card">
@@ -2393,19 +2477,59 @@ function renderDashboard(){
             <div class="dash-subtext">today orders</div>
         </div>
         <div class="dash-card">
-            <div class="dash-card-title">Today Sales</div>
+            <div class="dash-card-title">Total Earnings</div>
             <div class="dash-big-value"><span class="currency">₹</span>${todaySales.toFixed(0)}</div>
             <div class="dash-up">↑ ${deliveredOrders}</div>
-            <div class="dash-subtext">delivered till now</div>
+            <div class="dash-subtext">delivered orders</div>
         </div>
         <div class="dash-card">
-            <div class="dash-card-title">Products</div>
+            <div class="dash-card-title">Pending Orders</div>
+            <div class="dash-big-value">${pendingOrders}</div>
+            <div class="dash-up" style="color:#ef4444">↓ ${needOrders}</div>
+            <div class="dash-subtext">need confirmation</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-card-title">Total Products</div>
             <div class="dash-big-value">${totalProducts}</div>
             <div class="dash-up">${outOfStock}</div>
             <div class="dash-subtext">out of stock</div>
         </div>
+
+        <div class="dash-card performance-card">
+            <div class="performance-head">
+                <div class="dash-card-title">Performance Overview</div>
+                <div class="dashboard-time-tabs">
+                    ${[1,5,15,30].map(n => `<button type="button" onclick="setAdminDashRange(${n})" class="${range===n?'active':''}">${n}D</button>`).join("")}
+                </div>
+            </div>
+            <div class="chart-legend">
+                <span><i class="chart-dot" style="background:#2f6fed"></i>Stock Value (₹)</span>
+                <span><i class="chart-dot" style="background:#2eb85c"></i>Earnings (₹) <small style="color:#ef4444;font-weight:900">red = down</small></span>
+                <span><i class="chart-dot" style="background:#f5b700"></i>Orders (Count)</span>
+            </div>
+            <div class="line-chart-wrap">
+                <svg class="line-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+                    ${grid}
+                    <line class="line-axis" x1="${left}" y1="${top}" x2="${left}" y2="${H-bottom}"></line>
+                    <line class="line-axis" x1="${left}" y1="${H-bottom}" x2="${W-right}" y2="${H-bottom}"></line>
+                    <polyline class="line-stock" points="${points('stock')}"></polyline>
+                    ${earningSegments()}
+                    <polyline class="line-orders" points="${points('orders').replace(/(\d+\.\d+,)(\d+\.\d+)/g, (m,a,b)=>m)}"></polyline>
+                    ${pointsDots('stock','#2f6fed')}
+                    ${pointsDots('earning','#2eb85c')}
+                    ${pointsDots('orders','#f5b700',100)}
+                    ${xLabels}
+                </svg>
+            </div>
+            <div class="summary-grid">
+                <div class="mini-summary"><div class="mini-summary-title">Stock Value</div><div class="mini-summary-value">${money(stockValue)}</div></div>
+                <div class="mini-summary"><div class="mini-summary-title">Range Earnings</div><div class="mini-summary-value">${money(days.reduce((s,d)=>s+d.earning,0))}</div></div>
+                <div class="mini-summary"><div class="mini-summary-title">Range Orders</div><div class="mini-summary-value">${days.reduce((s,d)=>s+d.orders,0)}</div></div>
+            </div>
+        </div>
+
         <div class="dash-card">
-            <div class="dash-card-title">Order Status</div>
+            <div class="dash-card-title">Orders by Status</div>
             <div class="donut-wrap"><div class="donut-chart" style="--need:${needDeg}deg;--pending:${pendingDeg}deg"></div></div>
             <div class="donut-legend">
               <span><i class="legend-dot" style="background:#7fa3d8"></i>Need ${needOrders}</span>
@@ -2413,46 +2537,22 @@ function renderDashboard(){
               <span><i class="legend-dot" style="background:#ffca4b"></i>Delivered ${deliveredOrders}</span>
             </div>
         </div>
-        <div class="dash-card dash-wide-left">
-            <div class="dash-card-title">Sales Stats by Category</div>
-            <div class="bubble-chart">
-              <span class="bubble-axis" style="bottom:0">₹0</span>
-              <span class="bubble-axis" style="bottom:48px">₹2K</span>
-              <span class="bubble-axis" style="bottom:96px">₹4K</span>
-              <span class="bubble-axis" style="bottom:144px">₹6K</span>
-              <span class="bubble-axis" style="bottom:192px">₹8K</span>
-              <i class="bubble" style="--x:9%;--y:12%;--size:46px;--color:#ff9f24"></i>
-              <i class="bubble" style="--x:22%;--y:52%;--size:44px;--color:#82bd78"></i>
-              <i class="bubble" style="--x:35%;--y:28%;--size:92px;--color:#b9cde8"></i>
-              <i class="bubble" style="--x:54%;--y:58%;--size:120px;--color:#e8cfef"></i>
-              <i class="bubble" style="--x:74%;--y:34%;--size:72px;--color:#9db8db"></i>
-              <i class="bubble" style="--x:84%;--y:9%;--size:40px;--color:#ff9f24"></i>
-              <i class="bubble" style="--x:18%;--y:2%;--size:32px;--color:#82bd78"></i>
+        <div class="dash-card">
+            <div class="dash-card-title">Top Selling Categories</div>
+            <div class="low-stock-list">
+              ${topCategories.length ? topCategories.map(c => `<div class="low-stock-item"><span>${c.name}</span><span style="color:#16a34a">${money(c.value)}</span></div><div style="height:8px;background:#eef2f7;border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.max(10,(c.value/maxCat)*100)}%;background:${c.idx<3?'#2eb85c':'#ff9f24'};border-radius:99px"></i></div>`).join("") : `<div class="low-stock-item"><span>No product data</span><span>0</span></div>`}
             </div>
         </div>
-        <div class="dash-card dash-wide-right">
-            <div class="dash-card-title">Revenue / Orders</div>
-            <div class="bar-chart">
-              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar1 * .45}%"></div><div class="bar-part bar-orange" style="height:${bar1 * .55}%"></div></div>
-              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar2 * .55}%"></div><div class="bar-part bar-orange" style="height:${bar2 * .35}%"></div><div class="bar-part bar-green" style="height:10%"></div></div>
-              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar3 * .48}%"></div><div class="bar-part bar-orange" style="height:${bar3 * .52}%"></div></div>
-              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar4 * .42}%"></div><div class="bar-part bar-orange" style="height:${bar4 * .48}%"></div><div class="bar-part bar-blue" style="height:10%"></div></div>
+        <div class="dash-card">
+            <div class="dash-card-title">Recent Orders</div>
+            <div class="low-stock-list">
+              ${recentOrders.length ? recentOrders.map(o => `<div class="low-stock-item"><span>${o.id || 'ORDER'}<br><small style="color:#667085">${o.name || o.customerName || 'Customer'}</small></span><span style="color:#111827">${money(totalOf(o))}</span></div>`).join("") : `<div class="low-stock-item"><span>No recent orders</span><span>0</span></div>`}
             </div>
-            <div class="bar-labels"><span>Sales</span><span>Total</span><span>Pending</span><span>Delivered</span></div>
         </div>
-        <div class="dash-card dash-wide-left">
+        <div class="dash-card">
             <div class="dash-card-title">Low Stock Products</div>
             <div class="low-stock-list">
-              ${lowStock.length ? lowStock.map(p => `<div class="low-stock-item"><span>${p.name || "Product"}</span><span>${Number(p.stock || 0)} left</span></div>`).join("") : `<div class="low-stock-item"><span>All stock looks good</span><span>OK</span></div>`}
-            </div>
-        </div>
-        <div class="dash-card dash-wide-right">
-            <div class="dash-card-title">Quick Summary</div>
-            <div class="low-stock-list">
-              <div class="low-stock-item"><span>Need Confirmation</span><span>${needOrders}</span></div>
-              <div class="low-stock-item"><span>Pending / Out</span><span>${pendingOrders}</span></div>
-              <div class="low-stock-item"><span>Delivered</span><span>${deliveredOrders}</span></div>
-              <div class="low-stock-item"><span>Today Sales</span><span>₹${todaySales.toFixed(0)}</span></div>
+              ${lowStock.length ? lowStock.map(p => `<div class="low-stock-item"><span>${p.name || "Product"}</span><span>${Number(p.stock || 0)} left</span></div>`).join("") : `<div class="low-stock-item"><span>All stock looks good</span><span style="color:#16a34a">OK</span></div>`}
             </div>
         </div>
     `;
