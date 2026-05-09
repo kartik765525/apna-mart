@@ -1075,6 +1075,192 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
   margin-left:8px;color:#64748b;font-size:12px;font-weight:800;
 }
 
+
+
+/* ===== MODERN ANALYTICS DASHBOARD ===== */
+.modern-dashboard-shell{
+  background:#f1f5f9;
+  border:1px solid #e5edf6;
+  border-radius:34px;
+  padding:26px;
+  box-shadow:0 22px 55px rgba(15,23,42,.07);
+  overflow:hidden;
+}
+.dash-filter-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.dash-filter-card{
+  min-width:170px;
+  background:#fff;
+  border:1px solid #edf2f7;
+  border-radius:10px;
+  padding:12px 14px;
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
+}
+.dash-filter-card span{
+  display:block;
+  color:#a0a8b5;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+.dash-filter-card b{
+  color:#293244;
+  font-size:14px;
+}
+.modern-dashboard{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+}
+.dash-card{
+  background:#fff;
+  border:1px solid #edf2f7;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 14px 32px rgba(15,23,42,.05);
+  min-height:150px;
+}
+.dash-card-title{
+  font-size:22px;
+  color:#555b67;
+  font-weight:700;
+  margin-bottom:16px;
+}
+.dash-big-value{
+  font-size:56px;
+  line-height:1;
+  color:#333a4d;
+  font-weight:900;
+  letter-spacing:-1.5px;
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+}
+.dash-big-value .currency{
+  font-size:22px;
+  margin-top:8px;
+}
+.dash-up{
+  margin-top:12px;
+  color:#69b664;
+  font-size:24px;
+  font-weight:800;
+}
+.dash-subtext{
+  margin-top:10px;
+  color:#a5abb5;
+  font-size:12px;
+  font-weight:700;
+}
+.dash-wide-left{
+  grid-column:span 2;
+  min-height:330px;
+}
+.dash-wide-right{
+  grid-column:span 2;
+  min-height:330px;
+}
+.donut-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:190px;
+}
+.donut-chart{
+  --need:25deg;
+  --pending:120deg;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:conic-gradient(#7fa3d8 0 var(--need), #88c177 var(--need) var(--pending), #ffca4b var(--pending) 360deg);
+  position:relative;
+}
+.donut-chart::after{
+  content:"";
+  position:absolute;
+  inset:45px;
+  border-radius:50%;
+  background:#fff;
+}
+.donut-legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:12px;
+  color:#6b7280;
+  font-size:12px;
+  font-weight:800;
+}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.bubble-chart{
+  position:relative;
+  height:250px;
+  border-left:2px solid #d8dde5;
+  border-bottom:2px solid #d8dde5;
+  margin:10px 12px 0 54px;
+  background:repeating-linear-gradient(to top, transparent 0 47px, rgba(148,163,184,.18) 48px);
+}
+.bubble{
+  position:absolute;
+  width:var(--size);
+  height:var(--size);
+  border-radius:50%;
+  left:var(--x);
+  bottom:var(--y);
+  background:var(--color);
+  opacity:.62;
+}
+.bubble-axis{
+  position:absolute;
+  left:-50px;
+  color:#c0c5cc;
+  font-size:12px;
+  font-weight:800;
+}
+.bar-chart{
+  height:250px;
+  display:flex;
+  align-items:flex-end;
+  gap:22px;
+  padding:20px 14px 0;
+  border-bottom:2px solid #d8dde5;
+  background:repeating-linear-gradient(to top, transparent 0 47px, rgba(148,163,184,.18) 48px);
+}
+.bar-stack{
+  flex:1;
+  max-width:70px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  height:100%;
+  border-radius:10px 10px 0 0;
+  overflow:hidden;
+}
+.bar-part{width:100%;}
+.bar-yellow{background:#ffc84b;}
+.bar-orange{background:#ff9f24;}
+.bar-blue{background:#78a0d5;}
+.bar-green{background:#7fbd73;}
+.bar-labels{
+  display:flex;
+  gap:22px;
+  padding:8px 14px 0;
+  color:#9ca3af;
+  font-weight:800;
+  font-size:12px;
+}
+.bar-labels span{flex:1;max-width:70px;text-align:center;}
+.low-stock-list{display:flex;flex-direction:column;gap:10px;}
+.low-stock-item{display:flex;justify-content:space-between;gap:10px;background:#f8fbff;border:1px solid #e5edf6;border-radius:12px;padding:10px 12px;font-weight:800;color:#334155;}
+.low-stock-item span:last-child{color:#ef4444;}
+@media(max-width:1100px){.modern-dashboard{grid-template-columns:repeat(2,minmax(0,1fr));}.dash-wide-left,.dash-wide-right{grid-column:span 2;}}
+@media(max-width:700px){.modern-dashboard-shell{padding:14px;border-radius:22px;}.modern-dashboard{grid-template-columns:1fr;}.dash-wide-left,.dash-wide-right{grid-column:span 1;}.dash-big-value{font-size:42px;}.dash-card-title{font-size:18px;}.bubble-chart{margin-left:34px}.dash-filter-card{min-width:100%;}.bar-chart{gap:10px}.bar-labels{gap:10px}}
+
 </style>
 </head>
 <body>
@@ -1158,9 +1344,26 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 </div>
 
 <div class="page-section" id="sectionDashboard">
-    <div class="section-card">
-        <div class="section-title">📊 Dashboard / Analytics</div>
-        <div id="dashboardStats" class="stats-grid"></div>
+    <div class="modern-dashboard-shell">
+        <div class="dash-filter-row">
+            <div class="dash-filter-card">
+                <span>Date range</span>
+                <b>📅 Today / Active</b>
+            </div>
+            <div class="dash-filter-card">
+                <span>Orders</span>
+                <b>All status ▾</b>
+            </div>
+            <div class="dash-filter-card">
+                <span>Products</span>
+                <b>All categories ▾</b>
+            </div>
+            <div class="dash-filter-card">
+                <span>Channel</span>
+                <b>Setu Mart ▾</b>
+            </div>
+        </div>
+        <div id="dashboardStats" class="modern-dashboard"></div>
     </div>
 </div>
 
@@ -2155,23 +2358,105 @@ setInterval(function(){
 }, 60000);
 
 function renderDashboard(){
-    const totalOrders = orders.length;
-    const todaySales = orders
-        .filter(order => isTodayOrder(order))
-        .reduce((sum, order) => sum + Number(order.total || 0), 0);
-    const pendingOrders = orders.filter(order => String(order.status) === "Need Confirmation").length;
-    const totalProducts = products.length;
-    const outOfStock = products.filter(product => Number(product.stock || 0) <= 0).length;
+    const orderList = Array.isArray(orders) ? orders : [];
+    const productList = Array.isArray(products) ? products : [];
+    const totalOrders = orderList.length;
+    const todayOrders = orderList.filter(order => isTodayOrder(order));
+    const todaySales = todayOrders.reduce((sum, order) => sum + Number(order.total || order.grandTotal || order.totalAmount || 0), 0);
+    const needOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "need confirmation").length;
+    const pendingOrders = orderList.filter(order => {
+        const st = String(order.status || "").toLowerCase();
+        return st === "pending" || st === "out for delivery";
+    }).length;
+    const deliveredOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "delivered").length;
+    const totalProducts = productList.length;
+    const outOfStock = productList.filter(product => Number(product.stock || 0) <= 0).length;
+    const lowStock = productList
+      .filter(product => Number(product.stock || 0) <= 5)
+      .slice(0,5);
+
+    const maxBar = Math.max(1, todaySales, totalOrders * 100, pendingOrders * 100, deliveredOrders * 100);
+    const bar1 = Math.max(12, Math.min(100, (todaySales / maxBar) * 100));
+    const bar2 = Math.max(12, Math.min(100, (totalOrders * 100 / maxBar) * 100));
+    const bar3 = Math.max(12, Math.min(100, (pendingOrders * 100 / maxBar) * 100));
+    const bar4 = Math.max(12, Math.min(100, (deliveredOrders * 100 / maxBar) * 100));
+
+    const safeTotal = Math.max(1, needOrders + pendingOrders + deliveredOrders);
+    const needDeg = Math.round((needOrders / safeTotal) * 360);
+    const pendingDeg = Math.round(((needOrders + pendingOrders) / safeTotal) * 360);
 
     document.getElementById("dashboardStats").innerHTML = `
-        <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">${totalOrders}</div></div>
-        <div class="stat-card"><div class="stat-label">Today Sales</div><div class="stat-value">₹${todaySales}</div></div>
-        <div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">${pendingOrders}</div></div>
-        <div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-value">${totalProducts}</div></div>
-        <div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value">${outOfStock}</div></div>
+        <div class="dash-card">
+            <div class="dash-card-title">Total Orders</div>
+            <div class="dash-big-value">${totalOrders}</div>
+            <div class="dash-up">↑ ${todayOrders.length}</div>
+            <div class="dash-subtext">today orders</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-card-title">Today Sales</div>
+            <div class="dash-big-value"><span class="currency">₹</span>${todaySales.toFixed(0)}</div>
+            <div class="dash-up">↑ ${deliveredOrders}</div>
+            <div class="dash-subtext">delivered till now</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-card-title">Products</div>
+            <div class="dash-big-value">${totalProducts}</div>
+            <div class="dash-up">${outOfStock}</div>
+            <div class="dash-subtext">out of stock</div>
+        </div>
+        <div class="dash-card">
+            <div class="dash-card-title">Order Status</div>
+            <div class="donut-wrap"><div class="donut-chart" style="--need:${needDeg}deg;--pending:${pendingDeg}deg"></div></div>
+            <div class="donut-legend">
+              <span><i class="legend-dot" style="background:#7fa3d8"></i>Need ${needOrders}</span>
+              <span><i class="legend-dot" style="background:#88c177"></i>Pending ${pendingOrders}</span>
+              <span><i class="legend-dot" style="background:#ffca4b"></i>Delivered ${deliveredOrders}</span>
+            </div>
+        </div>
+        <div class="dash-card dash-wide-left">
+            <div class="dash-card-title">Sales Stats by Category</div>
+            <div class="bubble-chart">
+              <span class="bubble-axis" style="bottom:0">₹0</span>
+              <span class="bubble-axis" style="bottom:48px">₹2K</span>
+              <span class="bubble-axis" style="bottom:96px">₹4K</span>
+              <span class="bubble-axis" style="bottom:144px">₹6K</span>
+              <span class="bubble-axis" style="bottom:192px">₹8K</span>
+              <i class="bubble" style="--x:9%;--y:12%;--size:46px;--color:#ff9f24"></i>
+              <i class="bubble" style="--x:22%;--y:52%;--size:44px;--color:#82bd78"></i>
+              <i class="bubble" style="--x:35%;--y:28%;--size:92px;--color:#b9cde8"></i>
+              <i class="bubble" style="--x:54%;--y:58%;--size:120px;--color:#e8cfef"></i>
+              <i class="bubble" style="--x:74%;--y:34%;--size:72px;--color:#9db8db"></i>
+              <i class="bubble" style="--x:84%;--y:9%;--size:40px;--color:#ff9f24"></i>
+              <i class="bubble" style="--x:18%;--y:2%;--size:32px;--color:#82bd78"></i>
+            </div>
+        </div>
+        <div class="dash-card dash-wide-right">
+            <div class="dash-card-title">Revenue / Orders</div>
+            <div class="bar-chart">
+              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar1 * .45}%"></div><div class="bar-part bar-orange" style="height:${bar1 * .55}%"></div></div>
+              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar2 * .55}%"></div><div class="bar-part bar-orange" style="height:${bar2 * .35}%"></div><div class="bar-part bar-green" style="height:10%"></div></div>
+              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar3 * .48}%"></div><div class="bar-part bar-orange" style="height:${bar3 * .52}%"></div></div>
+              <div class="bar-stack"><div class="bar-part bar-yellow" style="height:${bar4 * .42}%"></div><div class="bar-part bar-orange" style="height:${bar4 * .48}%"></div><div class="bar-part bar-blue" style="height:10%"></div></div>
+            </div>
+            <div class="bar-labels"><span>Sales</span><span>Total</span><span>Pending</span><span>Delivered</span></div>
+        </div>
+        <div class="dash-card dash-wide-left">
+            <div class="dash-card-title">Low Stock Products</div>
+            <div class="low-stock-list">
+              ${lowStock.length ? lowStock.map(p => `<div class="low-stock-item"><span>${p.name || "Product"}</span><span>${Number(p.stock || 0)} left</span></div>`).join("") : `<div class="low-stock-item"><span>All stock looks good</span><span>OK</span></div>`}
+            </div>
+        </div>
+        <div class="dash-card dash-wide-right">
+            <div class="dash-card-title">Quick Summary</div>
+            <div class="low-stock-list">
+              <div class="low-stock-item"><span>Need Confirmation</span><span>${needOrders}</span></div>
+              <div class="low-stock-item"><span>Pending / Out</span><span>${pendingOrders}</span></div>
+              <div class="low-stock-item"><span>Delivered</span><span>${deliveredOrders}</span></div>
+              <div class="low-stock-item"><span>Today Sales</span><span>₹${todaySales.toFixed(0)}</span></div>
+            </div>
+        </div>
     `;
 }
-
 function getOrderFilterLabels(){
     const dayLabel = currentOrderDayFilter === "old" ? "Old Orders" : "Today Orders";
     const statusLabel = currentOrderStatusFilter === "need" ? "Need Confirmation" : currentOrderStatusFilter === "delivered" ? "Delivered" : "Pending / Out for Delivery";
