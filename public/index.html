@@ -3404,6 +3404,735 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
+
+
+/* ===== SOFT PURPLE GLASS UI THEME ONLY ===== */
+:root{
+  --purple-main:#8b5cf6 !important;
+  --purple-deep:#6d28d9 !important;
+  --purple-soft:#f3e8ff !important;
+  --pink-soft:#fbcfe8 !important;
+  --glass-bg:rgba(255,255,255,.76) !important;
+  --glass-border:rgba(255,255,255,.72) !important;
+  --soft-text:#2d2144 !important;
+  --soft-muted:#7c6a93 !important;
+  --blue:#8b5cf6 !important;
+  --blue-dark:#6d28d9 !important;
+  --green:#a855f7 !important;
+  --orange:#ec4899 !important;
+  --bg:#f7f0ff !important;
+  --card:rgba(255,255,255,.78) !important;
+  --text:#2d2144 !important;
+  --muted:#7c6a93 !important;
+  --border:rgba(196,181,253,.55) !important;
+  --shadow:0 18px 45px rgba(109,40,217,.16) !important;
+  --shadow-soft:0 10px 25px rgba(109,40,217,.10) !important;
+}
+html,body{
+  background:
+    radial-gradient(circle at 10% 5%, rgba(216,180,254,.65) 0%, transparent 34%),
+    radial-gradient(circle at 95% 8%, rgba(251,207,232,.70) 0%, transparent 32%),
+    linear-gradient(180deg,#fbf7ff 0%,#f3e8ff 45%,#ead8ff 100%) !important;
+  color:#2d2144 !important;
+}
+.header,
+.login-screen,
+.boot-screen{
+  background:linear-gradient(135deg,#f5d0fe 0%,#c4b5fd 45%,#fbcfe8 100%) !important;
+  color:#2d2144 !important;
+  box-shadow:0 18px 42px rgba(109,40,217,.18) !important;
+  border-bottom:1px solid rgba(255,255,255,.65) !important;
+}
+.header *, .brand-title, .brand-sub{
+  color:#2d2144 !important;
+}
+.section-card,
+.dash-card,
+.modern-dashboard-shell,
+.dash-filter-card,
+.order-card,
+.order-mini-card,
+.order-column,
+.top-order-stat,
+.product-card,
+.product-row,
+.quick-card,
+.metric,
+.hero,
+.hero-card,
+.profile-card,
+.profile-panel,
+.login-card,
+.boot-card,
+.cart-btn,
+.side-panel,
+.profile-page,
+.language-panel,
+.support-panel,
+.order-detail-panel,
+.language-card,
+.support-card,
+.cart-summary-card,
+.cart-payment-box,
+.cart-delivery-box,
+.order-detail-card,
+.profile-box,
+.cart-item,
+.summary-box,
+.delivery-profile,
+.customer-call-box,
+.delivered-summary-card,
+.delivery-detail-box,
+.custom-bill-card,
+.bill-summary-box,
+.lock-box,
+.modal-card{
+  background:rgba(255,255,255,.76) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  border:1px solid rgba(255,255,255,.70) !important;
+  box-shadow:0 18px 45px rgba(109,40,217,.14) !important;
+  color:#2d2144 !important;
+}
+.tabs,
+.header-inner,
+.cart-panel-header,
+.orders-panel-header,
+.order-detail-header,
+.support-header,
+.language-header,
+.profile-panel-header,
+.modal-header{
+  background:rgba(255,255,255,.68) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  border-color:rgba(196,181,253,.55) !important;
+}
+.tab-btn,
+.cat-btn,
+.cat,
+.order-sub-btn,
+.order-status-btn,
+.language-option-btn,
+.profile-action-btn,
+.soft-btn,
+.change-address-btn,
+.cart-action-btn,
+.admin-input,
+.input,
+.login-input,
+.form-input,
+.support-textarea,
+.bill-mini-input,
+.bill-mini-select,
+.search-box input,
+.order-search input,
+.orders-search-box,
+.cart-qty-select,
+.manage-box input{
+  background:rgba(255,255,255,.72) !important;
+  border:1px solid rgba(196,181,253,.60) !important;
+  color:#2d2144 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 8px 18px rgba(109,40,217,.07) !important;
+}
+.tab-btn.active,
+.cat-btn.active,
+.cat.active,
+.order-sub-btn.active,
+.order-status-btn.active,
+.login-btn,
+.login-inline-btn,
+.main-btn,
+.add-btn,
+.action-btn.orange,
+.action-btn.blue,
+.profile-edit-btn,
+.language-option-btn.active,
+.soft-btn.ok,
+.cart-place-order-btn,
+.customer-call-btn,
+.delivery-boy-call{
+  background:linear-gradient(135deg,#8b5cf6 0%,#ec4899 100%) !important;
+  color:#ffffff !important;
+  border-color:transparent !important;
+  box-shadow:0 14px 28px rgba(139,92,246,.24) !important;
+}
+.action-btn.green,
+.green-btn,
+.action-btn.done{
+  background:linear-gradient(135deg,#a855f7,#22c55e) !important;
+  color:#fff !important;
+}
+.action-btn.red,
+.red,
+.logout-btn,
+.remove-btn,
+.close-btn,
+.profile-logout-btn{
+  background:linear-gradient(135deg,#ef4444,#ec4899) !important;
+  color:#fff !important;
+}
+.action-btn.gray,
+.gray{
+  background:linear-gradient(135deg,#7c6a93,#6d28d9) !important;
+  color:#fff !important;
+}
+.section-title,
+.profile-title,
+.language-title,
+.support-title,
+.cart-panel-title,
+.orders-panel-title,
+.order-detail-title,
+.panel-top h3,
+.login-card h2,
+.lock-box h2,
+.dash-card-title,
+.hero h1,
+.order-route-title,
+.delivery-detail-head h3,
+.profile-panel-title,
+.product-name,
+.brand-title,
+#brandTitle{
+  color:#6d28d9 !important;
+}
+.stat-value,
+.dash-big-value,
+.quick-value,
+.metric-value,
+.product-price,
+.cart-final-price,
+.grand,
+.bill-summary-line:last-child{
+  color:#8b5cf6 !important;
+}
+.detail-key,
+.dash-filter-card span,
+.profile-phone,
+.brand-sub,
+.order-meta,
+.cart-product-sub,
+.route-step-sub,
+.delivery-boy-note,
+.dash-subtext,
+.quick-sub,
+.quick-label,
+.metric-sub,
+.metric-label,
+.order-customer,
+.muted,
+#imageUploadStatus,
+#offerImageStatus{
+  color:#7c6a93 !important;
+}
+.logo-badge,
+.profile-avatar,
+.mini-avatar,
+.quick-icon,
+.profile-edit-badge,
+.soft-alert-icon{
+  background:linear-gradient(135deg,#f5d0fe,#c4b5fd,#fbcfe8) !important;
+  color:#6d28d9 !important;
+  border-color:rgba(255,255,255,.72) !important;
+  box-shadow:0 12px 24px rgba(109,40,217,.18) !important;
+}
+.product-image,
+.order-thumb,
+.cart-thumb,
+.order-item-thumb,
+.cart-product-image,
+.profile-photo-main,
+.language-body,
+.order-detail-body,
+.orders-list-wrap,
+.empty,
+.order-empty-col,
+.order-filter-empty,
+.cart-empty,
+.orders-empty{
+  background:rgba(255,255,255,.45) !important;
+  border-color:rgba(196,181,253,.55) !important;
+}
+.badge.pending,
+.status-pending,
+.order-status-pill.pending{
+  background:#fef3c7 !important;
+  color:#92400e !important;
+}
+.badge.out,
+.status-out,
+.order-status-pill.out-for-delivery{
+  background:#ede9fe !important;
+  color:#6d28d9 !important;
+}
+.badge.done,
+.status-delivered,
+.order-status-pill.delivered{
+  background:#dcfce7 !important;
+  color:#166534 !important;
+}
+.badge-confirm,
+.status-need,
+.order-status-pill.need-confirmation{
+  background:#fee2e2 !important;
+  color:#991b1b !important;
+}
+.cart-bottom-bar,
+.bottom-nav,
+.fixed-bottom,
+.mobile-bottom-nav{
+  background:linear-gradient(135deg,rgba(245,208,254,.92),rgba(196,181,253,.92),rgba(251,207,232,.92)) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  border-top:1px solid rgba(255,255,255,.72) !important;
+  box-shadow:0 -14px 34px rgba(109,40,217,.16) !important;
+}
+button:active,.action-btn:active,.tab-btn:active,.cat-btn:active,.cart-btn:active,.add-btn:active{
+  transform:scale(.97) !important;
+}
+@media(max-width:768px){
+  .tabs{background:rgba(255,255,255,.72) !important;}
+  .page-section{background:transparent !important;}
+}
+
+
+
+/* ===== OLIVE GREEN PORTFOLIO STYLE UI ONLY - NO GLOW ===== */
+:root{
+  --blue:#244f2f !important;
+  --blue-dark:#16351f !important;
+  --green:#244f2f !important;
+  --green-light:#eef6df !important;
+  --orange:#f4b400 !important;
+  --bg:#f5f1e6 !important;
+  --card:#fffdf4 !important;
+  --text:#1f2b1f !important;
+  --muted:#6b725f !important;
+  --border:#d9d2b8 !important;
+}
+html,body{
+  background:#f5f1e6 !important;
+  color:#1f2b1f !important;
+}
+body{
+  background:
+    linear-gradient(180deg,#f8f3df 0%,#f4efd9 100%) !important;
+}
+#themeColorMeta{content:#244f2f !important;}
+
+/* remove glow/shadow everywhere */
+*{
+  box-shadow:none !important;
+  text-shadow:none !important;
+}
+.product-card:hover,
+.order-card:hover,
+.cat:hover,
+.cart-btn:hover,
+.add-btn:hover,
+.main-btn:hover,
+.profile-menu-item:hover{
+  transform:none !important;
+}
+
+/* main header like reference image */
+.header{
+  background:#244f2f !important;
+  color:#fff8dc !important;
+  border-bottom:3px solid #f4b400 !important;
+  box-shadow:none !important;
+}
+.logo-badge,
+.profile-avatar,
+.mini-avatar{
+  background:#fff8dc !important;
+  color:#244f2f !important;
+  border:2px solid #f4b400 !important;
+  box-shadow:none !important;
+}
+.brand-title,#brandTitle{
+  color:#fff8dc !important;
+  letter-spacing:.2px !important;
+}
+.brand-sub{
+  color:#eadfb8 !important;
+}
+.header .cart-btn,.cart-btn{
+  background:#fff8dc !important;
+  color:#244f2f !important;
+  border:2px solid #f4b400 !important;
+  box-shadow:none !important;
+}
+.profile-trigger img{
+  border:2px solid #f4b400 !important;
+}
+
+/* category yellow strip feel */
+.categories{
+  background:#f4b400 !important;
+  border-top:2px solid #18391f !important;
+  border-bottom:2px solid #18391f !important;
+  padding:9px 12px !important;
+}
+.cat{
+  background:transparent !important;
+  color:#17351f !important;
+  border:1px solid rgba(23,53,31,.25) !important;
+  border-radius:999px !important;
+  font-weight:900 !important;
+  box-shadow:none !important;
+}
+.cat.active{
+  background:#244f2f !important;
+  color:#fff8dc !important;
+  border-color:#244f2f !important;
+}
+
+.search-box input,
+.orders-search-box,
+.orders-search-box input,
+.form-input,
+.login-input,
+.support-textarea,
+.cart-qty-select{
+  background:#fffdf4 !important;
+  color:#1f2b1f !important;
+  border:2px solid #d9d2b8 !important;
+  box-shadow:none !important;
+}
+.search-box input:focus,
+.form-input:focus,
+.login-input:focus,
+.support-textarea:focus{
+  border-color:#244f2f !important;
+  outline:none !important;
+}
+
+/* cards */
+.product-card,
+.cart-card,
+.cart-summary-card,
+.cart-payment-box,
+.cart-delivery-box,
+.order-card,
+.order-detail-card,
+.profile-box,
+.profile-page,
+.language-panel,
+.support-panel,
+.side-panel,
+.login-card,
+.language-card,
+.support-card,
+.profile-card-top,
+.order-summary-card,
+.timeline-card,
+.delivery-boy-box,
+.cart-item,
+.summary-box{
+  background:#fffdf4 !important;
+  border:1.5px solid #d9d2b8 !important;
+  color:#1f2b1f !important;
+  box-shadow:none !important;
+}
+.product-image,
+.cart-product-image,
+.order-item-thumb,
+.order-thumb-box{
+  background:#f2ecd3 !important;
+  border:1px solid #d9d2b8 !important;
+  box-shadow:none !important;
+}
+.product-name,
+.product-price,
+.stock-line,
+.profile-title,
+.profile-name,
+.cart-panel-title,
+.orders-panel-title,
+.order-detail-title,
+.support-title,
+.language-title,
+.order-route-title,
+.cart-product-title,
+.order-product-name,
+.grand,
+.top-cut,
+.change-address-btn,
+.profile-menu-left,
+.profile-arrow,
+.close-btn,
+.order-status-line,
+.route-step-title,
+#brandTitle{
+  color:#17351f !important;
+}
+.order-meta-line,
+.cart-delivery-sub,
+.cart-summary-row,
+.cart-delivery-line,
+.profile-phone,
+.language-card p,
+.support-card p,
+.order-detail-label,
+.order-detail-item-sub,
+.route-step-sub,
+.delivery-boy-note,
+.cart-product-sub,
+.order-status-line{
+  color:#6b725f !important;
+}
+
+/* buttons */
+.add-btn,
+.login-btn,
+.login-inline-btn,
+.main-btn,
+.green-btn,
+.blue-btn,
+.profile-edit-btn,
+.language-option-btn.active,
+.cart-place-order-btn{
+  background:#244f2f !important;
+  color:#fff8dc !important;
+  border:2px solid #244f2f !important;
+  box-shadow:none !important;
+}
+.qty-box{
+  background:#eef6df !important;
+  border:1px solid #d9d2b8 !important;
+}
+.qty-box button,
+.remove-btn{
+  background:#f4b400 !important;
+  color:#17351f !important;
+  border:1px solid #17351f !important;
+  box-shadow:none !important;
+}
+.remove-btn{
+  background:#b42318 !important;
+  color:#fff !important;
+  border-color:#b42318 !important;
+}
+.whatsapp-btn{
+  background:#244f2f !important;
+  color:#fff8dc !important;
+}
+.cart-bottom-bar,
+.bottom-bar{
+  background:#fffdf4 !important;
+  border-top:2px solid #d9d2b8 !important;
+  box-shadow:none !important;
+}
+
+/* status chips */
+.order-status-pill.need-confirmation{background:#f8d7da !important;color:#842029 !important;}
+.order-status-pill.pending{background:#fff0bd !important;color:#735400 !important;}
+.order-status-pill.out-for-delivery{background:#e6efd8 !important;color:#244f2f !important;}
+.order-status-pill.delivered{background:#d9ead3 !important;color:#244f2f !important;}
+.delivery-tag,.order-mini-chip{
+  background:#fff8dc !important;
+  border:1px solid #d9d2b8 !important;
+  color:#244f2f !important;
+}
+
+/* panels headers */
+.cart-panel-header,
+.orders-panel-header,
+.order-detail-header,
+.support-header,
+.language-header,
+.profile-header{
+  background:#fffdf4 !important;
+  border-bottom:1.5px solid #d9d2b8 !important;
+  color:#17351f !important;
+  box-shadow:none !important;
+}
+.order-detail-body,
+.language-body,
+.support-body,
+.orders-list-wrap,#cartPanel,#ordersPanel{
+  background:#f5f1e6 !important;
+}
+
+/* login screen */
+.login-screen{
+  background:linear-gradient(135deg,#244f2f 0%,#f4b400 100%) !important;
+}
+.demo-otp{
+  background:#fff8dc !important;
+  color:#735400 !important;
+  border:1px solid #d9d2b8 !important;
+}
+.success-screen{
+  background:rgba(36,79,47,.96) !important;
+}
+
+/* ===== DARK MODE CLEAN OLIVE ===== */
+html[data-theme="dark"]{
+  --blue:#f4b400 !important;
+  --blue-dark:#fff1a8 !important;
+  --green:#8fbf75 !important;
+  --green-light:#20351f !important;
+  --orange:#f4b400 !important;
+  --bg:#10170f !important;
+  --card:#182316 !important;
+  --text:#f4f0df !important;
+  --muted:#b8b08f !important;
+  --border:#3a4b32 !important;
+}
+html[data-theme="dark"],
+html[data-theme="dark"] body{
+  background:#10170f !important;
+  color:#f4f0df !important;
+}
+html[data-theme="dark"] body{
+  background:linear-gradient(180deg,#10170f 0%,#172314 100%) !important;
+}
+html[data-theme="dark"] .header{
+  background:#0f2415 !important;
+  color:#f4f0df !important;
+  border-bottom:3px solid #f4b400 !important;
+  box-shadow:none !important;
+}
+html[data-theme="dark"] .categories{
+  background:#f4b400 !important;
+  border-color:#0f2415 !important;
+}
+html[data-theme="dark"] .cat{
+  background:transparent !important;
+  color:#0f2415 !important;
+  border-color:rgba(15,36,21,.35) !important;
+}
+html[data-theme="dark"] .cat.active{
+  background:#0f2415 !important;
+  color:#fff8dc !important;
+  border-color:#0f2415 !important;
+}
+html[data-theme="dark"] .product-card,
+html[data-theme="dark"] .cart-card,
+html[data-theme="dark"] .cart-summary-card,
+html[data-theme="dark"] .cart-payment-box,
+html[data-theme="dark"] .cart-delivery-box,
+html[data-theme="dark"] .order-card,
+html[data-theme="dark"] .order-detail-card,
+html[data-theme="dark"] .profile-box,
+html[data-theme="dark"] .profile-page,
+html[data-theme="dark"] .language-panel,
+html[data-theme="dark"] .support-panel,
+html[data-theme="dark"] .side-panel,
+html[data-theme="dark"] .login-card,
+html[data-theme="dark"] .language-card,
+html[data-theme="dark"] .support-card,
+html[data-theme="dark"] .profile-card-top,
+html[data-theme="dark"] .order-summary-card,
+html[data-theme="dark"] .timeline-card,
+html[data-theme="dark"] .delivery-boy-box,
+html[data-theme="dark"] .cart-item,
+html[data-theme="dark"] .summary-box{
+  background:#182316 !important;
+  border-color:#3a4b32 !important;
+  color:#f4f0df !important;
+  box-shadow:none !important;
+}
+html[data-theme="dark"] .product-image,
+html[data-theme="dark"] .cart-product-image,
+html[data-theme="dark"] .order-item-thumb,
+html[data-theme="dark"] .order-thumb-box{
+  background:#10170f !important;
+  border-color:#3a4b32 !important;
+}
+html[data-theme="dark"] .search-box input,
+html[data-theme="dark"] .orders-search-box,
+html[data-theme="dark"] .orders-search-box input,
+html[data-theme="dark"] .form-input,
+html[data-theme="dark"] .login-input,
+html[data-theme="dark"] .support-textarea,
+html[data-theme="dark"] .cart-qty-select{
+  background:#10170f !important;
+  color:#f4f0df !important;
+  border-color:#3a4b32 !important;
+  box-shadow:none !important;
+}
+html[data-theme="dark"] .product-name,
+html[data-theme="dark"] .product-price,
+html[data-theme="dark"] .stock-line,
+html[data-theme="dark"] .profile-title,
+html[data-theme="dark"] .profile-name,
+html[data-theme="dark"] .cart-panel-title,
+html[data-theme="dark"] .orders-panel-title,
+html[data-theme="dark"] .order-detail-title,
+html[data-theme="dark"] .support-title,
+html[data-theme="dark"] .language-title,
+html[data-theme="dark"] .order-route-title,
+html[data-theme="dark"] .cart-product-title,
+html[data-theme="dark"] .order-product-name,
+html[data-theme="dark"] .grand,
+html[data-theme="dark"] .top-cut,
+html[data-theme="dark"] .change-address-btn,
+html[data-theme="dark"] .profile-menu-left,
+html[data-theme="dark"] .profile-arrow,
+html[data-theme="dark"] .close-btn,
+html[data-theme="dark"] .order-status-line,
+html[data-theme="dark"] .route-step-title,
+html[data-theme="dark"] #brandTitle{
+  color:#f4f0df !important;
+}
+html[data-theme="dark"] .order-meta-line,
+html[data-theme="dark"] .cart-delivery-sub,
+html[data-theme="dark"] .cart-summary-row,
+html[data-theme="dark"] .cart-delivery-line,
+html[data-theme="dark"] .profile-phone,
+html[data-theme="dark"] .language-card p,
+html[data-theme="dark"] .support-card p,
+html[data-theme="dark"] .order-detail-label,
+html[data-theme="dark"] .order-detail-item-sub,
+html[data-theme="dark"] .route-step-sub,
+html[data-theme="dark"] .delivery-boy-note,
+html[data-theme="dark"] .cart-product-sub{
+  color:#b8b08f !important;
+}
+html[data-theme="dark"] .add-btn,
+html[data-theme="dark"] .login-btn,
+html[data-theme="dark"] .login-inline-btn,
+html[data-theme="dark"] .main-btn,
+html[data-theme="dark"] .green-btn,
+html[data-theme="dark"] .blue-btn,
+html[data-theme="dark"] .profile-edit-btn,
+html[data-theme="dark"] .language-option-btn.active,
+html[data-theme="dark"] .cart-place-order-btn{
+  background:#f4b400 !important;
+  color:#0f2415 !important;
+  border-color:#f4b400 !important;
+  box-shadow:none !important;
+}
+html[data-theme="dark"] .cart-panel-header,
+html[data-theme="dark"] .orders-panel-header,
+html[data-theme="dark"] .order-detail-header,
+html[data-theme="dark"] .support-header,
+html[data-theme="dark"] .language-header,
+html[data-theme="dark"] .profile-header{
+  background:#182316 !important;
+  border-bottom:1.5px solid #3a4b32 !important;
+}
+html[data-theme="dark"] .order-detail-body,
+html[data-theme="dark"] .language-body,
+html[data-theme="dark"] .support-body,
+html[data-theme="dark"] .orders-list-wrap,
+html[data-theme="dark"] #cartPanel,
+html[data-theme="dark"] #ordersPanel{
+  background:#10170f !important;
+}
+html[data-theme="dark"] .logo-badge,
+html[data-theme="dark"] .profile-avatar,
+html[data-theme="dark"] .mini-avatar,
+html[data-theme="dark"] .cart-btn{
+  background:#182316 !important;
+  color:#f4b400 !important;
+  border-color:#f4b400 !important;
+}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
