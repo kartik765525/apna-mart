@@ -21,8 +21,14 @@ html,body{margin:0;min-height:100%;background:#eaf4fb;font-family:Segoe UI,Arial
 #appStartLoader .commerce-loader-title{font-size:22px;font-weight:800;color:#175a78;}
 #appStartLoader .commerce-loader-sub{margin-top:8px;font-size:14px;line-height:1.6;color:#5f7e8d;}
 @keyframes setuEarlySpin{to{transform:rotate(360deg);}}
+</style>
+<script>
+try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
+</script>
 
-/* ===== FLOATING ORDER BUTTON PATCH ===== */
+
+<style>
+/* ===== FLOATING ORDER BUTTON + CART SYNC FIX ===== */
 .floating-order-btn{
     position:fixed;
     right:18px;
@@ -72,11 +78,7 @@ html[data-theme="dark"] .floating-order-count{
         font-size:15px;
     }
 }
-
 </style>
-<script>
-try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
-</script>
 
 </head>
 <body>
@@ -5249,26 +5251,10 @@ async function removeItem(id) {
 }
 
 
-
-function updateFloatingOrderButton(){
-    try{
-        const totalQty = Array.isArray(cart) ? cart.reduce((a,b)=>a + (Number(b.qty) || 0),0) : 0;
-        const btn = document.getElementById("floatingOrderBtn");
-        const countEl = document.getElementById("floatingOrderCount");
-        if(countEl) countEl.innerText = totalQty;
-        if(btn){
-            if(totalQty > 0) btn.classList.add("show");
-            else btn.classList.remove("show");
-        }
-    }catch(e){}
-}
-
 function update() {
     normalizeCartWithProducts();
     const totalQty = cart.reduce((a, b) => a + b.qty, 0);
-    const topCountEl = document.getElementById("count");
-    if(topCountEl) topCountEl.innerText = totalQty;
-    updateFloatingOrderButton();
+    document.getElementById("count").innerText = totalQty;
 
     document.getElementById("cartItems").innerHTML =
         cart.length === 0
@@ -6281,6 +6267,92 @@ initApp();
             console.warn("Auto refresh skipped:", e);
         }
     }, 30000);
+})();
+</script>
+
+
+<script>
+/* ===== FINAL CART EMPTY FIX + FLOATING ORDER SYNC ===== */
+function setuCartArray(){
+    try{
+        if(Array.isArray(window.cart) && window.cart.length) return window.cart;
+        if(typeof cart !== "undefined" && Array.isArray(cart) && cart.length) return cart;
+    }catch(e){}
+    try{
+        const keys = ["cart","apnaMartCart","setuCart","customerCart"];
+        for(const k of keys){
+            const raw = localStorage.getItem(k);
+            if(raw){
+                const arr = JSON.parse(raw);
+                if(Array.isArray(arr) && arr.length) return arr;
+            }
+        }
+    }catch(e){}
+    try{
+        const cards = document.querySelectorAll("#cartItems .cart-card,.cart-card,.cart-item");
+        if(cards && cards.length){
+            return Array.from(cards).map((el,i)=>({id:"ui-"+i, name:(el.innerText||"Item"), qty:1}));
+        }
+    }catch(e){}
+    return [];
+}
+function setuCartQty(){
+    const arr = setuCartArray();
+    return arr.reduce((s,item)=>s + (Number(item.qty || item.quantity || 1) || 1),0);
+}
+function updateFloatingOrderButton(){
+    const qty = setuCartQty();
+    const btn = document.getElementById("floatingOrderBtn");
+    const countEl = document.getElementById("floatingOrderCount");
+    const topCountEl = document.getElementById("count");
+    if(countEl) countEl.innerText = qty;
+    if(topCountEl) topCountEl.innerText = qty;
+    if(btn){
+        if(qty > 0) btn.classList.add("show");
+        else btn.classList.remove("show");
+    }
+}
+(function(){
+    const oldPlaceOrder = window.placeOrder;
+    window.placeOrder = async function(){
+        try{
+            const realCart = setuCartArray();
+            if(realCart.length){
+                try{ window.cart = realCart; }catch(e){}
+                try{ if(typeof cart !== "undefined") cart = realCart; }catch(e){}
+            }
+        }catch(e){}
+        if(typeof oldPlaceOrder === "function"){
+            return oldPlaceOrder.apply(this, arguments);
+        }
+    };
+
+    const oldOpenCartPanel = window.openCartPanel;
+    window.openCartPanel = function(){
+        updateFloatingOrderButton();
+        if(typeof oldOpenCartPanel === "function"){
+            return oldOpenCartPanel.apply(this, arguments);
+        }
+    };
+
+    const oldUpdate = window.update;
+    if(typeof oldUpdate === "function"){
+        window.update = function(){
+            const r = oldUpdate.apply(this, arguments);
+            updateFloatingOrderButton();
+            return r;
+        };
+    }
+
+    document.addEventListener("click", function(){
+        setTimeout(updateFloatingOrderButton, 80);
+        setTimeout(updateFloatingOrderButton, 400);
+    }, true);
+    window.addEventListener("load", function(){
+        updateFloatingOrderButton();
+        setTimeout(updateFloatingOrderButton, 800);
+    });
+    setInterval(updateFloatingOrderButton, 1000);
 })();
 </script>
 
