@@ -8,6 +8,46 @@
 <title>Setu Mart</title>
 <meta name="application-name" content="Setu Mart" />
 
+
+<style>
+html,body{margin:0;min-height:100%;background:#eaf4fb;font-family:Segoe UI,Arial,sans-serif;overflow-x:hidden;}
+#appStartLoader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#eaf4fb;z-index:2147483647;padding:24px;color:#175a78;}
+#appStartLoader.hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease;}
+#appStartLoader .commerce-loader-box{width:100%;max-width:360px;text-align:center;}
+#appStartLoader .commerce-loader-visual{width:150px;height:150px;margin:0 auto 18px;position:relative;}
+#appStartLoader .commerce-loader-ring{position:absolute;inset:18px;border:3px solid rgba(255,255,255,.95);border-top-color:#1696d2;border-radius:50%;animation:setuEarlySpin .8s linear infinite;}
+#appStartLoader .commerce-loader-cart{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:54px;}
+#appStartLoader .commerce-loader-device,#appStartLoader .commerce-loader-dot{display:none!important;}
+#appStartLoader .commerce-loader-title{font-size:22px;font-weight:800;color:#175a78;}
+#appStartLoader .commerce-loader-sub{margin-top:8px;font-size:14px;line-height:1.6;color:#5f7e8d;}
+@keyframes setuEarlySpin{to{transform:rotate(360deg);}}
+</style>
+<script>
+try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
+</script>
+
+</head>
+<body>
+
+<div id="appStartLoader" class="commerce-loader">
+    <div class="commerce-loader-box">
+        <div class="commerce-loader-visual">
+            <div class="commerce-loader-ring"></div>
+            <div class="commerce-loader-cart">🛒</div>
+            <div class="commerce-loader-device phone">📱</div>
+            <div class="commerce-loader-device pos"></div>
+            <div class="commerce-loader-device card">💳</div>
+            <div class="commerce-loader-device tap">✅</div>
+            <div class="commerce-loader-dot dot1"></div>
+            <div class="commerce-loader-dot dot2"></div>
+            <div class="commerce-loader-dot dot3"></div>
+            <div class="commerce-loader-dot dot4"></div>
+        </div>
+        <div class="commerce-loader-title">Loading products...</div>
+        <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
+    </div>
+</div>
+
 <style>
 :root{
     --blue:#0b4f9c;
@@ -3404,1495 +3444,14 @@ html[data-theme="dark"] .search-box input{
     background:rgba(17,24,39,.86) !important;
 }
 
-
-
-/* ===== SOFT PURPLE GLASS UI THEME ONLY ===== */
-:root{
-  --purple-main:#8b5cf6 !important;
-  --purple-deep:#6d28d9 !important;
-  --purple-soft:#f3e8ff !important;
-  --pink-soft:#fbcfe8 !important;
-  --glass-bg:rgba(255,255,255,.76) !important;
-  --glass-border:rgba(255,255,255,.72) !important;
-  --soft-text:#2d2144 !important;
-  --soft-muted:#7c6a93 !important;
-  --blue:#8b5cf6 !important;
-  --blue-dark:#6d28d9 !important;
-  --green:#a855f7 !important;
-  --orange:#ec4899 !important;
-  --bg:#f7f0ff !important;
-  --card:rgba(255,255,255,.78) !important;
-  --text:#2d2144 !important;
-  --muted:#7c6a93 !important;
-  --border:rgba(196,181,253,.55) !important;
-  --shadow:0 18px 45px rgba(109,40,217,.16) !important;
-  --shadow-soft:0 10px 25px rgba(109,40,217,.10) !important;
-}
-html,body{
-  background:
-    radial-gradient(circle at 10% 5%, rgba(216,180,254,.65) 0%, transparent 34%),
-    radial-gradient(circle at 95% 8%, rgba(251,207,232,.70) 0%, transparent 32%),
-    linear-gradient(180deg,#fbf7ff 0%,#f3e8ff 45%,#ead8ff 100%) !important;
-  color:#2d2144 !important;
-}
-.header,
-.login-screen,
-.boot-screen{
-  background:linear-gradient(135deg,#f5d0fe 0%,#c4b5fd 45%,#fbcfe8 100%) !important;
-  color:#2d2144 !important;
-  box-shadow:0 18px 42px rgba(109,40,217,.18) !important;
-  border-bottom:1px solid rgba(255,255,255,.65) !important;
-}
-.header *, .brand-title, .brand-sub{
-  color:#2d2144 !important;
-}
-.section-card,
-.dash-card,
-.modern-dashboard-shell,
-.dash-filter-card,
-.order-card,
-.order-mini-card,
-.order-column,
-.top-order-stat,
-.product-card,
-.product-row,
-.quick-card,
-.metric,
-.hero,
-.hero-card,
-.profile-card,
-.profile-panel,
-.login-card,
-.boot-card,
-.cart-btn,
-.side-panel,
-.profile-page,
-.language-panel,
-.support-panel,
-.order-detail-panel,
-.language-card,
-.support-card,
-.cart-summary-card,
-.cart-payment-box,
-.cart-delivery-box,
-.order-detail-card,
-.profile-box,
-.cart-item,
-.summary-box,
-.delivery-profile,
-.customer-call-box,
-.delivered-summary-card,
-.delivery-detail-box,
-.custom-bill-card,
-.bill-summary-box,
-.lock-box,
-.modal-card{
-  background:rgba(255,255,255,.76) !important;
-  backdrop-filter:blur(18px) !important;
-  -webkit-backdrop-filter:blur(18px) !important;
-  border:1px solid rgba(255,255,255,.70) !important;
-  box-shadow:0 18px 45px rgba(109,40,217,.14) !important;
-  color:#2d2144 !important;
-}
-.tabs,
-.header-inner,
-.cart-panel-header,
-.orders-panel-header,
-.order-detail-header,
-.support-header,
-.language-header,
-.profile-panel-header,
-.modal-header{
-  background:rgba(255,255,255,.68) !important;
-  backdrop-filter:blur(18px) !important;
-  -webkit-backdrop-filter:blur(18px) !important;
-  border-color:rgba(196,181,253,.55) !important;
-}
-.tab-btn,
-.cat-btn,
-.cat,
-.order-sub-btn,
-.order-status-btn,
-.language-option-btn,
-.profile-action-btn,
-.soft-btn,
-.change-address-btn,
-.cart-action-btn,
-.admin-input,
-.input,
-.login-input,
-.form-input,
-.support-textarea,
-.bill-mini-input,
-.bill-mini-select,
-.search-box input,
-.order-search input,
-.orders-search-box,
-.cart-qty-select,
-.manage-box input{
-  background:rgba(255,255,255,.72) !important;
-  border:1px solid rgba(196,181,253,.60) !important;
-  color:#2d2144 !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 8px 18px rgba(109,40,217,.07) !important;
-}
-.tab-btn.active,
-.cat-btn.active,
-.cat.active,
-.order-sub-btn.active,
-.order-status-btn.active,
-.login-btn,
-.login-inline-btn,
-.main-btn,
-.add-btn,
-.action-btn.orange,
-.action-btn.blue,
-.profile-edit-btn,
-.language-option-btn.active,
-.soft-btn.ok,
-.cart-place-order-btn,
-.customer-call-btn,
-.delivery-boy-call{
-  background:linear-gradient(135deg,#8b5cf6 0%,#ec4899 100%) !important;
-  color:#ffffff !important;
-  border-color:transparent !important;
-  box-shadow:0 14px 28px rgba(139,92,246,.24) !important;
-}
-.action-btn.green,
-.green-btn,
-.action-btn.done{
-  background:linear-gradient(135deg,#a855f7,#22c55e) !important;
-  color:#fff !important;
-}
-.action-btn.red,
-.red,
-.logout-btn,
-.remove-btn,
-.close-btn,
-.profile-logout-btn{
-  background:linear-gradient(135deg,#ef4444,#ec4899) !important;
-  color:#fff !important;
-}
-.action-btn.gray,
-.gray{
-  background:linear-gradient(135deg,#7c6a93,#6d28d9) !important;
-  color:#fff !important;
-}
-.section-title,
-.profile-title,
-.language-title,
-.support-title,
-.cart-panel-title,
-.orders-panel-title,
-.order-detail-title,
-.panel-top h3,
-.login-card h2,
-.lock-box h2,
-.dash-card-title,
-.hero h1,
-.order-route-title,
-.delivery-detail-head h3,
-.profile-panel-title,
-.product-name,
-.brand-title,
-#brandTitle{
-  color:#6d28d9 !important;
-}
-.stat-value,
-.dash-big-value,
-.quick-value,
-.metric-value,
-.product-price,
-.cart-final-price,
-.grand,
-.bill-summary-line:last-child{
-  color:#8b5cf6 !important;
-}
-.detail-key,
-.dash-filter-card span,
-.profile-phone,
-.brand-sub,
-.order-meta,
-.cart-product-sub,
-.route-step-sub,
-.delivery-boy-note,
-.dash-subtext,
-.quick-sub,
-.quick-label,
-.metric-sub,
-.metric-label,
-.order-customer,
-.muted,
-#imageUploadStatus,
-#offerImageStatus{
-  color:#7c6a93 !important;
-}
-.logo-badge,
-.profile-avatar,
-.mini-avatar,
-.quick-icon,
-.profile-edit-badge,
-.soft-alert-icon{
-  background:linear-gradient(135deg,#f5d0fe,#c4b5fd,#fbcfe8) !important;
-  color:#6d28d9 !important;
-  border-color:rgba(255,255,255,.72) !important;
-  box-shadow:0 12px 24px rgba(109,40,217,.18) !important;
-}
-.product-image,
-.order-thumb,
-.cart-thumb,
-.order-item-thumb,
-.cart-product-image,
-.profile-photo-main,
-.language-body,
-.order-detail-body,
-.orders-list-wrap,
-.empty,
-.order-empty-col,
-.order-filter-empty,
-.cart-empty,
-.orders-empty{
-  background:rgba(255,255,255,.45) !important;
-  border-color:rgba(196,181,253,.55) !important;
-}
-.badge.pending,
-.status-pending,
-.order-status-pill.pending{
-  background:#fef3c7 !important;
-  color:#92400e !important;
-}
-.badge.out,
-.status-out,
-.order-status-pill.out-for-delivery{
-  background:#ede9fe !important;
-  color:#6d28d9 !important;
-}
-.badge.done,
-.status-delivered,
-.order-status-pill.delivered{
-  background:#dcfce7 !important;
-  color:#166534 !important;
-}
-.badge-confirm,
-.status-need,
-.order-status-pill.need-confirmation{
-  background:#fee2e2 !important;
-  color:#991b1b !important;
-}
-.cart-bottom-bar,
-.bottom-nav,
-.fixed-bottom,
-.mobile-bottom-nav{
-  background:linear-gradient(135deg,rgba(245,208,254,.92),rgba(196,181,253,.92),rgba(251,207,232,.92)) !important;
-  backdrop-filter:blur(18px) !important;
-  -webkit-backdrop-filter:blur(18px) !important;
-  border-top:1px solid rgba(255,255,255,.72) !important;
-  box-shadow:0 -14px 34px rgba(109,40,217,.16) !important;
-}
-button:active,.action-btn:active,.tab-btn:active,.cat-btn:active,.cart-btn:active,.add-btn:active{
-  transform:scale(.97) !important;
-}
-@media(max-width:768px){
-  .tabs{background:rgba(255,255,255,.72) !important;}
-  .page-section{background:transparent !important;}
-}
-
-
-
-/* ===== OLIVE GREEN PORTFOLIO STYLE UI ONLY - NO GLOW ===== */
-:root{
-  --blue:#244f2f !important;
-  --blue-dark:#16351f !important;
-  --green:#244f2f !important;
-  --green-light:#eef6df !important;
-  --orange:#f4b400 !important;
-  --bg:#f5f1e6 !important;
-  --card:#fffdf4 !important;
-  --text:#1f2b1f !important;
-  --muted:#6b725f !important;
-  --border:#d9d2b8 !important;
-}
-html,body{
-  background:#f5f1e6 !important;
-  color:#1f2b1f !important;
-}
-body{
-  background:
-    linear-gradient(180deg,#f8f3df 0%,#f4efd9 100%) !important;
-}
-#themeColorMeta{content:#244f2f !important;}
-
-/* remove glow/shadow everywhere */
-*{
-  box-shadow:none !important;
-  text-shadow:none !important;
-}
-.product-card:hover,
-.order-card:hover,
-.cat:hover,
-.cart-btn:hover,
-.add-btn:hover,
-.main-btn:hover,
-.profile-menu-item:hover{
-  transform:none !important;
-}
-
-/* main header like reference image */
-.header{
-  background:#244f2f !important;
-  color:#fff8dc !important;
-  border-bottom:3px solid #f4b400 !important;
-  box-shadow:none !important;
-}
-.logo-badge,
-.profile-avatar,
-.mini-avatar{
-  background:#fff8dc !important;
-  color:#244f2f !important;
-  border:2px solid #f4b400 !important;
-  box-shadow:none !important;
-}
-.brand-title,#brandTitle{
-  color:#fff8dc !important;
-  letter-spacing:.2px !important;
-}
-.brand-sub{
-  color:#eadfb8 !important;
-}
-.header .cart-btn,.cart-btn{
-  background:#fff8dc !important;
-  color:#244f2f !important;
-  border:2px solid #f4b400 !important;
-  box-shadow:none !important;
-}
-.profile-trigger img{
-  border:2px solid #f4b400 !important;
-}
-
-/* category yellow strip feel */
-.categories{
-  background:#f4b400 !important;
-  border-top:2px solid #18391f !important;
-  border-bottom:2px solid #18391f !important;
-  padding:9px 12px !important;
-}
-.cat{
-  background:transparent !important;
-  color:#17351f !important;
-  border:1px solid rgba(23,53,31,.25) !important;
-  border-radius:999px !important;
-  font-weight:900 !important;
-  box-shadow:none !important;
-}
-.cat.active{
-  background:#244f2f !important;
-  color:#fff8dc !important;
-  border-color:#244f2f !important;
-}
-
-.search-box input,
-.orders-search-box,
-.orders-search-box input,
-.form-input,
-.login-input,
-.support-textarea,
-.cart-qty-select{
-  background:#fffdf4 !important;
-  color:#1f2b1f !important;
-  border:2px solid #d9d2b8 !important;
-  box-shadow:none !important;
-}
-.search-box input:focus,
-.form-input:focus,
-.login-input:focus,
-.support-textarea:focus{
-  border-color:#244f2f !important;
-  outline:none !important;
-}
-
-/* cards */
-.product-card,
-.cart-card,
-.cart-summary-card,
-.cart-payment-box,
-.cart-delivery-box,
-.order-card,
-.order-detail-card,
-.profile-box,
-.profile-page,
-.language-panel,
-.support-panel,
-.side-panel,
-.login-card,
-.language-card,
-.support-card,
-.profile-card-top,
-.order-summary-card,
-.timeline-card,
-.delivery-boy-box,
-.cart-item,
-.summary-box{
-  background:#fffdf4 !important;
-  border:1.5px solid #d9d2b8 !important;
-  color:#1f2b1f !important;
-  box-shadow:none !important;
-}
-.product-image,
-.cart-product-image,
-.order-item-thumb,
-.order-thumb-box{
-  background:#f2ecd3 !important;
-  border:1px solid #d9d2b8 !important;
-  box-shadow:none !important;
-}
-.product-name,
-.product-price,
-.stock-line,
-.profile-title,
-.profile-name,
-.cart-panel-title,
-.orders-panel-title,
-.order-detail-title,
-.support-title,
-.language-title,
-.order-route-title,
-.cart-product-title,
-.order-product-name,
-.grand,
-.top-cut,
-.change-address-btn,
-.profile-menu-left,
-.profile-arrow,
-.close-btn,
-.order-status-line,
-.route-step-title,
-#brandTitle{
-  color:#17351f !important;
-}
-.order-meta-line,
-.cart-delivery-sub,
-.cart-summary-row,
-.cart-delivery-line,
-.profile-phone,
-.language-card p,
-.support-card p,
-.order-detail-label,
-.order-detail-item-sub,
-.route-step-sub,
-.delivery-boy-note,
-.cart-product-sub,
-.order-status-line{
-  color:#6b725f !important;
-}
-
-/* buttons */
-.add-btn,
-.login-btn,
-.login-inline-btn,
-.main-btn,
-.green-btn,
-.blue-btn,
-.profile-edit-btn,
-.language-option-btn.active,
-.cart-place-order-btn{
-  background:#244f2f !important;
-  color:#fff8dc !important;
-  border:2px solid #244f2f !important;
-  box-shadow:none !important;
-}
-.qty-box{
-  background:#eef6df !important;
-  border:1px solid #d9d2b8 !important;
-}
-.qty-box button,
-.remove-btn{
-  background:#f4b400 !important;
-  color:#17351f !important;
-  border:1px solid #17351f !important;
-  box-shadow:none !important;
-}
-.remove-btn{
-  background:#b42318 !important;
-  color:#fff !important;
-  border-color:#b42318 !important;
-}
-.whatsapp-btn{
-  background:#244f2f !important;
-  color:#fff8dc !important;
-}
-.cart-bottom-bar,
-.bottom-bar{
-  background:#fffdf4 !important;
-  border-top:2px solid #d9d2b8 !important;
-  box-shadow:none !important;
-}
-
-/* status chips */
-.order-status-pill.need-confirmation{background:#f8d7da !important;color:#842029 !important;}
-.order-status-pill.pending{background:#fff0bd !important;color:#735400 !important;}
-.order-status-pill.out-for-delivery{background:#e6efd8 !important;color:#244f2f !important;}
-.order-status-pill.delivered{background:#d9ead3 !important;color:#244f2f !important;}
-.delivery-tag,.order-mini-chip{
-  background:#fff8dc !important;
-  border:1px solid #d9d2b8 !important;
-  color:#244f2f !important;
-}
-
-/* panels headers */
-.cart-panel-header,
-.orders-panel-header,
-.order-detail-header,
-.support-header,
-.language-header,
-.profile-header{
-  background:#fffdf4 !important;
-  border-bottom:1.5px solid #d9d2b8 !important;
-  color:#17351f !important;
-  box-shadow:none !important;
-}
-.order-detail-body,
-.language-body,
-.support-body,
-.orders-list-wrap,#cartPanel,#ordersPanel{
-  background:#f5f1e6 !important;
-}
-
-/* login screen */
-.login-screen{
-  background:linear-gradient(135deg,#244f2f 0%,#f4b400 100%) !important;
-}
-.demo-otp{
-  background:#fff8dc !important;
-  color:#735400 !important;
-  border:1px solid #d9d2b8 !important;
-}
-.success-screen{
-  background:rgba(36,79,47,.96) !important;
-}
-
-/* ===== DARK MODE CLEAN OLIVE ===== */
-html[data-theme="dark"]{
-  --blue:#f4b400 !important;
-  --blue-dark:#fff1a8 !important;
-  --green:#8fbf75 !important;
-  --green-light:#20351f !important;
-  --orange:#f4b400 !important;
-  --bg:#10170f !important;
-  --card:#182316 !important;
-  --text:#f4f0df !important;
-  --muted:#b8b08f !important;
-  --border:#3a4b32 !important;
-}
-html[data-theme="dark"],
-html[data-theme="dark"] body{
-  background:#10170f !important;
-  color:#f4f0df !important;
-}
-html[data-theme="dark"] body{
-  background:linear-gradient(180deg,#10170f 0%,#172314 100%) !important;
-}
-html[data-theme="dark"] .header{
-  background:#0f2415 !important;
-  color:#f4f0df !important;
-  border-bottom:3px solid #f4b400 !important;
-  box-shadow:none !important;
-}
-html[data-theme="dark"] .categories{
-  background:#f4b400 !important;
-  border-color:#0f2415 !important;
-}
-html[data-theme="dark"] .cat{
-  background:transparent !important;
-  color:#0f2415 !important;
-  border-color:rgba(15,36,21,.35) !important;
-}
-html[data-theme="dark"] .cat.active{
-  background:#0f2415 !important;
-  color:#fff8dc !important;
-  border-color:#0f2415 !important;
-}
-html[data-theme="dark"] .product-card,
-html[data-theme="dark"] .cart-card,
-html[data-theme="dark"] .cart-summary-card,
-html[data-theme="dark"] .cart-payment-box,
-html[data-theme="dark"] .cart-delivery-box,
-html[data-theme="dark"] .order-card,
-html[data-theme="dark"] .order-detail-card,
-html[data-theme="dark"] .profile-box,
-html[data-theme="dark"] .profile-page,
-html[data-theme="dark"] .language-panel,
-html[data-theme="dark"] .support-panel,
-html[data-theme="dark"] .side-panel,
-html[data-theme="dark"] .login-card,
-html[data-theme="dark"] .language-card,
-html[data-theme="dark"] .support-card,
-html[data-theme="dark"] .profile-card-top,
-html[data-theme="dark"] .order-summary-card,
-html[data-theme="dark"] .timeline-card,
-html[data-theme="dark"] .delivery-boy-box,
-html[data-theme="dark"] .cart-item,
-html[data-theme="dark"] .summary-box{
-  background:#182316 !important;
-  border-color:#3a4b32 !important;
-  color:#f4f0df !important;
-  box-shadow:none !important;
-}
-html[data-theme="dark"] .product-image,
-html[data-theme="dark"] .cart-product-image,
-html[data-theme="dark"] .order-item-thumb,
-html[data-theme="dark"] .order-thumb-box{
-  background:#10170f !important;
-  border-color:#3a4b32 !important;
-}
-html[data-theme="dark"] .search-box input,
-html[data-theme="dark"] .orders-search-box,
-html[data-theme="dark"] .orders-search-box input,
-html[data-theme="dark"] .form-input,
-html[data-theme="dark"] .login-input,
-html[data-theme="dark"] .support-textarea,
-html[data-theme="dark"] .cart-qty-select{
-  background:#10170f !important;
-  color:#f4f0df !important;
-  border-color:#3a4b32 !important;
-  box-shadow:none !important;
-}
-html[data-theme="dark"] .product-name,
-html[data-theme="dark"] .product-price,
-html[data-theme="dark"] .stock-line,
-html[data-theme="dark"] .profile-title,
-html[data-theme="dark"] .profile-name,
-html[data-theme="dark"] .cart-panel-title,
-html[data-theme="dark"] .orders-panel-title,
-html[data-theme="dark"] .order-detail-title,
-html[data-theme="dark"] .support-title,
-html[data-theme="dark"] .language-title,
-html[data-theme="dark"] .order-route-title,
-html[data-theme="dark"] .cart-product-title,
-html[data-theme="dark"] .order-product-name,
-html[data-theme="dark"] .grand,
-html[data-theme="dark"] .top-cut,
-html[data-theme="dark"] .change-address-btn,
-html[data-theme="dark"] .profile-menu-left,
-html[data-theme="dark"] .profile-arrow,
-html[data-theme="dark"] .close-btn,
-html[data-theme="dark"] .order-status-line,
-html[data-theme="dark"] .route-step-title,
-html[data-theme="dark"] #brandTitle{
-  color:#f4f0df !important;
-}
-html[data-theme="dark"] .order-meta-line,
-html[data-theme="dark"] .cart-delivery-sub,
-html[data-theme="dark"] .cart-summary-row,
-html[data-theme="dark"] .cart-delivery-line,
-html[data-theme="dark"] .profile-phone,
-html[data-theme="dark"] .language-card p,
-html[data-theme="dark"] .support-card p,
-html[data-theme="dark"] .order-detail-label,
-html[data-theme="dark"] .order-detail-item-sub,
-html[data-theme="dark"] .route-step-sub,
-html[data-theme="dark"] .delivery-boy-note,
-html[data-theme="dark"] .cart-product-sub{
-  color:#b8b08f !important;
-}
-html[data-theme="dark"] .add-btn,
-html[data-theme="dark"] .login-btn,
-html[data-theme="dark"] .login-inline-btn,
-html[data-theme="dark"] .main-btn,
-html[data-theme="dark"] .green-btn,
-html[data-theme="dark"] .blue-btn,
-html[data-theme="dark"] .profile-edit-btn,
-html[data-theme="dark"] .language-option-btn.active,
-html[data-theme="dark"] .cart-place-order-btn{
-  background:#f4b400 !important;
-  color:#0f2415 !important;
-  border-color:#f4b400 !important;
-  box-shadow:none !important;
-}
-html[data-theme="dark"] .cart-panel-header,
-html[data-theme="dark"] .orders-panel-header,
-html[data-theme="dark"] .order-detail-header,
-html[data-theme="dark"] .support-header,
-html[data-theme="dark"] .language-header,
-html[data-theme="dark"] .profile-header{
-  background:#182316 !important;
-  border-bottom:1.5px solid #3a4b32 !important;
-}
-html[data-theme="dark"] .order-detail-body,
-html[data-theme="dark"] .language-body,
-html[data-theme="dark"] .support-body,
-html[data-theme="dark"] .orders-list-wrap,
-html[data-theme="dark"] #cartPanel,
-html[data-theme="dark"] #ordersPanel{
-  background:#10170f !important;
-}
-html[data-theme="dark"] .logo-badge,
-html[data-theme="dark"] .profile-avatar,
-html[data-theme="dark"] .mini-avatar,
-html[data-theme="dark"] .cart-btn{
-  background:#182316 !important;
-  color:#f4b400 !important;
-  border-color:#f4b400 !important;
-}
-
-
-
-/* ===== FINAL PORTFOLIO STYLE: YELLOW + WHITE + OLIVE GREEN, NO GLOW ===== */
-:root{
-  --blue:#214f34 !important;
-  --blue-dark:#143823 !important;
-  --green:#214f34 !important;
-  --green-light:#f3f7ed !important;
-  --orange:#f5b400 !important;
-  --bg:#f7f7f1 !important;
-  --card:#ffffff !important;
-  --text:#132018 !important;
-  --muted:#647060 !important;
-  --border:#e4e8d8 !important;
-}
-html,body{
-  background:#f7f7f1 !important;
-  color:#132018 !important;
-}
-body{
-  background:linear-gradient(180deg,#ffffff 0%,#f7f7f1 55%,#eef3e8 100%) !important;
-}
-*{
-  box-shadow:none !important;
-  text-shadow:none !important;
-}
-.header{
-  background:#214f34 !important;
-  color:#ffffff !important;
-  border-bottom:4px solid #f5b400 !important;
-  border-radius:0 0 28px 28px !important;
-  box-shadow:none !important;
-}
-.brand-title,#brandTitle{
-  color:#ffffff !important;
-  letter-spacing:.2px !important;
-}
-.brand-sub{
-  color:rgba(255,255,255,.86) !important;
-}
-.logo-badge,
-.profile-trigger img,
-.profile-chip,
-.profile-avatar,
-.mini-avatar{
-  background:#ffffff !important;
-  border:3px solid #f5b400 !important;
-  box-shadow:none !important;
-}
-.cart-btn,
-.profile-trigger,
-.language-option-btn,
-.cat{
-  background:#ffffff !important;
-  color:#214f34 !important;
-  border:2px solid #214f34 !important;
-  border-radius:999px !important;
-  box-shadow:none !important;
-}
-.cart-btn:active,.cat:active,.add-btn:active,.main-btn:active{
-  transform:scale(.98) !important;
-}
-.cat.active,
-.language-option-btn.active{
-  background:#f5b400 !important;
-  color:#132018 !important;
-  border-color:#214f34 !important;
-}
-.search-box input,
-.orders-search-box,
-.orders-search-box input,
-.form-input,
-.login-input,
-.support-textarea,
-.cart-qty-select{
-  background:#ffffff !important;
-  color:#132018 !important;
-  border:2px solid #e1e6d8 !important;
-  border-radius:22px !important;
-  box-shadow:none !important;
-}
-.search-box input:focus,
-.form-input:focus,
-.login-input:focus{
-  border-color:#f5b400 !important;
-  outline:none !important;
-}
-.product-card,
-.cart-card,
-.cart-item,
-.order-card,
-.order-detail-card,
-.profile-box,
-.profile-card-top,
-.language-card,
-.support-card,
-.cart-summary-card,
-.cart-payment-box,
-.cart-delivery-box,
-.side-panel,
-.profile-page,
-.language-panel,
-.support-panel,
-.order-detail-panel,
-.profile-card,
-.timeline-card{
-  background:#ffffff !important;
-  color:#132018 !important;
-  border:2px solid #e5eadc !important;
-  border-radius:24px !important;
-  box-shadow:none !important;
-}
-.product-card:hover{
-  transform:none !important;
-  box-shadow:none !important;
-}
-.product-image,
-.cart-product-image,
-.order-thumb-box,
-.order-item-thumb,
-.order-detail-item img,
-.cart-thumb{
-  background:#f8f6e9 !important;
-  border:2px solid #eef0e2 !important;
-  border-radius:20px !important;
-  box-shadow:none !important;
-}
-.product-name,
-.profile-title,
-.profile-name,
-.cart-panel-title,
-.orders-panel-title,
-.order-detail-title,
-.order-route-title,
-.support-title,
-.language-title,
-.cart-product-title,
-.order-product-name,
-.delivery-boy-name{
-  color:#214f34 !important;
-}
-.product-price,
-.cart-final-price,
-.grand,
-.delivery-boy-number{
-  color:#214f34 !important;
-}
-.original,
-.top-cut,
-.cart-original-price,
-.order-meta-line,
-.route-step-sub,
-.delivery-boy-note,
-.profile-phone,
-.cart-product-sub,
-.cart-summary-row,
-.cart-delivery-line,
-.language-card p,
-.support-card p{
-  color:#647060 !important;
-}
-.add-btn,
-.main-btn,
-.blue-btn,
-.green-btn,
-.login-btn,
-.login-inline-btn,
-.profile-edit-btn,
-.cart-place-order-btn,
-.change-address-btn,
-.delivery-boy-call{
-  background:#214f34 !important;
-  color:#ffffff !important;
-  border:2px solid #214f34 !important;
-  border-radius:999px !important;
-  box-shadow:none !important;
-}
-.cart-place-order-btn,
-.qty-box button{
-  background:#f5b400 !important;
-  color:#132018 !important;
-  border:2px solid #214f34 !important;
-}
-.qty-box{
-  background:#fff7d6 !important;
-  border:2px solid #f5b400 !important;
-  border-radius:999px !important;
-  box-shadow:none !important;
-}
-.remove-btn,
-.logout-user-btn{
-  background:#dc2626 !important;
-  color:#ffffff !important;
-  border-radius:999px !important;
-  box-shadow:none !important;
-}
-.summary-box,
-.delivery-boy-box,
-.order-summary-card{
-  background:#f8f6e9 !important;
-  border:2px solid #e5eadc !important;
-  box-shadow:none !important;
-}
-.order-status-pill.need-confirmation{background:#fff1f1 !important;color:#b91c1c !important;border:1px solid #fecaca !important;}
-.order-status-pill.pending{background:#fff7d6 !important;color:#8a5a00 !important;border:1px solid #f5b400 !important;}
-.order-status-pill.out-for-delivery{background:#edf7ee !important;color:#214f34 !important;border:1px solid #214f34 !important;}
-.order-status-pill.delivered{background:#e9f7ea !important;color:#166534 !important;border:1px solid #86efac !important;}
-.cart-bottom-bar{
-  background:#ffffff !important;
-  border-top:3px solid #f5b400 !important;
-  box-shadow:none !important;
-}
-.success-screen{
-  background:rgba(33,79,52,.94) !important;
-}
-.success-card{
-  background:#ffffff !important;
-  color:#132018 !important;
-  border:3px solid #f5b400 !important;
-  box-shadow:none !important;
-}
-/* add reference-like yellow strip feel without changing HTML */
-.categories{
-  background:#f5b400 !important;
-  border-top:3px solid #214f34 !important;
-  border-bottom:3px solid #214f34 !important;
-  padding:10px 14px !important;
-}
-.categories .cat{
-  background:transparent !important;
-  color:#132018 !important;
-  border:none !important;
-  border-radius:0 !important;
-  font-weight:900 !important;
-}
-.categories .cat.active{
-  background:#214f34 !important;
-  color:#ffffff !important;
-  border-radius:999px !important;
-  padding-left:18px !important;
-  padding-right:18px !important;
-}
-/* DARK MODE: clean olive/yellow, no glow */
-html[data-theme="dark"]{
-  --blue:#f5b400 !important;
-  --blue-dark:#fff3bf !important;
-  --green:#f5b400 !important;
-  --green-light:#27351f !important;
-  --orange:#f5b400 !important;
-  --bg:#102016 !important;
-  --card:#182a1f !important;
-  --text:#f8faf2 !important;
-  --muted:#c3c9ba !important;
-  --border:#37513c !important;
-}
-html[data-theme="dark"],
-html[data-theme="dark"] body{
-  background:linear-gradient(180deg,#07140d 0%,#102016 100%) !important;
-  color:#f8faf2 !important;
-}
-html[data-theme="dark"] *{
-  box-shadow:none !important;
-  text-shadow:none !important;
-}
-html[data-theme="dark"] .header{
-  background:#102016 !important;
-  border-bottom:4px solid #f5b400 !important;
-}
-html[data-theme="dark"] .product-card,
-html[data-theme="dark"] .cart-card,
-html[data-theme="dark"] .cart-item,
-html[data-theme="dark"] .order-card,
-html[data-theme="dark"] .order-detail-card,
-html[data-theme="dark"] .profile-box,
-html[data-theme="dark"] .profile-card-top,
-html[data-theme="dark"] .language-card,
-html[data-theme="dark"] .support-card,
-html[data-theme="dark"] .cart-summary-card,
-html[data-theme="dark"] .cart-payment-box,
-html[data-theme="dark"] .cart-delivery-box,
-html[data-theme="dark"] .side-panel,
-html[data-theme="dark"] .profile-page,
-html[data-theme="dark"] .language-panel,
-html[data-theme="dark"] .support-panel,
-html[data-theme="dark"] .order-detail-panel,
-html[data-theme="dark"] .cart-panel-header,
-html[data-theme="dark"] .orders-panel-header,
-html[data-theme="dark"] .order-detail-header,
-html[data-theme="dark"] .language-header,
-html[data-theme="dark"] .support-header{
-  background:#182a1f !important;
-  color:#f8faf2 !important;
-  border:2px solid #37513c !important;
-  box-shadow:none !important;
-}
-html[data-theme="dark"] .product-image,
-html[data-theme="dark"] .cart-product-image,
-html[data-theme="dark"] .order-thumb-box,
-html[data-theme="dark"] .order-item-thumb,
-html[data-theme="dark"] .order-detail-item img,
-html[data-theme="dark"] .cart-thumb,
-html[data-theme="dark"] .orders-list-wrap,
-html[data-theme="dark"] .order-detail-body,
-html[data-theme="dark"] .language-body,
-html[data-theme="dark"] .support-body{
-  background:#102016 !important;
-  border-color:#37513c !important;
-}
-html[data-theme="dark"] .search-box input,
-html[data-theme="dark"] .orders-search-box,
-html[data-theme="dark"] .orders-search-box input,
-html[data-theme="dark"] .form-input,
-html[data-theme="dark"] .support-textarea,
-html[data-theme="dark"] .cart-qty-select{
-  background:#102016 !important;
-  color:#f8faf2 !important;
-  border:2px solid #37513c !important;
-}
-html[data-theme="dark"] .product-name,
-html[data-theme="dark"] .profile-title,
-html[data-theme="dark"] .profile-name,
-html[data-theme="dark"] .cart-panel-title,
-html[data-theme="dark"] .orders-panel-title,
-html[data-theme="dark"] .order-detail-title,
-html[data-theme="dark"] .order-route-title,
-html[data-theme="dark"] .support-title,
-html[data-theme="dark"] .language-title,
-html[data-theme="dark"] .cart-product-title,
-html[data-theme="dark"] .order-product-name,
-html[data-theme="dark"] .delivery-boy-name,
-html[data-theme="dark"] #brandTitle{
-  color:#fff3bf !important;
-}
-html[data-theme="dark"] .product-price,
-html[data-theme="dark"] .cart-final-price,
-html[data-theme="dark"] .grand,
-html[data-theme="dark"] .delivery-boy-number{
-  color:#f5b400 !important;
-}
-html[data-theme="dark"] .add-btn,
-html[data-theme="dark"] .main-btn,
-html[data-theme="dark"] .blue-btn,
-html[data-theme="dark"] .green-btn,
-html[data-theme="dark"] .profile-edit-btn,
-html[data-theme="dark"] .delivery-boy-call{
-  background:#f5b400 !important;
-  color:#102016 !important;
-  border-color:#f5b400 !important;
-}
-html[data-theme="dark"] .cart-place-order-btn,
-html[data-theme="dark"] .qty-box button{
-  background:#f5b400 !important;
-  color:#102016 !important;
-  border-color:#f5b400 !important;
-}
-html[data-theme="dark"] .cart-btn,
-html[data-theme="dark"] .cat,
-html[data-theme="dark"] .language-option-btn{
-  background:#182a1f !important;
-  color:#f5b400 !important;
-  border:2px solid #f5b400 !important;
-}
-html[data-theme="dark"] .cat.active,
-html[data-theme="dark"] .language-option-btn.active{
-  background:#f5b400 !important;
-  color:#102016 !important;
-}
-html[data-theme="dark"] .categories{
-  background:#f5b400 !important;
-  border-top:3px solid #07140d !important;
-  border-bottom:3px solid #07140d !important;
-}
-html[data-theme="dark"] .categories .cat{
-  background:transparent !important;
-  color:#102016 !important;
-  border:none !important;
-}
-html[data-theme="dark"] .categories .cat.active{
-  background:#102016 !important;
-  color:#f5b400 !important;
-}
-
-
-/* ===== FINAL CLEAN YELLOW + WHITE + OLIVE UI FIX - NO EXTRA LINES ===== */
-:root{
-  --blue:#245532 !important;
-  --blue-dark:#153b22 !important;
-  --green:#245532 !important;
-  --green-light:#fff6cf !important;
-  --orange:#f7b500 !important;
-  --bg:#fffaf0 !important;
-  --card:#ffffff !important;
-  --text:#102416 !important;
-  --muted:#69725f !important;
-  --border:rgba(36,85,50,.10) !important;
-}
-html,body{
-  background:#fffaf0 !important;
-  color:#102416 !important;
-  overflow-x:hidden !important;
-}
-body{
-  background:
-    radial-gradient(circle at 15% 0%, rgba(247,181,0,.20), transparent 28%),
-    linear-gradient(180deg,#fffdf5 0%, #fff8df 45%, #f5f7ec 100%) !important;
-}
-*{
-  box-shadow:none !important;
-  text-shadow:none !important;
-}
-/* remove thin line/border-heavy feel */
-.profile-menu-item,
-.cart-action-row,
-.order-detail-row,
-.order-detail-item,
-.cart-delivery-line,
-.cart-summary-row,
-.cart-panel-header,
-.orders-panel-header,
-.profile-header,
-.language-header,
-.support-header,
-.order-detail-header,
-.panel-top{
-  border-color:transparent !important;
-}
-/* main top */
-.header{
-  background:#245532 !important;
-  color:#fff !important;
-  border:none !important;
-  border-bottom:5px solid #f7b500 !important;
-  border-radius:0 0 30px 30px !important;
-  padding:16px 14px !important;
-}
-.brand-title,#brandTitle{color:#fff !important;font-weight:900 !important;}
-.brand-sub{color:#fff6cf !important;}
-.logo-badge,.profile-trigger img{
-  background:#fffdf5 !important;
-  border:3px solid #f7b500 !important;
-  border-radius:50% !important;
-}
-.cart-btn,.profile-trigger{
-  background:#fffdf5 !important;
-  color:#245532 !important;
-  border:2px solid #f7b500 !important;
-  border-radius:999px !important;
-}
-/* category yellow strip like reference */
-.categories{
-  background:#f7b500 !important;
-  border:none !important;
-  border-top:4px solid #245532 !important;
-  border-bottom:4px solid #245532 !important;
-  padding:10px 14px !important;
-}
-.categories .cat{
-  background:transparent !important;
-  color:#102416 !important;
-  border:none !important;
-  border-radius:0 !important;
-  font-weight:900 !important;
-}
-.categories .cat.active{
-  background:#245532 !important;
-  color:#fff !important;
-  border-radius:999px !important;
-  padding-left:18px !important;
-  padding-right:18px !important;
-}
-/* cards clean */
-.product-card,
-.cart-card,
-.cart-item,
-.order-card,
-.order-detail-card,
-.profile-box,
-.profile-card-top,
-.language-card,
-.support-card,
-.cart-summary-card,
-.cart-payment-box,
-.cart-delivery-box,
-.side-panel,
-.profile-page,
-.language-panel,
-.support-panel,
-.order-detail-panel,
-.profile-card,
-.timeline-card,
-.summary-box,
-.delivery-boy-box,
-.order-summary-card,
-.login-card,
-.success-card{
-  background:#fffdf5 !important;
-  color:#102416 !important;
-  border:none !important;
-  border-radius:26px !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-.product-card,
-.cart-card,
-.order-card,
-.cart-summary-card,
-.cart-payment-box,
-.cart-delivery-box,
-.profile-card-top,
-.language-card,
-.support-card{
-  background:#ffffff !important;
-}
-.product-card:hover,.product-card:active,.order-card:active{transform:none !important;}
-.product-image,
-.cart-product-image,
-.order-thumb-box,
-.order-item-thumb,
-.order-detail-item img,
-.cart-thumb{
-  background:#f5efd2 !important;
-  border:1px solid rgba(36,85,50,.14) !important;
-  border-radius:18px !important;
-}
-/* panels look like clean app pages */
-#cartPanel,#ordersPanel,.profile-page,.order-detail-panel,.language-panel,.support-panel{
-  background:#fffaf0 !important;
-  width:100% !important;
-  max-width:100% !important;
-}
-.cart-panel-header,.orders-panel-header,.profile-header,.language-header,.support-header,.order-detail-header,.panel-top{
-  background:#fffaf0 !important;
-  color:#102416 !important;
-  border:none !important;
-  padding:14px 16px !important;
-}
-.profile-title,.cart-panel-title,.orders-panel-title,.order-detail-title,.language-title,.support-title{
-  color:#102416 !important;
-  font-weight:900 !important;
-}
-.profile-main,.language-body,.support-body,.order-detail-body,.orders-list-wrap{
-  background:#fffaf0 !important;
-}
-.profile-card-top{
-  background:#fffdf5 !important;
-  margin:8px 4px 18px !important;
-  padding:18px !important;
-  border-radius:28px !important;
-}
-.profile-card-top img{
-  border:3px solid #f7b500 !important;
-}
-.profile-name,.product-name,.cart-product-title,.order-product-name,.order-route-title,.delivery-boy-name{
-  color:#102416 !important;
-  font-weight:900 !important;
-}
-.profile-phone,.cart-product-sub,.order-meta-line,.route-step-sub,.delivery-boy-note,.language-card p,.support-card p,.cart-summary-row,.cart-delivery-line{
-  color:#69725f !important;
-}
-/* menu rows without useless separator lines */
-.profile-menu-item{
-  background:#fffdf5 !important;
-  margin:10px 0 !important;
-  padding:16px 14px !important;
-  border:none !important;
-  border-radius:18px !important;
-}
-.profile-menu-left,.profile-arrow,.profile-icon{color:#102416 !important;}
-/* cart page */
-.cart-card{
-  margin:12px 0 !important;
-  padding:16px !important;
-  border-radius:24px !important;
-}
-.cart-action-row{
-  background:#fff8df !important;
-  border:none !important;
-  border-radius:16px !important;
-  overflow:hidden !important;
-}
-.cart-action-btn{
-  background:#fff8df !important;
-  color:#102416 !important;
-  border:none !important;
-  font-weight:900 !important;
-}
-.cart-action-btn + .cart-action-btn{border-left:1px solid rgba(36,85,50,.10) !important;}
-.cart-summary-card,.cart-payment-box,.cart-delivery-box{
-  padding:16px !important;
-  margin:10px 0 !important;
-}
-.cart-bottom-bar{
-  background:#fffdf5 !important;
-  border:none !important;
-  border-top:5px solid #f7b500 !important;
-  border-radius:24px 24px 0 0 !important;
-}
-/* inputs */
-.search-box input,.orders-search-box,.orders-search-box input,.form-input,.login-input,.support-textarea,.cart-qty-select{
-  background:#ffffff !important;
-  color:#102416 !important;
-  border:1px solid rgba(36,85,50,.16) !important;
-  border-radius:22px !important;
-}
-.search-box input:focus,.form-input:focus,.login-input:focus{
-  border-color:#f7b500 !important;
-  outline:none !important;
-}
-/* buttons */
-.add-btn,.main-btn,.blue-btn,.green-btn,.login-btn,.login-inline-btn,.profile-edit-btn,.change-address-btn,.delivery-boy-call{
-  background:#245532 !important;
-  color:#ffffff !important;
-  border:none !important;
-  border-radius:999px !important;
-}
-.cart-place-order-btn,.qty-box button{
-  background:#245532 !important;
-  color:#ffffff !important;
-  border:none !important;
-  border-radius:999px !important;
-}
-.remove-btn,.logout-user-btn{
-  background:#ef4444 !important;
-  color:#fff !important;
-  border:none !important;
-  border-radius:999px !important;
-}
-.qty-box{
-  background:#fff1b8 !important;
-  border:none !important;
-  border-radius:999px !important;
-}
-.product-price,.cart-final-price,.grand,.delivery-boy-number{color:#245532 !important;font-weight:900 !important;}
-.original,.top-cut,.cart-original-price{color:#8a907f !important;}
-/* yellow accent section */
-.whatsapp-order-box,.cart-whatsapp-box,[class*="whatsapp"]{
-  background:#ecfff3 !important;
-  border:none !important;
-}
-/* status chips */
-.order-status-pill.need-confirmation{background:#fff1f1 !important;color:#b91c1c !important;border:none !important;}
-.order-status-pill.pending{background:#fff1b8 !important;color:#745000 !important;border:none !important;}
-.order-status-pill.out-for-delivery{background:#eaf4e7 !important;color:#245532 !important;border:none !important;}
-.order-status-pill.delivered{background:#dff7e3 !important;color:#166534 !important;border:none !important;}
-/* dark mode clean */
-html[data-theme="dark"]{
-  --blue:#f7b500 !important;
-  --blue-dark:#fff3bf !important;
-  --green:#f7b500 !important;
-  --green-light:#27351f !important;
-  --orange:#f7b500 !important;
-  --bg:#0c1b11 !important;
-  --card:#15261a !important;
-  --text:#fffaf0 !important;
-  --muted:#c9ceb9 !important;
-  --border:rgba(247,181,0,.18) !important;
-}
-html[data-theme="dark"],html[data-theme="dark"] body{
-  background:linear-gradient(180deg,#08120b 0%,#102016 100%) !important;
-  color:#fffaf0 !important;
-}
-html[data-theme="dark"] .header{
-  background:#0f2015 !important;
-  border-bottom:5px solid #f7b500 !important;
-}
-html[data-theme="dark"] .categories{
-  background:#f7b500 !important;
-  border-top:4px solid #08120b !important;
-  border-bottom:4px solid #08120b !important;
-}
-html[data-theme="dark"] .categories .cat{color:#102416 !important;}
-html[data-theme="dark"] .categories .cat.active{background:#102416 !important;color:#f7b500 !important;}
-html[data-theme="dark"] .product-card,
-html[data-theme="dark"] .cart-card,
-html[data-theme="dark"] .cart-item,
-html[data-theme="dark"] .order-card,
-html[data-theme="dark"] .order-detail-card,
-html[data-theme="dark"] .profile-box,
-html[data-theme="dark"] .profile-card-top,
-html[data-theme="dark"] .language-card,
-html[data-theme="dark"] .support-card,
-html[data-theme="dark"] .cart-summary-card,
-html[data-theme="dark"] .cart-payment-box,
-html[data-theme="dark"] .cart-delivery-box,
-html[data-theme="dark"] .side-panel,
-html[data-theme="dark"] .profile-page,
-html[data-theme="dark"] .language-panel,
-html[data-theme="dark"] .support-panel,
-html[data-theme="dark"] .order-detail-panel,
-html[data-theme="dark"] .cart-panel-header,
-html[data-theme="dark"] .orders-panel-header,
-html[data-theme="dark"] .order-detail-header,
-html[data-theme="dark"] .language-header,
-html[data-theme="dark"] .support-header,
-html[data-theme="dark"] .profile-header,
-html[data-theme="dark"] .profile-menu-item{
-  background:#15261a !important;
-  color:#fffaf0 !important;
-  border:none !important;
-}
-html[data-theme="dark"] #cartPanel,
-html[data-theme="dark"] #ordersPanel,
-html[data-theme="dark"] .profile-page,
-html[data-theme="dark"] .order-detail-panel,
-html[data-theme="dark"] .language-panel,
-html[data-theme="dark"] .support-panel,
-html[data-theme="dark"] .profile-main,
-html[data-theme="dark"] .language-body,
-html[data-theme="dark"] .support-body,
-html[data-theme="dark"] .order-detail-body,
-html[data-theme="dark"] .orders-list-wrap{
-  background:#0c1b11 !important;
-}
-html[data-theme="dark"] .product-name,
-html[data-theme="dark"] .profile-title,
-html[data-theme="dark"] .profile-name,
-html[data-theme="dark"] .cart-panel-title,
-html[data-theme="dark"] .orders-panel-title,
-html[data-theme="dark"] .order-detail-title,
-html[data-theme="dark"] .order-route-title,
-html[data-theme="dark"] .support-title,
-html[data-theme="dark"] .language-title,
-html[data-theme="dark"] .cart-product-title,
-html[data-theme="dark"] .order-product-name,
-html[data-theme="dark"] .profile-menu-left,
-html[data-theme="dark"] .profile-arrow{
-  color:#fffaf0 !important;
-}
-html[data-theme="dark"] .product-price,
-html[data-theme="dark"] .cart-final-price,
-html[data-theme="dark"] .grand,
-html[data-theme="dark"] .delivery-boy-number{
-  color:#f7b500 !important;
-}
-html[data-theme="dark"] .search-box input,
-html[data-theme="dark"] .orders-search-box,
-html[data-theme="dark"] .orders-search-box input,
-html[data-theme="dark"] .form-input,
-html[data-theme="dark"] .support-textarea,
-html[data-theme="dark"] .cart-qty-select{
-  background:#102016 !important;
-  color:#fffaf0 !important;
-  border:1px solid rgba(247,181,0,.24) !important;
-}
-html[data-theme="dark"] .add-btn,
-html[data-theme="dark"] .main-btn,
-html[data-theme="dark"] .blue-btn,
-html[data-theme="dark"] .green-btn,
-html[data-theme="dark"] .profile-edit-btn,
-html[data-theme="dark"] .change-address-btn,
-html[data-theme="dark"] .cart-place-order-btn,
-html[data-theme="dark"] .qty-box button{
-  background:#f7b500 !important;
-  color:#102416 !important;
-}
-
+</style>
+<style>
+/* WEBVIEW BLANK SCREEN FIX: loader is parsed before heavy CSS/scripts */
+#appStartLoader{z-index:2147483647!important;}
 </style>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
+
+<script>
 function syncHeaderProfileImageFinal(){
     try{
         const img=document.getElementById("headerProfileImg");
@@ -4943,10 +3502,8 @@ document.addEventListener("touchend", function(e){
 }, {passive:false});
 
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-</head>
-<body>
+
 <script>
 function getProductUnit(product){return product?.unit || product?.quantity || product?.weight || product?.size || "piece";}
 function getProductUnitText(product){return getProductUnit(product) || "piece";}
@@ -4961,24 +3518,6 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 </script>
 
 
-<div id="appStartLoader" class="commerce-loader">
-    <div class="commerce-loader-box">
-        <div class="commerce-loader-visual">
-            <div class="commerce-loader-ring"></div>
-            <div class="commerce-loader-cart">🛒</div>
-            <div class="commerce-loader-device phone">📱</div>
-            <div class="commerce-loader-device pos"></div>
-            <div class="commerce-loader-device card">💳</div>
-            <div class="commerce-loader-device tap">✅</div>
-            <div class="commerce-loader-dot dot1"></div>
-            <div class="commerce-loader-dot dot2"></div>
-            <div class="commerce-loader-dot dot3"></div>
-            <div class="commerce-loader-dot dot4"></div>
-        </div>
-        <div class="commerce-loader-title">Loading products...</div>
-        <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
-    </div>
-</div>
 
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
@@ -5473,7 +4012,6 @@ function goToOrders(){
 let products = [];
 let filteredProducts = [];
 let cart = [];
-const LOCAL_CART_KEY = "setuMartLocalCartBackup";
 const CUSTOMER_TOKEN_KEY = "apnaMartCustomerToken";
 let customerToken = localStorage.getItem(CUSTOMER_TOKEN_KEY) || "";
 
@@ -5549,41 +4087,6 @@ function sanitizeCartItem(item){
     };
 }
 
-
-function loadCartFromLocalFallback(){
-    try{
-        const saved = localStorage.getItem(LOCAL_CART_KEY);
-        if(saved){
-            const parsed = JSON.parse(saved);
-            if(Array.isArray(parsed) && parsed.length){
-                cart = sanitizeCartItems(parsed);
-                return cart;
-            }
-        }
-    }catch(error){
-        console.warn("Local cart load failed", error);
-    }
-    if(!Array.isArray(cart)) cart = [];
-    return cart;
-}
-
-function saveCartToLocalFallback(){
-    try{
-        localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(sanitizeCartItems(cart)));
-    }catch(error){
-        console.warn("Local cart save failed", error);
-    }
-}
-
-function getActiveCartForCheckout(){
-    if(!Array.isArray(cart) || !cart.length){
-        loadCartFromLocalFallback();
-    }
-    normalizeCartWithProducts();
-    saveCartToLocalFallback();
-    return Array.isArray(cart) ? cart : [];
-}
-
 function sanitizeCartItems(items){
     if(!Array.isArray(items)) return [];
     return items.map(sanitizeCartItem).filter(Boolean);
@@ -5611,22 +4114,16 @@ function normalizeCartWithProducts(){
 async function loadCartFromFirebase(phone){
     const cleanPhone = normalizePhone(phone);
     if(!firebaseCartReady || !firebaseCartDb || !cleanPhone){
-        loadCartFromLocalFallback();
-        normalizeCartWithProducts();
-        return cart;
+        cart = [];
+        return [];
     }
 
     try{
         const doc = await firebaseCartDb.collection("carts").doc(cleanPhone).get();
         const data = doc.exists ? (doc.data() || {}) : {};
         const items = sanitizeCartItems(data.items || []);
-        if(!items.length && Array.isArray(cart) && cart.length){
-            saveCartToLocalFallback();
-            return cart;
-        }
         cart = items;
         normalizeCartWithProducts();
-        saveCartToLocalFallback();
         return cart;
     }catch(error){
         console.error("Cart load failed:", error);
@@ -5636,9 +4133,8 @@ async function loadCartFromFirebase(phone){
 
 async function saveCartToFirebase(){
     const cleanPhone = getCurrentCartPhone();
-    saveCartToLocalFallback();
     if(!firebaseCartReady || !firebaseCartDb || !cleanPhone || cartSyncInProgress){
-        return true;
+        return false;
     }
 
     try{
@@ -5671,7 +4167,7 @@ async function saveCartToFirebase(){
 async function refreshCartFromFirebase(){
     const cleanPhone = getCurrentCartPhone();
     if(!cleanPhone){
-        loadCartFromLocalFallback();
+        cart = [];
         update();
         return;
     }
@@ -6731,7 +5227,6 @@ function update() {
                 </div>
             `).join("");
 
-    saveCartToLocalFallback();
     calculateTotal();
     renderSavedProfile();
     renderTopProfile();
@@ -6812,8 +5307,7 @@ let checkoutCouponDiscount = 0;
 let checkoutCouponCode = "";
 
 function openCheckoutPanel(addToHistory = true){
-    getActiveCartForCheckout();
-    if (!cart || cart.length === 0) {
+    if (cart.length === 0) {
         showToast("Cart is empty!", "error");
         return;
     }
@@ -6993,9 +5487,7 @@ async function submitCheckoutOrder() {
 
     const payment = document.querySelector('input[name="checkoutPayment"]:checked')?.value || 'cod';
 
-    getActiveCartForCheckout();
-
-    if (!cart || cart.length === 0) {
+    if (cart.length === 0) {
         showToast("Cart is empty!", "error");
         return;
     }
@@ -7031,7 +5523,6 @@ async function submitCheckoutOrder() {
 
         if (payment === "cod") {
             cart = [];
-            saveCartToLocalFallback();
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
             const checkoutCouponInput = document.getElementById("checkoutCouponInput");
@@ -7049,7 +5540,6 @@ async function submitCheckoutOrder() {
 
         if (payment === "upi") {
             cart = [];
-            saveCartToLocalFallback();
             checkoutCouponDiscount = 0;
             checkoutCouponCode = "";
             const checkoutCouponInput = document.getElementById("checkoutCouponInput");
@@ -7178,8 +5668,7 @@ function orderOnWhatsApp() {
         return;
     }
 
-    getActiveCartForCheckout();
-    if (!cart || cart.length === 0) { showToast("Cart is empty!", "error"); return; }
+    if (cart.length === 0) { showToast("Cart is empty!", "error"); return; }
 
     let message = "🛒 *New Order - Setu Mart* %0A%0A";
 
@@ -7664,8 +6153,6 @@ async function initApp(){
     renderSavedProfile();
     renderTopProfile();
     updateCartDeliveryBox();
-    loadCartFromLocalFallback();
-    update();
     await checkCustomerLogin();
     syncPanelWithHash();
     await fetchProducts();
