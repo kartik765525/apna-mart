@@ -2413,9 +2413,62 @@ function renderDashboard(){
     function keyForDate(d){ return getISTDateKey(d); }
     function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
     function statusOf(o){ return String(o.status || "").toLowerCase(); }
-    function totalOf(o){ return Number(o.total || o.grandTotal || o.totalAmount || o.finalTotal || 0); }
-    function earningDateOf(o){ return new Date(o.deliveredAt || o.completedAt || o.updatedAt || o.date || o.createdAt || Date.now()); }
-    function isDelivered(o){ return statusOf(o).includes("delivered"); }
+    function totalOf(o){
+        const candidates = [
+            o.total, o.grandTotal, o.totalAmount, o.finalTotal, o.payableAmount, o.amount,
+            o.orderTotal, o.netAmount, o.price, o.totalPay, o.total_pay,
+            o?.priceDetails?.total, o?.priceDetails?.grandTotal, o?.summary?.total
+        ];
+        for(const v of candidates){
+            const n = Number(String(v ?? "").replace(/[₹,\s]/g,""));
+            if(!isNaN(n) && n > 0) return n;
+        }
+        if(Array.isArray(o.items)){
+            return o.items.reduce((sum,item)=>{
+                const qty = Number(item.qty || item.quantity || 1) || 1;
+                const price = Number(String(item.price || item.finalPrice || item.sellingPrice || 0).replace(/[₹,\s]/g,"")) || 0;
+                const line = Number(String(item.total || item.lineTotal || item.subtotal || "").replace(/[₹,\s]/g,""));
+                return sum + (!isNaN(line) && line > 0 ? line : price * qty);
+            },0);
+        }
+        return 0;
+    }
+    function parseAnyDateValue(value){
+        if(value === undefined || value === null || String(value).trim() === "") return null;
+        if(typeof value === "number" || /^\d{10,13}$/.test(String(value).trim())){
+            const n = Number(value);
+            const d = new Date(String(value).trim().length === 10 ? n * 1000 : n);
+            if(!isNaN(d.getTime())) return d;
+        }
+        const text = String(value).trim();
+        const direct = new Date(text);
+        if(!isNaN(direct.getTime())) return direct;
+        const m = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+        if(m){
+            const day = Number(m[1]);
+            const month = Number(m[2]) - 1;
+            const year = Number(m[3].length === 2 ? "20" + m[3] : m[3]);
+            const d = new Date(year, month, day);
+            if(!isNaN(d.getTime())) return d;
+        }
+        return null;
+    }
+    function earningDateOf(o){
+        const candidates = [
+            o.deliveredAt, o.delivered_at, o.deliveryTime, o.deliveredTime, o.completedAt,
+            o.completed_at, o.statusUpdatedAt, o.statusTime, o.updatedAt, o.updated_at,
+            o.date, o.createdAt, o.timestamp, o.time, o.orderDate
+        ];
+        for(const v of candidates){
+            const d = parseAnyDateValue(v);
+            if(d) return d;
+        }
+        return parseOrderDateValue(o) || new Date();
+    }
+    function isDelivered(o){
+        const st = statusOf(o).replace(/[\s_-]+/g," ");
+        return st.includes("delivered") || st.includes("complete") || st.includes("completed");
+    }
     function dateMinus(days){ const d = new Date(); d.setDate(d.getDate() - days); return d; }
 
     const days = [];
