@@ -1280,16 +1280,31 @@ button:active,.action-btn:active,.tab-btn:active,.cat-btn:active{transform:scale
 .line-x-label{font-size:11px;fill:#475467;font-weight:700;}
 .line-grid{stroke:#e5e7eb;stroke-width:1;}
 .line-axis{stroke:#d0d5dd;stroke-width:1.4;}
-.line-stock{fill:none;stroke:#2f6fed;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
-.line-orders{fill:none;stroke:#f5b700;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;}
-.line-earning-seg{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;}
-.chart-point{stroke:#fff;stroke-width:2;}
+.line-stock{fill:none;stroke:#2f6fed;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.line-orders{fill:none;stroke:#f5b700;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.line-earning-seg{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;}
+.chart-point{display:none !important;}
 .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px;}
 .mini-summary{background:#fff;border:1px solid #edf2f7;border-radius:16px;padding:14px;box-shadow:0 8px 18px rgba(15,23,42,.04);}
 .mini-summary-title{font-size:13px;color:#667085;font-weight:900;margin-bottom:8px;}
 .mini-summary-value{font-size:24px;font-weight:900;color:#101828;}
 @media(max-width:1100px){.performance-card{grid-column:span 2;}.summary-grid{grid-template-columns:1fr;}}
 @media(max-width:700px){.performance-card{grid-column:span 1;}.line-chart-wrap{height:300px}.dashboard-time-tabs{width:100%;}.dashboard-time-tabs button{flex:1;padding:9px 8px;}}
+
+
+/* SIMPLE CLEAN LINE GRAPH */
+.chart-point,
+circle.chart-point,
+svg circle{
+display:none !important;
+}
+.line-stock,
+.line-orders,
+.line-earning-seg{
+filter:none !important;
+stroke-linecap:round !important;
+stroke-linejoin:round !important;
+}
 
 </style>
 </head>
@@ -2390,50 +2405,9 @@ setInterval(function(){
 function renderDashboard(){
     const orderList = Array.isArray(orders) ? orders : [];
     const productList = Array.isArray(products) ? products : [];
-
-    window.adminDashboardRange = window.adminDashboardRange || 30;
-    const range = Number(window.adminDashboardRange || 30);
-
-    function money(v){ return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0}); }
-    function keyForDate(d){ return getISTDateKey(d); }
-    function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
-    function statusOf(o){ return String(o.status || o.orderStatus || o.paymentStatus || "").toLowerCase(); }
-    function isCancelled(o){
-        const st = statusOf(o).replace(/[\s_-]+/g," ");
-        return st.includes("cancel") || st.includes("reject") || st.includes("failed");
-    }
-    function parseDate(order){ return parseOrderDateValue(order) || new Date(); }
-    function totalOf(o){
-        const candidates = [
-            o.total, o.grandTotal, o.totalAmount, o.finalTotal, o.payableAmount, o.amount,
-            o.orderTotal, o.netAmount, o.billTotal, o.cartTotal, o.subtotal, o.subTotal,
-            o.totalPay, o.total_pay, o.price,
-            o?.priceDetails?.total, o?.priceDetails?.grandTotal, o?.summary?.total,
-            o?.bill?.total, o?.payment?.amount
-        ];
-        for(const v of candidates){
-            const n = Number(String(v ?? "").replace(/[₹,\s]/g,""));
-            if(!isNaN(n) && n > 0) return n;
-        }
-        if(Array.isArray(o.items)){
-            return o.items.reduce((sum,item)=>{
-                const qty = Number(item.qty || item.quantity || item.count || 1) || 1;
-                const price = Number(String(item.price || item.finalPrice || item.sellingPrice || item.rate || 0).replace(/[₹,\s]/g,"")) || 0;
-                const line = Number(String(item.total || item.lineTotal || item.subtotal || item.amount || "").replace(/[₹,\s]/g,""));
-                return sum + (!isNaN(line) && line > 0 ? line : price * qty);
-            },0);
-        }
-        return 0;
-    }
-    function dateMinus(days){
-        const d = new Date();
-        d.setDate(d.getDate() - days);
-        return d;
-    }
-
     const totalOrders = orderList.length;
     const todayOrders = orderList.filter(order => isTodayOrder(order));
-    const todaySales = todayOrders.filter(o => !isCancelled(o)).reduce((sum, order) => sum + totalOf(order), 0);
+    const todaySales = todayOrders.reduce((sum, order) => sum + Number(order.total || order.grandTotal || order.totalAmount || 0), 0);
     const needOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "need confirmation").length;
     const pendingOrders = orderList.filter(order => {
         const st = String(order.status || "").toLowerCase();
@@ -2446,30 +2420,83 @@ function renderDashboard(){
     const stockValue = productList.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0);
     const lowStock = productList.filter(product => Number(product.stock || 0) <= 5).slice(0,5);
 
+    window.adminDashboardRange = window.adminDashboardRange || 30;
+    const range = Number(window.adminDashboardRange || 30);
+
+    function money(v){ return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0}); }
+    function parseDate(order){ return parseOrderDateValue(order) || new Date(); }
+    function keyForDate(d){ return getISTDateKey(d); }
+    function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
+    function statusOf(o){ return String(o.status || "").toLowerCase(); }
+    function totalOf(o){
+        const candidates = [
+            o.total, o.grandTotal, o.totalAmount, o.finalTotal, o.payableAmount, o.amount,
+            o.orderTotal, o.netAmount, o.price, o.totalPay, o.total_pay,
+            o?.priceDetails?.total, o?.priceDetails?.grandTotal, o?.summary?.total
+        ];
+        for(const v of candidates){
+            const n = Number(String(v ?? "").replace(/[₹,\s]/g,""));
+            if(!isNaN(n) && n > 0) return n;
+        }
+        if(Array.isArray(o.items)){
+            return o.items.reduce((sum,item)=>{
+                const qty = Number(item.qty || item.quantity || 1) || 1;
+                const price = Number(String(item.price || item.finalPrice || item.sellingPrice || 0).replace(/[₹,\s]/g,"")) || 0;
+                const line = Number(String(item.total || item.lineTotal || item.subtotal || "").replace(/[₹,\s]/g,""));
+                return sum + (!isNaN(line) && line > 0 ? line : price * qty);
+            },0);
+        }
+        return 0;
+    }
+    function parseAnyDateValue(value){
+        if(value === undefined || value === null || String(value).trim() === "") return null;
+        if(typeof value === "number" || /^\d{10,13}$/.test(String(value).trim())){
+            const n = Number(value);
+            const d = new Date(String(value).trim().length === 10 ? n * 1000 : n);
+            if(!isNaN(d.getTime())) return d;
+        }
+        const text = String(value).trim();
+        const direct = new Date(text);
+        if(!isNaN(direct.getTime())) return direct;
+        const m = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+        if(m){
+            const day = Number(m[1]);
+            const month = Number(m[2]) - 1;
+            const year = Number(m[3].length === 2 ? "20" + m[3] : m[3]);
+            const d = new Date(year, month, day);
+            if(!isNaN(d.getTime())) return d;
+        }
+        return null;
+    }
+    function earningDateOf(o){
+        const candidates = [
+            o.deliveredAt, o.delivered_at, o.deliveryTime, o.deliveredTime, o.completedAt,
+            o.completed_at, o.statusUpdatedAt, o.statusTime, o.updatedAt, o.updated_at,
+            o.date, o.createdAt, o.timestamp, o.time, o.orderDate
+        ];
+        for(const v of candidates){
+            const d = parseAnyDateValue(v);
+            if(d) return d;
+        }
+        return parseOrderDateValue(o) || new Date();
+    }
+    function isDelivered(o){
+        const st = statusOf(o).replace(/[\s_-]+/g," ");
+        return st.includes("delivered") || st.includes("complete") || st.includes("completed");
+    }
+    function dateMinus(days){ const d = new Date(); d.setDate(d.getDate() - days); return d; }
+
     const days = [];
     const dayCount = Math.max(1, range);
     for(let i = dayCount - 1; i >= 0; i--){
         const d = dateMinus(i);
         const key = keyForDate(d);
         const dayOrders = orderList.filter(o => keyForDate(parseDate(o)) === key);
-        const earning = dayOrders.filter(o => !isCancelled(o)).reduce((s,o)=>s + totalOf(o), 0);
+        const dayDeliveredOrders = orderList.filter(o => isDelivered(o) && keyForDate(earningDateOf(o)) === key);
+        const earning = dayDeliveredOrders.reduce((s,o)=>s + totalOf(o), 0);
         const orderCount = dayOrders.length;
         const stock = Math.max(0, stockValue + (orderCount * 80) - (i * 25));
         days.push({key, label:labelForDate(d), stock, earning, orders:orderCount});
-    }
-
-    const todayKey = keyForDate(new Date());
-    const rangeKeys = new Set(days.map(d => d.key));
-    const rangeOrders = orderList.filter(o => rangeKeys.has(keyForDate(parseDate(o))));
-    let rangeEarnings = rangeOrders.filter(o => !isCancelled(o)).reduce((s,o) => s + totalOf(o), 0);
-    let rangeOrdersCount = rangeOrders.length;
-
-    // 1D me aaj ki earning sirf raat 11:00 PM IST tak dikhegi.
-    // 5D / 15D / 30D me last selected days ki earning hamesha dikhegi.
-    if(range === 1 && !isBeforeTodayOrdersReset()){
-        rangeEarnings = 0;
-        rangeOrdersCount = 0;
-        days.forEach(d => { if(d.key === todayKey){ d.earning = 0; d.orders = 0; } });
     }
 
     const maxVal = Math.max(10, ...days.map(d => Math.max(d.stock, d.earning, d.orders * 100)));
@@ -2507,6 +2534,14 @@ function renderDashboard(){
     const topCategories = productList.slice(0,5).map((p,idx)=>({name:p.category || p.name || "Product", value:Number(p.price || 0) * Math.max(1, Number(p.stock || 0)), idx}));
     const maxCat = Math.max(1, ...topCategories.map(c=>c.value));
     const recentOrders = orderList.slice(-5).reverse();
+    const rangeKeys = new Set(days.map(d => d.key));
+    const rangeEarnings = orderList
+        .filter(o => isDelivered(o) && rangeKeys.has(keyForDate(earningDateOf(o))))
+        .reduce((s,o) => s + totalOf(o), 0);
+    const rangeDeliveredCount = orderList
+        .filter(o => isDelivered(o) && rangeKeys.has(keyForDate(earningDateOf(o))))
+        .length;
+    const rangeOrdersCount = days.reduce((s,d)=>s+d.orders,0);
     const rangeLabel = range === 1 ? "today" : "last " + range + " days";
 
     window.setAdminDashRange = function(n){
@@ -2526,8 +2561,8 @@ function renderDashboard(){
         <div class="dash-card">
             <div class="dash-card-title">Total Earnings</div>
             <div class="dash-big-value"><span class="currency">₹</span>${rangeEarnings.toFixed(0)}</div>
-            <div class="dash-up">↑ ${rangeOrdersCount}</div>
-            <div class="dash-subtext">${rangeLabel} earning</div>
+            <div class="dash-up">↑ ${rangeDeliveredCount}</div>
+            <div class="dash-subtext">${rangeLabel} delivered earning</div>
         </div>
         <div class="dash-card">
             <div class="dash-card-title">Pending Orders</div>
@@ -2561,7 +2596,7 @@ function renderDashboard(){
                     <line class="line-axis" x1="${left}" y1="${H-bottom}" x2="${W-right}" y2="${H-bottom}"></line>
                     <polyline class="line-stock" points="${points('stock')}"></polyline>
                     ${earningSegments()}
-                    <polyline class="line-orders" points="${points('orders')}"></polyline>
+                    <polyline class="line-orders" points="${points('orders').replace(/(\d+\.\d+,)(\d+\.\d+)/g, (m,a,b)=>m)}"></polyline>
                     ${pointsDots('stock','#2f6fed')}
                     ${pointsDots('earning','#2eb85c')}
                     ${pointsDots('orders','#f5b700',100)}
