@@ -391,6 +391,231 @@ html[data-theme="dark"] .floating-order-count{background:#1f2937;color:#fff;}
 }
 </style>
 
+<style>
+
+/* ===== CHECKOUT PAGE SAME AS REFERENCE IMAGE - ONLY CHECKOUT UI ===== */
+.checkout-panel{
+    position:fixed !important;
+    inset:0 !important;
+    width:100vw !important;
+    max-width:100vw !important;
+    height:100vh !important;
+    max-height:100vh !important;
+    padding:0 !important;
+    background:#f6f8fb !important;
+    overflow:hidden !important;
+    z-index:100500 !important;
+    box-shadow:none !important;
+}
+.checkout-panel.open{transform:translateX(0) !important;}
+.checkout-panel .checkout-header{
+    height:76px !important;
+    background:#fff !important;
+    padding:0 28px !important;
+    border-bottom:1px solid #e5e7eb !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:24px !important;
+    position:sticky !important;
+    top:0 !important;
+    z-index:20 !important;
+}
+.checkout-back-btn{
+    border:none;
+    background:transparent;
+    font-size:42px;
+    line-height:1;
+    color:#111827;
+    cursor:pointer;
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.checkout-panel .checkout-title{
+    font-size:29px !important;
+    font-weight:900 !important;
+    color:#111827 !important;
+    letter-spacing:-.4px;
+}
+.checkout-body{
+    height:calc(100vh - 76px) !important;
+    overflow-y:auto !important;
+    padding:0 34px 185px !important;
+    background:#f6f8fb !important;
+}
+.checkout-brand-hero{
+    margin:0 -34px 24px;
+    padding:30px 34px 24px;
+    background:linear-gradient(135deg,#075fa4 0%,#0f8a49 100%);
+    border-radius:0 0 18px 18px;
+    color:#fff;
+}
+.checkout-brand-row{display:flex;align-items:center;gap:18px;}
+.checkout-logo-badge{
+    width:78px;height:78px;border-radius:50%;background:#fff7ec;color:#111827;
+    display:flex;align-items:center;justify-content:center;font-size:42px;
+    box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+.checkout-brand-copy{flex:1;min-width:0;}
+.checkout-brand-name{font-size:36px;font-weight:1000;line-height:1.05;letter-spacing:-.5px;}
+.checkout-brand-sub{font-size:22px;margin-top:8px;font-weight:500;opacity:.97;}
+.checkout-profile-btn{
+    width:70px;height:70px;border-radius:50%;border:6px solid rgba(255,255,255,.9);background:#fff;
+    padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.checkout-profile-btn img{width:100%;height:100%;object-fit:cover;display:block;}
+.checkout-orders-btn{
+    width:100%;margin-top:22px;border:none;border-radius:18px;background:#fff;color:#0b5aa5;
+    height:70px;text-align:left;padding:0 26px;font-size:24px;font-weight:900;box-shadow:0 12px 24px rgba(0,0,0,.08);cursor:pointer;
+}
+.checkout-step-card{
+    background:#fff;border:1px solid #dde4ec;border-radius:18px;padding:20px 24px;margin-bottom:24px;
+    box-shadow:0 8px 22px rgba(15,23,42,.05);display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.checkout-step{display:flex;align-items:center;gap:12px;color:#444b57;font-size:22px;font-weight:500;white-space:nowrap;}
+.checkout-step span{
+    width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    background:#9ca3af;color:#fff;font-weight:900;font-size:20px;
+}
+.checkout-step.done span{background:#16a34a;}
+.checkout-step.active{color:#2563eb;font-weight:800;}
+.checkout-step.active span{background:#2563eb;}
+.checkout-step-line{height:2px;background:#dfe5ec;flex:1;min-width:28px;}
+.checkout-card{
+    background:#fff !important;border:1px solid #e0e6ee !important;border-radius:18px !important;
+    margin:0 0 20px 0 !important;padding:26px !important;box-shadow:0 8px 24px rgba(15,23,42,.045) !important;
+}
+.checkout-card h4{font-size:28px !important;margin:0 0 22px !important;color:#111827 !important;font-weight:1000 !important;}
+.checkout-coupon-row{display:flex !important;align-items:center !important;gap:14px !important;}
+.checkout-coupon-row .form-input{
+    flex:1 !important;margin:0 !important;height:70px !important;border:2px solid #dce3ec !important;border-radius:16px !important;
+    padding:0 22px !important;font-size:25px !important;background:#fff !important;color:#111827 !important;box-shadow:none !important;
+}
+.checkout-apply-btn,.checkout-remove-btn{
+    width:auto !important;height:68px !important;margin:0 !important;border:none !important;border-radius:16px !important;
+    padding:0 32px !important;font-size:22px !important;font-weight:1000 !important;color:#fff !important;cursor:pointer;
+}
+.checkout-apply-btn{background:linear-gradient(135deg,#16a34a,#149447) !important;}
+.checkout-remove-btn{background:linear-gradient(135deg,#ef4444,#dc2626) !important;}
+.checkout-msg{margin-top:26px;padding-top:20px;border-top:2px dashed #dfe6ee;color:#6b7280 !important;font-size:20px !important;font-weight:500 !important;}
+.checkout-msg.success{color:#15803d !important;}
+.checkout-msg.error{color:#dc2626 !important;}
+.checkout-payment-card{padding-bottom:20px !important;}
+.checkout-payment-option{
+    display:flex !important;align-items:center !important;gap:22px !important;margin:0 !important;padding:22px !important;
+    min-height:104px;border:1px solid #dfe6ee;color:#111827 !important;background:#fff;font-weight:600 !important;cursor:pointer;
+}
+.checkout-payment-option:first-of-type{border-radius:16px 16px 0 0;}
+.checkout-payment-option:last-of-type{border-radius:0 0 16px 16px;border-top:none;}
+.checkout-payment-option input{width:34px;height:34px;accent-color:#1479f5;flex:0 0 auto;}
+.checkout-pay-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px;}
+.checkout-pay-copy strong{font-size:24px;color:#111827;font-weight:1000;}
+.checkout-pay-copy span{font-size:19px;color:#64748b;font-weight:500;line-height:1.35;}
+.checkout-pay-icon{width:82px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:1000;}
+.checkout-pay-icon.cash{background:#c9f5d2;color:#159447;font-size:34px;}
+.checkout-pay-icon.upi{background:#d9ecff;color:#475569;font-size:20px;font-style:italic;}
+.checkout-price-box{border:1px solid #dfe6ee;border-radius:16px;padding:22px 26px 12px;}
+.checkout-row{display:flex !important;justify-content:space-between !important;align-items:center !important;margin:0 0 20px !important;color:#111827 !important;font-size:23px !important;gap:16px;}
+.checkout-row strong{font-weight:500;color:#111827;}
+.checkout-green,.checkout-green strong{color:#159447 !important;}
+.checkout-total-box{
+    margin-top:10px;background:#effdf5;border:1px solid #c7ead6;border-radius:14px;padding:22px 26px;
+    display:flex;align-items:center;justify-content:space-between;color:#137137;font-size:25px;font-weight:1000;
+}
+.checkout-total-box strong{font-size:32px;font-weight:1000;color:#13803d;}
+.checkout-secure-box{
+    margin:0 0 28px;background:#edf5ff;border-radius:14px;padding:20px 26px;color:#1464d9;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.checkout-secure-left{display:flex;align-items:center;gap:18px;}
+.checkout-secure-left>span{font-size:36px;}
+.checkout-secure-left strong{font-size:20px;display:block;color:#1464d9;}
+.checkout-secure-left small{display:block;margin-top:7px;font-size:17px;color:#4b5563;}
+.checkout-lock{font-size:32px;opacity:.75;}
+.checkout-bottom{
+    position:fixed !important;left:14px !important;right:14px !important;bottom:10px !important;width:auto !important;
+    background:#fff !important;border:1px solid #e5e7eb !important;border-radius:16px !important;padding:22px 28px !important;
+    display:flex !important;align-items:center !important;gap:22px !important;z-index:40 !important;box-shadow:0 -4px 24px rgba(15,23,42,.10) !important;
+}
+.checkout-bottom-price{flex:1;min-width:160px;}
+.checkout-bottom-label{font-size:20px;color:#6b7280;margin-bottom:10px;}
+.checkout-bottom-price .small{display:inline-block;color:#8d98a8 !important;text-decoration:line-through !important;font-size:24px !important;margin-right:14px;}
+.checkout-bottom-price .big{display:inline-block;color:#111827 !important;font-size:36px !important;font-weight:1000 !important;line-height:1;}
+.checkout-save-line{margin-top:14px;color:#159447;font-size:20px;font-weight:900;}
+.checkout-bottom-action{width:47%;min-width:280px;}
+.checkout-confirm-btn{
+    width:100% !important;min-width:0 !important;margin:0 !important;height:82px !important;border:none !important;border-radius:16px !important;
+    background:linear-gradient(135deg,#facc15,#fbbf24) !important;color:#111827 !important;font-size:27px !important;font-weight:1000 !important;
+    display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;box-shadow:none !important;
+}
+.checkout-terms{margin-top:14px;color:#6b7280;font-size:14px;text-align:center;}
+.checkout-terms span{color:#2563eb;font-weight:800;}
+html[data-theme="dark"] .checkout-panel,html[data-theme="dark"] .checkout-body{background:#0f172a !important;}
+html[data-theme="dark"] .checkout-panel .checkout-header,html[data-theme="dark"] .checkout-card,html[data-theme="dark"] .checkout-bottom{background:#111827 !important;border-color:#263244 !important;color:#e5e7eb !important;}
+html[data-theme="dark"] .checkout-panel .checkout-title,html[data-theme="dark"] .checkout-card h4,html[data-theme="dark"] .checkout-pay-copy strong,html[data-theme="dark"] .checkout-row,html[data-theme="dark"] .checkout-row strong,html[data-theme="dark"] .checkout-bottom-price .big{color:#e5e7eb !important;}
+html[data-theme="dark"] .checkout-step-card,html[data-theme="dark"] .checkout-price-box,html[data-theme="dark"] .checkout-payment-option{background:#111827 !important;border-color:#31415d !important;}
+html[data-theme="dark"] .checkout-coupon-row .form-input{background:#0f172a !important;color:#e5e7eb !important;border-color:#31415d !important;}
+@media(max-width:700px){
+    .checkout-panel .checkout-header{height:64px !important;padding:0 16px !important;gap:14px !important;}
+    .checkout-back-btn{font-size:34px;width:34px;height:34px;}
+    .checkout-panel .checkout-title{font-size:24px !important;}
+    .checkout-body{height:calc(100vh - 64px) !important;padding:0 14px 170px !important;}
+    .checkout-brand-hero{margin:0 -14px 20px;padding:26px 34px 24px;border-radius:0 0 12px 12px;}
+    .checkout-logo-badge{width:68px;height:68px;font-size:36px;}
+    .checkout-brand-name{font-size:31px;}
+    .checkout-brand-sub{font-size:18px;}
+    .checkout-profile-btn{width:60px;height:60px;border-width:5px;}
+    .checkout-orders-btn{height:58px;font-size:20px;border-radius:14px;}
+    .checkout-step-card{padding:16px 14px;gap:7px;}
+    .checkout-step{font-size:16px;gap:8px;}
+    .checkout-step span{width:30px;height:30px;font-size:16px;}
+    .checkout-step-line{min-width:14px;}
+    .checkout-card{padding:20px 18px !important;border-radius:16px !important;margin-bottom:16px !important;}
+    .checkout-card h4{font-size:24px !important;margin-bottom:18px !important;}
+    .checkout-coupon-row{gap:10px !important;}
+    .checkout-coupon-row .form-input{height:58px !important;font-size:22px !important;min-width:0;}
+    .checkout-apply-btn,.checkout-remove-btn{height:58px !important;padding:0 20px !important;font-size:18px !important;}
+    .checkout-msg{font-size:18px !important;}
+    .checkout-payment-option{min-height:92px;padding:18px !important;gap:16px !important;}
+    .checkout-payment-option input{width:30px;height:30px;}
+    .checkout-pay-copy strong{font-size:21px;}
+    .checkout-pay-copy span{font-size:17px;}
+    .checkout-pay-icon{width:68px;height:48px;}
+    .checkout-row{font-size:21px !important;}
+    .checkout-total-box{font-size:22px;padding:20px 22px;}
+    .checkout-total-box strong{font-size:28px;}
+    .checkout-bottom{left:12px !important;right:12px !important;padding:20px 22px !important;gap:14px !important;}
+    .checkout-bottom-price .big{font-size:32px !important;}
+    .checkout-bottom-action{width:48%;min-width:220px;}
+    .checkout-confirm-btn{height:74px !important;font-size:24px !important;}
+}
+@media(max-width:480px){
+    .checkout-body{padding-left:10px !important;padding-right:10px !important;}
+    .checkout-brand-hero{margin-left:-10px;margin-right:-10px;padding-left:18px;padding-right:18px;}
+    .checkout-brand-name{font-size:26px;}
+    .checkout-brand-sub{font-size:15px;}
+    .checkout-logo-badge{width:56px;height:56px;font-size:30px;}
+    .checkout-profile-btn{width:50px;height:50px;}
+    .checkout-step-card{padding:14px 10px;}
+    .checkout-step{font-size:14px;gap:5px;}
+    .checkout-step span{width:26px;height:26px;font-size:14px;}
+    .checkout-step-line{min-width:8px;margin:0 1px;}
+    .checkout-coupon-row{flex-wrap:wrap;}
+    .checkout-coupon-row .form-input{flex:1 1 100% !important;width:100%;}
+    .checkout-apply-btn,.checkout-remove-btn{flex:1 1 0;padding:0 10px !important;}
+    .checkout-pay-icon{display:none;}
+    .checkout-bottom{padding:14px 14px !important;}
+    .checkout-bottom-label{font-size:16px;margin-bottom:6px;}
+    .checkout-bottom-price .small{font-size:18px !important;display:block;margin:0 0 2px;}
+    .checkout-bottom-price .big{font-size:28px !important;display:block;}
+    .checkout-save-line{font-size:16px;margin-top:8px;}
+    .checkout-bottom-action{min-width:170px;width:52%;}
+    .checkout-confirm-btn{height:64px !important;font-size:19px !important;}
+    .checkout-terms{font-size:10px;margin-top:8px;}
+}
+</style>
 </head>
 <body>
 
@@ -4015,53 +4240,103 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 
 <div class="side-panel checkout-panel" id="checkoutPanel">
     <div class="checkout-header">
-        <button class="close-btn" onclick="closeCheckoutPanel()">←</button>
+        <button class="checkout-back-btn" onclick="closeCheckoutPanel()">←</button>
         <div class="checkout-title">Checkout</div>
     </div>
 
     <div class="checkout-body">
-        <div class="checkout-card">
-            <h4>📍 Delivery Address</h4>
-            <div class="checkout-location-line" id="checkoutNameLine">Deliver to: Guest User</div>
-            <div class="checkout-location-sub" id="checkoutAddressLine">Detecting address...</div>
-            <button class="change-address-btn" style="margin-top:12px;" onclick="openProfilePage()">Change</button>
+        <div class="checkout-brand-hero">
+            <div class="checkout-brand-row">
+                <div class="checkout-logo-badge">🛒</div>
+                <div class="checkout-brand-copy">
+                    <div class="checkout-brand-name">Setu Mart</div>
+                    <div class="checkout-brand-sub">Daily essentials for every home</div>
+                </div>
+                <button class="checkout-profile-btn" onclick="openProfilePage()">
+                    <img id="checkoutProfileImg" src="https://ui-avatars.com/api/?name=User&background=e5e7eb&color=64748b" alt="Profile">
+                </button>
+            </div>
+            <button class="checkout-orders-btn" onclick="openOrdersPanel()">📦 Orders</button>
         </div>
 
-        <div class="checkout-card">
-            <h4>🎟 Apply Coupon</h4>
+        <div class="checkout-step-card">
+            <div class="checkout-step done"><span>✓</span>Cart</div>
+            <div class="checkout-step-line"></div>
+            <div class="checkout-step done"><span>✓</span>Address</div>
+            <div class="checkout-step-line"></div>
+            <div class="checkout-step active"><span>3</span>Checkout</div>
+            <div class="checkout-step-line"></div>
+            <div class="checkout-step"><span>4</span>Confirm</div>
+        </div>
+
+        <div class="checkout-address-hidden" style="display:none;">
+            <div class="checkout-location-line" id="checkoutNameLine">Deliver to: Guest User</div>
+            <div class="checkout-location-sub" id="checkoutAddressLine">Detecting address...</div>
+        </div>
+
+        <div class="checkout-card checkout-coupon-card">
+            <h4>🎟️ Apply Coupon</h4>
             <div class="checkout-coupon-row">
                 <input type="text" id="checkoutCouponInput" class="form-input" placeholder="Enter coupon code">
                 <button class="main-btn green-btn checkout-apply-btn" onclick="applyCheckoutCoupon()">Apply</button>
-                <button class="main-btn checkout-apply-btn" style="background:#dc2626;color:#fff;" onclick="removeCheckoutCoupon()">Remove</button>
+                <button class="main-btn checkout-remove-btn" onclick="removeCheckoutCoupon()">Remove</button>
             </div>
-            <div id="checkoutCouponMsg" class="checkout-msg"></div>
+            <div id="checkoutCouponMsg" class="checkout-msg">🏷️ No coupon applied</div>
         </div>
 
-        <div class="checkout-card">
+        <div class="checkout-card checkout-payment-card">
             <h4>💳 Payment Option</h4>
-            <label class="checkout-payment-option"><input type="radio" name="checkoutPayment" value="cod" checked> Cash on Delivery</label>
-            <label class="checkout-payment-option"><input type="radio" name="checkoutPayment" value="upi"> Prepaid / UPI</label>
+            <label class="checkout-payment-option active-payment-option">
+                <input type="radio" name="checkoutPayment" value="cod" checked>
+                <div class="checkout-pay-copy">
+                    <strong>Cash on Delivery</strong>
+                    <span>Pay when your order is delivered</span>
+                </div>
+                <div class="checkout-pay-icon cash">💵</div>
+            </label>
+            <label class="checkout-payment-option">
+                <input type="radio" name="checkoutPayment" value="upi">
+                <div class="checkout-pay-copy">
+                    <strong>Prepaid / UPI</strong>
+                    <span>Pay securely using UPI, Card, Net Banking etc.</span>
+                </div>
+                <div class="checkout-pay-icon upi">UPI</div>
+            </label>
         </div>
 
-        <div class="checkout-card">
+        <div class="checkout-card checkout-price-card">
             <h4>💰 Price Details</h4>
-            <div class="checkout-row"><span>Subtotal</span><strong>₹<span id="checkoutSubtotal">0</span></strong></div>
-            <div class="checkout-row"><span>Shipping</span><strong>₹<span id="checkoutShipping">0</span></strong></div>
-            <div class="checkout-row"><span>Coupon Discount</span><strong>-₹<span id="checkoutDiscount">0</span></strong></div>
-            <div class="checkout-row" style="margin-top:12px;padding-top:12px;border-top:1px solid #eceff3;font-size:16px;"><span><strong>Total Pay</strong></span><strong>₹<span id="checkoutGrandTotal">0</span></strong></div>
+            <div class="checkout-price-box">
+                <div class="checkout-row"><span>Subtotal</span><strong>₹<span id="checkoutSubtotal">0</span></strong></div>
+                <div class="checkout-row"><span>Shipping Charges</span><strong>₹<span id="checkoutShipping">0</span></strong></div>
+                <div class="checkout-row checkout-green"><span>Coupon Discount</span><strong>-₹<span id="checkoutDiscount">0</span></strong></div>
+            </div>
+            <div class="checkout-total-box"><span>Total Payable</span><strong>₹<span id="checkoutGrandTotal">0</span></strong></div>
+        </div>
+
+        <div class="checkout-secure-box">
+            <div class="checkout-secure-left">
+                <span>🛡️</span>
+                <div><strong>Safe & Secure Payments</strong><small>Your payment details are 100% secure with us.</small></div>
+            </div>
+            <span class="checkout-lock">🔒</span>
         </div>
     </div>
 
     <div class="checkout-bottom">
         <div class="checkout-bottom-price">
+            <div class="checkout-bottom-label">Total Payable</div>
             <div class="small">₹<span id="checkoutOriginalTotal">0</span></div>
             <div class="big">₹<span id="checkoutBottomGrand">0</span></div>
+            <div class="checkout-save-line">You Save ₹<span id="checkoutSaveAmount">0</span></div>
         </div>
-        <button class="checkout-confirm-btn" onclick="submitCheckoutOrder()">Confirm Order</button>
+        <div class="checkout-bottom-action">
+            <button class="checkout-confirm-btn" onclick="submitCheckoutOrder()">🔒 Confirm Order</button>
+            <div class="checkout-terms">🛡️ By placing order you agree to our <span>Terms & Conditions</span></div>
+        </div>
     </div>
 </div>
 
-    
 <div class="side-panel" id="ordersPanel">
         <div class="orders-panel-header">
             <div class="orders-panel-title">
@@ -6713,6 +6988,44 @@ window.addEventListener("load", function(){
         if(e.key === "Escape"){
             const p = document.getElementById("cartPanel");
             if(p && p.classList.contains("open")) setCartFullOpen(false);
+        }
+    });
+})();
+</script>
+
+
+<script>
+/* ===== CHECKOUT IMAGE UI SMALL DYNAMIC PATCH ===== */
+(function(){
+    const oldUpdateCheckoutSummary = window.updateCheckoutSummary;
+    if(typeof oldUpdateCheckoutSummary === "function"){
+        window.updateCheckoutSummary = function(){
+            oldUpdateCheckoutSummary.apply(this, arguments);
+            try{
+                const original = Number(document.getElementById("checkoutOriginalTotal")?.innerText || 0);
+                const grand = Number(document.getElementById("checkoutBottomGrand")?.innerText || 0);
+                const save = Math.max(0, original - grand);
+                const saveEl = document.getElementById("checkoutSaveAmount");
+                if(saveEl) saveEl.innerText = save;
+            }catch(e){}
+        };
+    }
+    const oldRenderTopProfile = window.renderTopProfile;
+    if(typeof oldRenderTopProfile === "function"){
+        window.renderTopProfile = function(){
+            oldRenderTopProfile.apply(this, arguments);
+            try{
+                const p = (typeof getSavedProfile === "function" ? getSavedProfile() : {}) || {};
+                const img = document.getElementById("checkoutProfileImg");
+                if(img && p.photo){ img.src = p.photo; }
+            }catch(e){}
+        };
+    }
+    document.addEventListener("change", function(e){
+        if(e.target && e.target.name === "checkoutPayment"){
+            document.querySelectorAll(".checkout-payment-option").forEach(x=>x.classList.remove("active-payment-option"));
+            const lab = e.target.closest(".checkout-payment-option");
+            if(lab) lab.classList.add("active-payment-option");
         }
     });
 })();
