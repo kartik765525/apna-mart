@@ -1324,6 +1324,17 @@ circle.chart-point,
 .line-orders{stroke-width:3 !important;}
 .line-earning-seg{stroke-width:3.5 !important;}
 
+
+/* NO DOT SIMPLE LINE GRAPH FINAL */
+.chart-point,
+circle.chart-point,
+.line-chart-svg circle{
+    display:none !important;
+}
+.line-stock{stroke-width:3 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+.line-orders{stroke-width:3 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+.line-earning-seg{stroke-width:3.5 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+
 </style>
 </head>
 <body>
@@ -1824,6 +1835,18 @@ function closeOrderDetailModal(){
 async function openOrderDetail(orderId){
     const order = orders.find(o => String(o.id) === String(orderId));
     if(!order) return;
+
+    // Agar delivery boys abhi load nahi hue, to pehle load karo.
+    // Isse delivery section open kiye bina Assign Delivery Boy dropdown ready rahega.
+    if(!Array.isArray(deliveryUsers) || deliveryUsers.length === 0){
+        try{
+            await fetchDeliveryUsers();
+            loadedTabs.delivery = true;
+        }catch(e){
+            console.error("Delivery users load before order detail failed:", e);
+        }
+    }
+
     currentOrderDetailId = orderId;
     document.getElementById("orderDetailModalBody").innerHTML = buildOrderDetailHtml(order);
     document.getElementById("orderDetailModal").classList.add("show");
@@ -2136,6 +2159,13 @@ async function showSection(name){
     if(name === "orders" && !loadedTabs.orders){
         document.getElementById("ordersManager").innerHTML = '<div class="loading-line">Loading orders...</div>';
         await fetchOrders();
+
+        // Orders ke saath delivery users bhi load karo, assign dropdown ke liye.
+        if(!loadedTabs.delivery || !Array.isArray(deliveryUsers) || deliveryUsers.length === 0){
+            await fetchDeliveryUsers();
+            loadedTabs.delivery = true;
+        }
+
         loadedTabs.orders = true;
         renderOrders();
         renderDashboard();
@@ -2219,15 +2249,19 @@ function setStockCategory(category, button){
 }
 
 function getApprovedDeliveryOptions(selectedId = ""){
-    const approved = (deliveryUsers || []).filter(user => String(user.status || "") === "Approved");
+    const approved = (deliveryUsers || []).filter(user => String(user.status || "").toLowerCase() === "approved");
     if(!approved.length){
         return '<option value="">No approved delivery boy</option>';
     }
-    return '<option value="">Select Delivery Boy</option>' + approved.map(user => `
-        <option value="${user.id}" ${String(selectedId) === String(user.id) ? "selected" : ""}>
-            ${user.name} · ${user.phone}
-        </option>
-    `).join("");
+    return '<option value="">Select Delivery Boy</option>' + approved.map(user => {
+        const uid = user.id || user._id || user.deliveryBoyId || user.phone || "";
+        const name = user.name || user.fullName || "Delivery Boy";
+        const phone = user.phone || user.mobile || "";
+        return `
+        <option value="${uid}" ${String(selectedId) === String(uid) ? "selected" : ""}>
+            ${name} · ${phone}
+        </option>`;
+    }).join("");
 }
 
 function getAdminMapsLink(order){
@@ -2242,10 +2276,22 @@ async function assignDeliveryBoy(orderId, deliveryBoyId, fromModal = false){
         await showSoftAlert("Select delivery boy first", "Delivery Boy", "OK", "🚚");
         return;
     }
+
+    // Safety: deliveryUsers empty ho to pehle fetch karo,
+    // warna name/phone empty aa sakta hai.
+    if(!Array.isArray(deliveryUsers) || deliveryUsers.length === 0){
+        try{
+            await fetchDeliveryUsers();
+            loadedTabs.delivery = true;
+        }catch(e){
+            console.error("Delivery users fetch before assign failed:", e);
+        }
+    }
+
     const btn = getClickedButton();
     const releaseBtn = setButtonBusy(btn, "Assigning...");
     const oldOrders = JSON.parse(JSON.stringify(orders || []));
-    const selectedUser = (deliveryUsers || []).find(u => String(u.id) === String(deliveryBoyId)) || {};
+    const selectedUser = (deliveryUsers || []).find(u => String(u.id || u._id || u.deliveryBoyId || u.phone) === String(deliveryBoyId)) || {};
     const idx = (orders || []).findIndex(o => String(o.id) === String(orderId));
     if(idx >= 0){
         orders[idx] = {
@@ -2429,79 +2475,155 @@ function renderDashboard(){
     const stockValue = productList.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0);
     const lowStock = productList.filter(product => Number(product.stock || 0) <= 5).slice(0,5);
 
-    window.adminDashboardRange = window.adminDashboardRange || 30;
+    window.adminDashboardRange = Number(window.adminDashboardRange || 30);
     const range = Number(window.adminDashboardRange || 30);
 
-    function money(v){ return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0}); }
-    function keyForDate(d){ return getISTDateKey(d); }
-    function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
-    function statusOf(o){ return String(o.status || "").toLowerCase(); }
+    function money(v){
+        return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0});
+    }
+
+    function getISTParts(date){
+        const parts = new Intl.DateTimeFormat("en-CA", {
+            timeZone:"Asia/Kolkata",
+            year:"numeric",
+            month:"2-digit",
+            day:"2-digit"
+        }).formatToParts(date).reduce((a,p)=>{ a[p.type]=p.value; return a; }, {});
+        return {
+            y:Number(parts.year),
+            m:Number(parts.month),
+            d:Number(parts.day),
+            key:`${parts.year}-${parts.month}-${parts.day}`
+        };
+    }
+
+    function getISTKey(date){
+        if(!(date instanceof Date) || isNaN(date.getTime())) return "";
+        return getISTParts(date).key;
+    }
+
+    function istStartDateFromKey(key){
+        const [y,m,d] = key.split("-").map(Number);
+        return new Date(Date.UTC(y, m - 1, d, -5, -30, 0, 0));
+    }
+
+    function addDaysUTC(date, days){
+        const d = new Date(date.getTime());
+        d.setUTCDate(d.getUTCDate() + days);
+        return d;
+    }
+
+    function labelFromKey(key){
+        const start = istStartDateFromKey(key);
+        return start.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"});
+    }
+
+    function cleanNumber(v){
+        const n = Number(String(v ?? "").replace(/[₹,\s]/g,""));
+        return isNaN(n) ? 0 : n;
+    }
 
     function totalOf(o){
         const candidates = [
             o.total, o.grandTotal, o.totalAmount, o.finalTotal, o.payableAmount, o.amount,
             o.orderTotal, o.netAmount, o.price, o.totalPay, o.total_pay,
+            o.billTotal, o.cartTotal, o.totalPrice,
             o?.priceDetails?.total, o?.priceDetails?.grandTotal, o?.summary?.total
         ];
         for(const v of candidates){
-            const n = Number(String(v ?? "").replace(/[₹,\s]/g,""));
-            if(!isNaN(n) && n > 0) return n;
+            const n = cleanNumber(v);
+            if(n > 0) return n;
         }
         if(Array.isArray(o.items)){
             return o.items.reduce((sum,item)=>{
-                const qty = Number(item.qty || item.quantity || 1) || 1;
-                const price = Number(String(item.price || item.finalPrice || item.sellingPrice || 0).replace(/[₹,\s]/g,"")) || 0;
-                const line = Number(String(item.total || item.lineTotal || item.subtotal || "").replace(/[₹,\s]/g,""));
-                return sum + (!isNaN(line) && line > 0 ? line : price * qty);
+                const qty = cleanNumber(item.qty || item.quantity || item.count || 1) || 1;
+                const price = cleanNumber(item.price || item.finalPrice || item.sellingPrice || item.mrp || 0);
+                const line = cleanNumber(item.total || item.lineTotal || item.subtotal || item.amount);
+                return sum + (line > 0 ? line : price * qty);
             },0);
         }
         return 0;
     }
 
     function parseAnyDateValue(value){
-        if(value === undefined || value === null || String(value).trim() === "") return null;
-        if(typeof value === "number" || /^\d{10,13}$/.test(String(value).trim())){
-            const n = Number(value);
-            const d = new Date(String(value).trim().length === 10 ? n * 1000 : n);
+        if(value === undefined || value === null) return null;
+        const text = String(value).trim();
+        if(!text) return null;
+
+        // Timestamp: 10 digit seconds / 13 digit milliseconds
+        if(typeof value === "number" || /^\d{10,13}$/.test(text)){
+            const n = Number(text);
+            const d = new Date(text.length === 10 ? n * 1000 : n);
             if(!isNaN(d.getTime())) return d;
         }
-        const text = String(value).trim();
+
+        // YYYYMMDD or YYYYMMDDHHMMSS inside value
+        const ymdCompact = text.match(/\b(20\d{2})(\d{2})(\d{2})(?:\d{6})?\b/);
+        if(ymdCompact){
+            const y = Number(ymdCompact[1]);
+            const m = Number(ymdCompact[2]) - 1;
+            const d = Number(ymdCompact[3]);
+            const dt = new Date(y, m, d);
+            if(!isNaN(dt.getTime())) return dt;
+        }
+
+        // dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy with optional time
+        const dmy = text.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:[,\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM|am|pm)?)?/);
+        if(dmy){
+            let day = Number(dmy[1]);
+            let month = Number(dmy[2]) - 1;
+            let year = Number(dmy[3].length === 2 ? "20" + dmy[3] : dmy[3]);
+            let hh = Number(dmy[4] || 0);
+            let mm = Number(dmy[5] || 0);
+            let ss = Number(dmy[6] || 0);
+            const ap = String(dmy[7] || "").toLowerCase();
+            if(ap === "pm" && hh < 12) hh += 12;
+            if(ap === "am" && hh === 12) hh = 0;
+            const dt = new Date(year, month, day, hh, mm, ss);
+            if(!isNaN(dt.getTime())) return dt;
+        }
+
+        // ISO / normal browser parse
         const direct = new Date(text);
         if(!isNaN(direct.getTime())) return direct;
 
-        const ddmmyyyy = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
-        if(ddmmyyyy){
-            const day = Number(ddmmyyyy[1]);
-            const month = Number(ddmmyyyy[2]) - 1;
-            const year = Number(ddmmyyyy[3].length === 2 ? "20" + ddmmyyyy[3] : ddmmyyyy[3]);
-            const d = new Date(year, month, day);
-            if(!isNaN(d.getTime())) return d;
-        }
         return null;
     }
 
     function orderDateOf(order){
         const candidates = [
-            order?.createdAt,
-            order?.created_at,
-            order?.timestamp,
-            order?.time,
-            order?.date,
-            order?.orderDate,
-            order?.orderedAt,
-            order?.order_time
+            order?.createdAt, order?.created_at, order?.createdOn, order?.created,
+            order?.timestamp, order?.time, order?.date, order?.orderDate,
+            order?.orderedAt, order?.order_time, order?.placedAt, order?.placed_at,
+            order?.datetime, order?.dateTime, order?.submittedAt, order?.addedAt,
+            order?.updatedAt, order?.updated_at
         ];
+
         for(const value of candidates){
             const d = parseAnyDateValue(value);
             if(d) return d;
         }
 
-        const idText = String(order?.id || order?.orderId || "");
-        const timeMatch = idText.match(/(\d{13})/);
-        if(timeMatch){
-            const d = new Date(Number(timeMatch[1]));
+        const idText = String(order?.id || order?.orderId || order?.order_id || order?.invoiceNo || "");
+        // Any 13 digit timestamp in id
+        const msMatch = idText.match(/(1[6-9]\d{11}|2\d{12})/);
+        if(msMatch){
+            const d = new Date(Number(msMatch[1]));
             if(!isNaN(d.getTime())) return d;
         }
+        // Any 10 digit seconds timestamp in id
+        const secMatch = idText.match(/(1[6-9]\d{8}|2\d{9})/);
+        if(secMatch){
+            const d = new Date(Number(secMatch[1]) * 1000);
+            if(!isNaN(d.getTime())) return d;
+        }
+        // ORD20260513123000 style
+        const ymd = idText.match(/(20\d{2})(\d{2})(\d{2})/);
+        if(ymd){
+            const d = new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3]));
+            if(!isNaN(d.getTime())) return d;
+        }
+
         return null;
     }
 
@@ -2514,39 +2636,36 @@ function renderDashboard(){
         return hour < 23;
     }
 
-    function dateMinus(days){
-        const d = new Date();
-        d.setDate(d.getDate() - days);
-        return d;
-    }
+    // Exact IST range keys: 1D=today, 5D=today+previous 4 days, etc.
+    const todayKey = getISTKey(new Date());
+    const todayStart = istStartDateFromKey(todayKey);
+    const startDate = addDaysUTC(todayStart, -(range - 1));
+    const endDate = addDaysUTC(todayStart, 1);
 
     const days = [];
-    const dayCount = Math.max(1, range);
-    for(let i = dayCount - 1; i >= 0; i--){
-        const d = dateMinus(i);
-        const key = keyForDate(d);
+    for(let i = range - 1; i >= 0; i--){
+        const dayStart = addDaysUTC(todayStart, -i);
+        const key = getISTKey(dayStart);
         const dayOrders = orderList.filter(o => {
             const od = orderDateOf(o);
-            return od && keyForDate(od) === key;
+            if(!od) return false;
+            const k = getISTKey(od);
+            return k === key;
         });
         const earning = dayOrders.reduce((s,o)=>s + totalOf(o), 0);
         const orderCount = dayOrders.length;
         const stock = Math.max(0, stockValue + (orderCount * 80) - (i * 25));
-        days.push({key, label:labelForDate(d), stock, earning, orders:orderCount});
+        days.push({key, label:labelFromKey(key), stock, earning, orders:orderCount});
     }
 
-    const rangeKeys = new Set(days.map(d => d.key));
     const rangeOrders = orderList.filter(o => {
         const od = orderDateOf(o);
         if(!od) return false;
 
-        // 1D = only today orders, 11 PM ke baad today zero ho jayega
-        if(range === 1){
-            return isBefore11PMIST() && keyForDate(od) === keyForDate(new Date());
-        }
+        // 1D today only; 11 PM ke baad zero
+        if(range === 1 && !isBefore11PMIST()) return false;
 
-        // 5D / 15D / 30D = selected last days ke orders
-        return rangeKeys.has(keyForDate(od));
+        return od >= startDate && od < endDate;
     });
 
     const rangeOrdersCount = rangeOrders.length;
@@ -2595,7 +2714,6 @@ function renderDashboard(){
     const safeTotal = Math.max(1, rangeNeedOrders + rangePendingOrders + rangeDeliveredOrders);
     const needDeg = Math.round((rangeNeedOrders / safeTotal) * 360);
     const pendingDeg = Math.round(((rangeNeedOrders + rangePendingOrders) / safeTotal) * 360);
-
     const topCategories = productList.slice(0,5).map((p,idx)=>({name:p.category || p.name || "Product", value:Number(p.price || 0) * Math.max(1, Number(p.stock || 0)), idx}));
     const maxCat = Math.max(1, ...topCategories.map(c=>c.value));
     const recentOrders = rangeOrders.slice(-5).reverse();
@@ -2608,7 +2726,10 @@ function renderDashboard(){
     const dashRangeLabelEl = document.getElementById("dashRangeLabel");
     if(dashRangeLabelEl) dashRangeLabelEl.textContent = "📅 " + (range === 1 ? "Today" : "Last " + range + " Days");
 
-    document.getElementById("dashboardStats").innerHTML = `
+    const dashboardStats = document.getElementById("dashboardStats");
+    if(!dashboardStats) return;
+
+    dashboardStats.innerHTML = `
         <div class="dash-card">
             <div class="dash-card-title">Total Orders</div>
             <div class="dash-big-value">${rangeOrdersCount}</div>
@@ -3393,6 +3514,16 @@ async function watchNewOrders(){
 
 async function loadAdmin(){
     const active = getActiveSection();
+
+    // Delivery boys ko admin panel open hote hi preload karo,
+    // taaki Orders me assign dropdown me ID/Name turant aaye.
+    try{
+        await fetchDeliveryUsers();
+        loadedTabs.delivery = true;
+    }catch(e){
+        console.error("Delivery preload error:", e);
+    }
+
     showSection(active);
 
     if(active === "add" || active === "stock"){
