@@ -485,8 +485,594 @@ html[data-theme="dark"] .floating-cart-count{
 }
 </style>
 
+
+<style id="setu-checkout-image-ui-patch">
+/* ===== IMAGE-LIKE CHECKOUT UI PATCH ONLY ===== */
+#setuCheckoutPanel{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    background:#f6f8fb;
+    z-index:200000;
+    transform:translateX(100%);
+    transition:transform .28s cubic-bezier(.2,.9,.2,1);
+    overflow:hidden;
+    color:#111827;
+    font-family:Segoe UI,Arial,sans-serif;
+}
+#setuCheckoutPanel.open{transform:translateX(0);}
+#setuCheckoutPanel *{box-sizing:border-box;}
+.setu-checkout-top{
+    height:72px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 34px;
+    border-bottom:1px solid #e5e7eb;
+    box-shadow:0 5px 18px rgba(15,23,42,.04);
+    font-size:28px;
+    font-weight:900;
+    color:#0f172a;
+}
+.setu-checkout-back{
+    width:42px;
+    height:42px;
+    border:none;
+    background:transparent;
+    font-size:32px;
+    line-height:1;
+    cursor:pointer;
+    color:#0f172a;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.setu-checkout-scroll{
+    height:calc(100vh - 72px);
+    overflow-y:auto;
+    padding:0 34px 150px;
+}
+.setu-checkout-brand{
+    margin:0 -34px 26px;
+    padding:32px 34px 24px;
+    background:linear-gradient(135deg,#075d96 0%,#0a7b7d 48%,#1f8f45 100%);
+    color:#fff;
+    border-radius:0 0 12px 12px;
+}
+.setu-checkout-brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+}
+.setu-brand-left{display:flex;align-items:center;gap:22px;}
+.setu-brand-logo{
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:#fff7e8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:44px;
+    box-shadow:0 4px 14px rgba(0,0,0,.10);
+}
+.setu-brand-title{font-size:38px;font-weight:900;line-height:1;}
+.setu-brand-sub{font-size:21px;margin-top:10px;opacity:.95;}
+.setu-brand-profile{
+    width:68px;
+    height:68px;
+    border-radius:50%;
+    background:#f8fafc;
+    border:6px solid rgba(255,255,255,.9);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    color:#c3c7cf;
+}
+.setu-brand-orders{
+    margin-top:22px;
+    height:68px;
+    border-radius:18px;
+    background:#fff;
+    color:#0b4f9c;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 22px;
+    font-size:24px;
+    font-weight:900;
+    box-shadow:0 12px 28px rgba(15,23,42,.12);
+}
+.setu-steps{
+    background:#fff;
+    border:1px solid #e1e7ee;
+    box-shadow:0 8px 24px rgba(15,23,42,.05);
+    border-radius:18px;
+    padding:20px 26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+}
+.setu-step{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:22px;
+    color:#4b5563;
+    font-weight:500;
+    white-space:nowrap;
+}
+.setu-step .circle{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    font-size:18px;
+    background:#9ca3af;
+    color:#fff;
+}
+.setu-step.done .circle{background:#16a34a;font-size:21px;}
+.setu-step.active{color:#0b6ee8;font-weight:800;}
+.setu-step.active .circle{background:#2563eb;}
+.setu-step-line{
+    flex:1;
+    max-width:58px;
+    height:2px;
+    background:#e5e7eb;
+    margin:0 14px;
+}
+.setu-checkout-card{
+    background:#fff;
+    border:1px solid #e1e7ee;
+    border-radius:18px;
+    padding:24px;
+    margin-bottom:18px;
+    box-shadow:0 8px 24px rgba(15,23,42,.04);
+}
+.setu-card-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:28px;
+    line-height:1.2;
+    font-weight:900;
+    color:#111827;
+    margin-bottom:22px;
+}
+.setu-coupon-row{
+    display:grid;
+    grid-template-columns:1fr 130px 160px;
+    gap:14px;
+    align-items:center;
+}
+.setu-coupon-row input{
+    height:70px;
+    border:1px solid #d9e1eb;
+    border-radius:16px;
+    padding:0 22px;
+    font-size:26px;
+    outline:none;
+    color:#111827;
+    background:#fff;
+}
+.setu-coupon-row input::placeholder{color:#6b7280;}
+.setu-apply-btn,.setu-remove-btn{
+    height:70px;
+    border:none;
+    border-radius:16px;
+    color:#fff;
+    font-size:22px;
+    font-weight:900;
+    cursor:pointer;
+}
+.setu-apply-btn{background:linear-gradient(135deg,#16a34a,#15803d);}
+.setu-remove-btn{background:linear-gradient(135deg,#ef4444,#dc2626);}
+.setu-coupon-status{
+    margin-top:26px;
+    padding-top:22px;
+    border-top:2px dashed #e5e7eb;
+    color:#6b7280;
+    font-size:20px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+.setu-pay-list{
+    border:1px solid #e1e7ee;
+    border-radius:16px;
+    overflow:hidden;
+}
+.setu-pay-option{
+    min-height:102px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    border-bottom:1px solid #e5e7eb;
+}
+.setu-pay-option:last-child{border-bottom:none;}
+.setu-pay-left{display:flex;align-items:center;gap:24px;}
+.setu-radio{
+    width:34px;
+    height:34px;
+    border:3px solid #7b8490;
+    border-radius:50%;
+    position:relative;
+    flex:0 0 auto;
+}
+.setu-radio.active{border-color:#1677f2;}
+.setu-radio.active::after{
+    content:"";
+    position:absolute;
+    inset:6px;
+    background:#1677f2;
+    border-radius:50%;
+}
+.setu-pay-title{font-size:24px;font-weight:900;color:#111827;}
+.setu-pay-sub{font-size:18px;color:#64748b;margin-top:6px;}
+.setu-pay-icon{
+    width:84px;
+    height:56px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:900;
+    background:#d1fae5;
+    color:#15803d;
+}
+.setu-pay-icon.upi{background:#dbeafe;color:#475569;font-size:22px;font-style:italic;}
+.setu-price-box{
+    border:1px solid #e1e7ee;
+    border-radius:16px;
+    padding:20px 26px;
+}
+.setu-price-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:23px;
+    margin-bottom:22px;
+    color:#111827;
+}
+.setu-price-row:last-child{margin-bottom:0;}
+.setu-price-row.discount{color:#16a34a;}
+.setu-total-box{
+    margin-top:8px;
+    background:#f0fbf4;
+    border:1px solid #cfeedd;
+    border-radius:14px;
+    padding:20px 26px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:26px;
+    font-weight:900;
+    color:#15803d;
+}
+.setu-secure{
+    background:linear-gradient(135deg,#eef6ff,#f4f8ff);
+    border-radius:16px;
+    padding:18px 26px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:24px;
+}
+.setu-secure-left{display:flex;align-items:center;gap:16px;}
+.setu-secure-icon{font-size:38px;color:#2563eb;}
+.setu-secure-title{font-size:19px;font-weight:900;color:#0b6ee8;}
+.setu-secure-sub{font-size:16px;color:#4b5563;margin-top:6px;}
+.setu-lock{font-size:30px;color:#647cf0;}
+.setu-checkout-bottom{
+    position:fixed;
+    left:14px;
+    right:14px;
+    bottom:0;
+    z-index:200002;
+    background:rgba(255,255,255,.96);
+    border:1px solid #e5e7eb;
+    border-radius:18px 18px 0 0;
+    box-shadow:0 -12px 34px rgba(15,23,42,.10);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:20px 30px calc(18px + env(safe-area-inset-bottom));
+}
+.setu-bottom-label{font-size:19px;color:#6b7280;margin-bottom:10px;}
+.setu-bottom-cut{font-size:24px;color:#9ca3af;text-decoration:line-through;}
+.setu-bottom-pay{font-size:36px;font-weight:900;color:#111827;line-height:1.1;}
+.setu-bottom-save{font-size:20px;color:#16a34a;font-weight:900;margin-top:10px;}
+.setu-confirm-btn{
+    min-width:420px;
+    height:78px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(135deg,#facc15,#f8b800);
+    color:#111827;
+    font-size:26px;
+    font-weight:900;
+    cursor:pointer;
+}
+.setu-terms{
+    text-align:center;
+    color:#6b7280;
+    margin-top:10px;
+    font-size:15px;
+}
+.setu-terms b{color:#0b6ee8;}
+body.setu-checkout-open{overflow:hidden !important;}
+body.setu-checkout-open .floating-order-actions,
+body.setu-checkout-open .floating-order-btn{display:none !important;}
+
+@media(max-width:700px){
+    .setu-checkout-top{
+        height:58px;
+        padding:0 16px;
+        gap:12px;
+        font-size:20px;
+    }
+    .setu-checkout-back{
+        width:34px;
+        height:34px;
+        font-size:26px;
+    }
+    .setu-checkout-scroll{
+        height:calc(100vh - 58px);
+        padding:0 12px 125px;
+    }
+    .setu-checkout-brand{
+        margin:0 -12px 18px;
+        padding:22px 14px 18px;
+        border-radius:0 0 10px 10px;
+    }
+    .setu-brand-logo{
+        width:58px;
+        height:58px;
+        font-size:34px;
+    }
+    .setu-brand-left{gap:12px;}
+    .setu-brand-title{font-size:28px;}
+    .setu-brand-sub{font-size:15px;margin-top:5px;}
+    .setu-brand-profile{
+        width:52px;
+        height:52px;
+        border-width:4px;
+        font-size:32px;
+    }
+    .setu-brand-orders{
+        height:54px;
+        border-radius:18px;
+        margin-top:18px;
+        padding:0 18px;
+        font-size:18px;
+    }
+    .setu-steps{
+        border-radius:16px;
+        padding:14px 12px;
+        margin-bottom:14px;
+    }
+    .setu-step{
+        font-size:14px;
+        gap:6px;
+    }
+    .setu-step .circle{
+        width:28px;
+        height:28px;
+        font-size:13px;
+    }
+    .setu-step.done .circle{font-size:16px;}
+    .setu-step-line{
+        max-width:28px;
+        margin:0 5px;
+    }
+    .setu-checkout-card{
+        border-radius:18px;
+        padding:18px 16px;
+        margin-bottom:14px;
+    }
+    .setu-card-title{
+        font-size:24px;
+        margin-bottom:18px;
+    }
+    .setu-coupon-row{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+    .setu-coupon-row input{
+        grid-column:1 / -1;
+        height:58px;
+        border-radius:14px;
+        font-size:20px;
+        padding:0 18px;
+    }
+    .setu-apply-btn,.setu-remove-btn{
+        height:58px;
+        border-radius:14px;
+        font-size:18px;
+    }
+    .setu-coupon-status{
+        margin-top:16px;
+        padding-top:16px;
+        font-size:17px;
+    }
+    .setu-pay-option{
+        min-height:88px;
+        padding:14px;
+    }
+    .setu-pay-left{gap:14px;}
+    .setu-radio{
+        width:30px;
+        height:30px;
+        border-width:3px;
+    }
+    .setu-pay-title{font-size:20px;}
+    .setu-pay-sub{font-size:14px;}
+    .setu-pay-icon{
+        width:60px;
+        height:44px;
+        border-radius:12px;
+        font-size:24px;
+    }
+    .setu-pay-icon.upi{font-size:18px;}
+    .setu-price-box{
+        padding:16px 18px;
+    }
+    .setu-price-row{
+        font-size:18px;
+        margin-bottom:16px;
+    }
+    .setu-total-box{
+        padding:16px 18px;
+        font-size:20px;
+    }
+    .setu-secure{
+        padding:14px 16px;
+        margin-bottom:18px;
+    }
+    .setu-secure-title{font-size:16px;}
+    .setu-secure-sub{font-size:13px;}
+    .setu-checkout-bottom{
+        left:0;
+        right:0;
+        border-radius:16px 16px 0 0;
+        padding:14px 14px calc(14px + env(safe-area-inset-bottom));
+        gap:12px;
+    }
+    .setu-bottom-label{font-size:15px;margin-bottom:5px;}
+    .setu-bottom-cut{font-size:18px;}
+    .setu-bottom-pay{font-size:30px;}
+    .setu-bottom-save{font-size:17px;margin-top:7px;}
+    .setu-confirm-btn{
+        min-width:0;
+        flex:1;
+        height:58px;
+        border-radius:14px;
+        font-size:18px;
+    }
+    .setu-terms{
+        display:none;
+    }
+}
+</style>
+
 </head>
 <body>
+
+<div id="setuCheckoutPanel" aria-hidden="true">
+    <div class="setu-checkout-top">
+        <button class="setu-checkout-back" onclick="closeSetuCheckoutPanel()" aria-label="Back">‹</button>
+        <div>Checkout</div>
+    </div>
+
+    <div class="setu-checkout-scroll">
+        <div class="setu-checkout-brand">
+            <div class="setu-checkout-brand-row">
+                <div class="setu-brand-left">
+                    <div class="setu-brand-logo">🛒</div>
+                    <div>
+                        <div class="setu-brand-title">Setu Mart</div>
+                        <div class="setu-brand-sub">Daily essentials for every home</div>
+                    </div>
+                </div>
+                <div class="setu-brand-profile">👤</div>
+            </div>
+            <div class="setu-brand-orders">📦 Orders</div>
+        </div>
+
+        <div class="setu-steps">
+            <div class="setu-step done"><span class="circle">✓</span><span>Cart</span></div>
+            <div class="setu-step-line"></div>
+            <div class="setu-step done"><span class="circle">✓</span><span>Address</span></div>
+            <div class="setu-step-line"></div>
+            <div class="setu-step active"><span class="circle">3</span><span>Checkout</span></div>
+            <div class="setu-step-line"></div>
+            <div class="setu-step"><span class="circle">4</span><span>Confirm</span></div>
+        </div>
+
+        <div class="setu-checkout-card">
+            <div class="setu-card-title">🎟️ Apply Coupon</div>
+            <div class="setu-coupon-row">
+                <input id="setuCouponInput" type="text" placeholder="Enter coupon code">
+                <button class="setu-apply-btn" onclick="setuTryApplyCoupon()">Apply</button>
+                <button class="setu-remove-btn" onclick="setuTryRemoveCoupon()">Remove</button>
+            </div>
+            <div class="setu-coupon-status" id="setuCouponStatus">🏷️ No coupon applied</div>
+        </div>
+
+        <div class="setu-checkout-card">
+            <div class="setu-card-title">💳 Payment Option</div>
+            <div class="setu-pay-list">
+                <div class="setu-pay-option" onclick="setuSelectPayment('cod')">
+                    <div class="setu-pay-left">
+                        <span id="setuCodRadio" class="setu-radio active"></span>
+                        <div>
+                            <div class="setu-pay-title">Cash on Delivery</div>
+                            <div class="setu-pay-sub">Pay when your order is delivered</div>
+                        </div>
+                    </div>
+                    <div class="setu-pay-icon">💵</div>
+                </div>
+                <div class="setu-pay-option" onclick="setuSelectPayment('upi')">
+                    <div class="setu-pay-left">
+                        <span id="setuUpiRadio" class="setu-radio"></span>
+                        <div>
+                            <div class="setu-pay-title">Prepaid / UPI</div>
+                            <div class="setu-pay-sub">Pay securely using UPI, Card, Net Banking etc.</div>
+                        </div>
+                    </div>
+                    <div class="setu-pay-icon upi">UPI</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="setu-checkout-card">
+            <div class="setu-card-title">💰 Price Details</div>
+            <div class="setu-price-box">
+                <div class="setu-price-row"><span>Subtotal</span><span id="setuSubtotal">₹0</span></div>
+                <div class="setu-price-row"><span>Shipping Charges</span><span id="setuShipping">₹0</span></div>
+                <div class="setu-price-row discount"><span>Coupon Discount</span><span id="setuDiscount">-₹0</span></div>
+            </div>
+            <div class="setu-total-box"><span>Total Payable</span><span id="setuTotalPayable">₹0</span></div>
+        </div>
+
+        <div class="setu-secure">
+            <div class="setu-secure-left">
+                <div class="setu-secure-icon">🛡️</div>
+                <div>
+                    <div class="setu-secure-title">Safe & Secure Payments</div>
+                    <div class="setu-secure-sub">Your payment details are 100% secure with us.</div>
+                </div>
+            </div>
+            <div class="setu-lock">🔒</div>
+        </div>
+    </div>
+
+    <div class="setu-checkout-bottom">
+        <div>
+            <div class="setu-bottom-label">Total Payable</div>
+            <div class="setu-bottom-cut" id="setuBottomCut">₹0</div>
+            <div class="setu-bottom-pay" id="setuBottomPay">₹0</div>
+            <div class="setu-bottom-save" id="setuBottomSave">You Save ₹0</div>
+        </div>
+        <div>
+            <button class="setu-confirm-btn" onclick="setuConfirmOrderFromCheckout()">🔒 Confirm Order</button>
+            <div class="setu-terms">🛡️ By placing order you agree to our <b>Terms & Conditions</b></div>
+        </div>
+    </div>
+</div>
+
 
 <div id="appStartLoader" class="commerce-loader">
     <div class="commerce-loader-box">
@@ -6865,6 +7451,180 @@ window.addEventListener("load", function(){
         window.closeCheckoutPanel = wrappedCloseCheckout;
     }
     document.addEventListener("DOMContentLoaded", syncFloatingWithCheckout);
+})();
+</script>
+
+
+<script id="setu-checkout-image-ui-js">
+(function(){
+    window.setuSelectedPayment = window.setuSelectedPayment || "cod";
+
+    function getCartSafe(){
+        try{
+            if(typeof getActiveCartForCheckout === "function") return getActiveCartForCheckout() || [];
+        }catch(e){}
+        try{
+            if(Array.isArray(window.cart)) return window.cart;
+        }catch(e){}
+        return [];
+    }
+
+    function numberVal(v){
+        var n = Number(v || 0);
+        return isNaN(n) ? 0 : n;
+    }
+
+    function calcTotals(){
+        var cart = getCartSafe();
+        var subtotal = 0;
+        var mrp = 0;
+        cart.forEach(function(i){
+            var q = numberVal(i.qty || i.quantity || 1) || 1;
+            var price = numberVal(i.price || i.finalPrice || i.salePrice);
+            var original = numberVal(i.original || i.mrp || i.oldPrice || price);
+            subtotal += price * q;
+            mrp += original * q;
+        });
+        var shipping = 0;
+        try{
+            if(typeof getCurrentShippingCharge === "function") shipping = numberVal(getCurrentShippingCharge());
+            else if(window.currentShippingCharge != null) shipping = numberVal(window.currentShippingCharge);
+        }catch(e){}
+        if(!shipping && subtotal > 0){
+            try{
+                var village = (localStorage.getItem("customerVillage") || localStorage.getItem("userVillage") || "").toLowerCase().trim();
+                var charges = window.deliveryCharges || window.villageDeliveryCharges || null;
+                if(charges && village && charges[village] != null) shipping = numberVal(charges[village]);
+            }catch(e){}
+        }
+        var discount = 0;
+        try{
+            discount = numberVal(window.appliedCouponDiscount || window.couponDiscount || 0);
+        }catch(e){}
+        var total = Math.max(0, subtotal + shipping - discount);
+        return {subtotal:subtotal, mrp:mrp, shipping:shipping, discount:discount, total:total};
+    }
+
+    function rupee(n){ return "₹" + Math.round(numberVal(n)); }
+
+    window.setuRefreshCheckoutTotals = function(){
+        var t = calcTotals();
+        var save = Math.max(0, (t.mrp + t.shipping) - t.total);
+        var els = {
+            setuSubtotal:t.subtotal,
+            setuShipping:t.shipping,
+            setuDiscount:"-" + rupee(t.discount).replace("₹","₹"),
+            setuTotalPayable:t.total,
+            setuBottomCut:(t.mrp + t.shipping),
+            setuBottomPay:t.total,
+            setuBottomSave:save
+        };
+        var e;
+        e=document.getElementById("setuSubtotal"); if(e) e.textContent=rupee(t.subtotal);
+        e=document.getElementById("setuShipping"); if(e) e.textContent=rupee(t.shipping);
+        e=document.getElementById("setuDiscount"); if(e) e.textContent="-"+rupee(t.discount);
+        e=document.getElementById("setuTotalPayable"); if(e) e.textContent=rupee(t.total);
+        e=document.getElementById("setuBottomCut"); if(e) e.textContent=rupee(t.mrp + t.shipping);
+        e=document.getElementById("setuBottomPay"); if(e) e.textContent=rupee(t.total);
+        e=document.getElementById("setuBottomSave"); if(e) e.textContent="You Save " + rupee(save);
+    };
+
+    window.openSetuCheckoutPanel = function(){
+        var cart = getCartSafe();
+        if(!cart || cart.length === 0){
+            try{ if(typeof showToast === "function") showToast("Cart empty hai"); else alert("Cart empty hai"); }catch(e){}
+            return;
+        }
+        try{ if(typeof closeCartPanel === "function") closeCartPanel(); }catch(e){}
+        setuRefreshCheckoutTotals();
+        var p=document.getElementById("setuCheckoutPanel");
+        if(p){
+            p.classList.add("open");
+            p.setAttribute("aria-hidden","false");
+            document.body.classList.add("setu-checkout-open");
+        }
+    };
+
+    window.closeSetuCheckoutPanel = function(){
+        var p=document.getElementById("setuCheckoutPanel");
+        if(p){
+            p.classList.remove("open");
+            p.setAttribute("aria-hidden","true");
+            document.body.classList.remove("setu-checkout-open");
+        }
+    };
+
+    window.setuSelectPayment = function(mode){
+        window.setuSelectedPayment = mode || "cod";
+        var cod=document.getElementById("setuCodRadio");
+        var upi=document.getElementById("setuUpiRadio");
+        if(cod) cod.classList.toggle("active", window.setuSelectedPayment === "cod");
+        if(upi) upi.classList.toggle("active", window.setuSelectedPayment === "upi");
+        try{
+            var codInput = document.querySelector('input[name="payment"][value="cod"],input[value="COD"],input[value="cod"]');
+            var upiInput = document.querySelector('input[name="payment"][value="upi"],input[value="UPI"],input[value="upi"]');
+            if(window.setuSelectedPayment === "cod" && codInput) codInput.checked = true;
+            if(window.setuSelectedPayment === "upi" && upiInput) upiInput.checked = true;
+        }catch(e){}
+    };
+
+    window.setuTryApplyCoupon = function(){
+        var val = (document.getElementById("setuCouponInput") || {}).value || "";
+        try{
+            var oldInput = document.querySelector("#couponInput,.coupon-input,input[placeholder*='coupon'],input[placeholder*='Coupon']");
+            if(oldInput) oldInput.value = val;
+            if(typeof applyCoupon === "function") applyCoupon();
+            else if(typeof applyCartCoupon === "function") applyCartCoupon();
+        }catch(e){}
+        setTimeout(function(){
+            setuRefreshCheckoutTotals();
+            var status=document.getElementById("setuCouponStatus");
+            if(status && val.trim()) status.textContent = "🏷️ Coupon applied: " + val.trim().toUpperCase();
+        },80);
+    };
+
+    window.setuTryRemoveCoupon = function(){
+        try{
+            if(typeof removeCoupon === "function") removeCoupon();
+            else if(typeof clearCoupon === "function") clearCoupon();
+            window.appliedCouponDiscount = 0;
+            window.couponDiscount = 0;
+        }catch(e){}
+        var i=document.getElementById("setuCouponInput"); if(i) i.value="";
+        var status=document.getElementById("setuCouponStatus"); if(status) status.textContent="🏷️ No coupon applied";
+        setuRefreshCheckoutTotals();
+    };
+
+    var originalPlaceOrder = window.placeOrder;
+    if(typeof originalPlaceOrder === "function" && !originalPlaceOrder.__setuCheckoutWrapped){
+        var wrapped = function(){
+            var checkout = document.getElementById("setuCheckoutPanel");
+            if(checkout && !checkout.classList.contains("open")){
+                openSetuCheckoutPanel();
+                return;
+            }
+            return originalPlaceOrder.apply(this, arguments);
+        };
+        wrapped.__setuCheckoutWrapped = true;
+        window.placeOrder = wrapped;
+    }
+
+    window.setuConfirmOrderFromCheckout = function(){
+        var checkout = document.getElementById("setuCheckoutPanel");
+        if(checkout) checkout.classList.remove("open");
+        document.body.classList.remove("setu-checkout-open");
+        try{
+            if(typeof showPlacingOrderLoader === "function") showPlacingOrderLoader();
+        }catch(e){}
+        setTimeout(function(){
+            if(originalPlaceOrder) originalPlaceOrder.call(window);
+            else if(typeof submitOrder === "function") submitOrder();
+        },0);
+    };
+
+    document.addEventListener("keydown", function(e){
+        if(e.key === "Escape") closeSetuCheckoutPanel();
+    });
 })();
 </script>
 
