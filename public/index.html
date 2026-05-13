@@ -7326,5 +7326,307 @@ html[data-theme="dark"] #checkoutPanel .checkout-bottom-price .big{color:#e5e7eb
 }
 </style>
 
+
+
+<!-- ===== USER REQUEST FIX: only mobile checkout font/spacing + order button + fast success animation ===== -->
+<style>
+/* Floating Order button must appear immediately after product add */
+.floating-order-btn{
+    z-index:2147482500 !important;
+    right:14px !important;
+    bottom:calc(14px + env(safe-area-inset-bottom)) !important;
+    padding:12px 16px !important;
+    font-size:15px !important;
+    min-height:46px !important;
+}
+.floating-order-btn.show{
+    display:flex !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+}
+.floating-order-count{
+    min-width:24px !important;
+    height:24px !important;
+    font-size:12px !important;
+}
+
+/* Checkout page: mobile ke hisaab se compact fonts */
+#checkoutPanel.checkout-panel{
+    z-index:2147483000 !important;
+}
+#checkoutPanel .checkout-header{
+    min-height:52px !important;
+    padding:calc(6px + env(safe-area-inset-top)) 12px 6px !important;
+}
+#checkoutPanel .checkout-back-btn{
+    width:34px !important;
+    height:34px !important;
+    font-size:26px !important;
+}
+#checkoutPanel .checkout-title{
+    font-size:19px !important;
+}
+#checkoutPanel .checkout-body{
+    height:calc(100dvh - 52px - env(safe-area-inset-top)) !important;
+    padding:10px 10px calc(104px + env(safe-area-inset-bottom)) !important;
+}
+#checkoutPanel .checkout-brand-hero{
+    display:none !important;
+}
+#checkoutPanel .checkout-step-card{
+    border-radius:16px !important;
+    padding:10px 8px !important;
+    margin-bottom:10px !important;
+    gap:4px !important;
+}
+#checkoutPanel .checkout-step{
+    font-size:11px !important;
+    gap:4px !important;
+}
+#checkoutPanel .checkout-step span{
+    width:24px !important;
+    height:24px !important;
+    min-width:24px !important;
+    font-size:13px !important;
+}
+#checkoutPanel .checkout-step-line{
+    min-width:4px !important;
+}
+#checkoutPanel .checkout-card{
+    padding:13px !important;
+    border-radius:16px !important;
+    margin-bottom:10px !important;
+}
+#checkoutPanel .checkout-card h4{
+    font-size:18px !important;
+    margin-bottom:11px !important;
+}
+#checkoutPanel .checkout-coupon-row{
+    gap:8px !important;
+}
+#checkoutPanel .checkout-coupon-row .form-input{
+    height:46px !important;
+    min-height:46px !important;
+    border-radius:13px !important;
+    font-size:16px !important;
+    padding:0 13px !important;
+}
+#checkoutPanel .checkout-apply-btn,
+#checkoutPanel .checkout-remove-btn{
+    height:46px !important;
+    min-height:46px !important;
+    border-radius:13px !important;
+    font-size:15px !important;
+}
+#checkoutPanel .checkout-msg{
+    margin-top:11px !important;
+    padding-top:10px !important;
+    font-size:14px !important;
+}
+#checkoutPanel .checkout-payment-option{
+    min-height:64px !important;
+    padding:11px 10px !important;
+    border-radius:14px !important;
+}
+#checkoutPanel .checkout-payment-option input{
+    width:21px !important;
+    height:21px !important;
+}
+#checkoutPanel .checkout-pay-copy strong{
+    font-size:16px !important;
+}
+#checkoutPanel .checkout-pay-copy span{
+    font-size:12px !important;
+}
+#checkoutPanel .checkout-pay-icon{
+    width:48px !important;
+    min-width:48px !important;
+    height:36px !important;
+    font-size:13px !important;
+}
+#checkoutPanel .checkout-pay-icon.cash{
+    font-size:20px !important;
+}
+#checkoutPanel .checkout-price-box{
+    padding:12px 12px 2px !important;
+}
+#checkoutPanel .checkout-row{
+    font-size:14px !important;
+    margin-bottom:10px !important;
+}
+#checkoutPanel .checkout-total-box{
+    padding:13px 12px !important;
+    font-size:16px !important;
+}
+#checkoutPanel .checkout-total-box strong{
+    font-size:22px !important;
+}
+#checkoutPanel .checkout-secure-box{
+    padding:12px !important;
+    border-radius:14px !important;
+}
+#checkoutPanel .checkout-secure-left>span{
+    font-size:23px !important;
+}
+#checkoutPanel .checkout-secure-left strong{
+    font-size:13px !important;
+}
+#checkoutPanel .checkout-secure-left small{
+    font-size:11px !important;
+}
+#checkoutPanel .checkout-lock{
+    font-size:20px !important;
+}
+#checkoutPanel .checkout-bottom{
+    grid-template-columns:96px 1fr !important;
+    gap:8px !important;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+    border-radius:16px 16px 0 0 !important;
+}
+#checkoutPanel .checkout-bottom-label{
+    font-size:12px !important;
+}
+#checkoutPanel .checkout-bottom-price .small{
+    font-size:14px !important;
+}
+#checkoutPanel .checkout-bottom-price .big{
+    font-size:24px !important;
+}
+#checkoutPanel .checkout-save-line{
+    font-size:12px !important;
+}
+#checkoutPanel .checkout-confirm-btn{
+    height:50px !important;
+    min-height:50px !important;
+    border-radius:13px !important;
+    font-size:16px !important;
+}
+#checkoutPanel .checkout-terms{
+    margin-top:5px !important;
+    font-size:9px !important;
+}
+
+/* Success animation should always show above checkout */
+.success-screen{
+    z-index:2147483600 !important;
+}
+.success-visual{
+    width:116px !important;
+    height:116px !important;
+}
+.success-ring{
+    width:96px !important;
+    height:96px !important;
+}
+.success-check{
+    font-size:48px !important;
+}
+.success-box h2{
+    font-size:23px !important;
+}
+.success-box p{
+    font-size:13px !important;
+}
+</style>
+
+<script>
+/* ===== USER REQUEST FIX: don't change other code, only make order button immediate + confirm fast ===== */
+(function(){
+    function forceOrderButton(){
+        try{
+            var activeCart = (typeof getActiveCartForCheckout === 'function') ? getActiveCartForCheckout() : (Array.isArray(window.cart) ? window.cart : cart);
+            var qty = Array.isArray(activeCart) ? activeCart.reduce(function(s,i){return s + (Number(i.qty || i.quantity || 1) || 1);},0) : 0;
+            var btn = document.getElementById('floatingOrderBtn');
+            var count = document.getElementById('floatingOrderCount');
+            var topCount = document.getElementById('count');
+            if(count) count.innerText = qty;
+            if(topCount) topCount.innerText = qty;
+            if(btn){
+                if(qty > 0){
+                    btn.classList.add('show');
+                    btn.style.display = 'flex';
+                    btn.style.visibility = 'visible';
+                    btn.style.opacity = '1';
+                }else{
+                    btn.classList.remove('show');
+                    btn.style.display = '';
+                    btn.style.visibility = '';
+                    btn.style.opacity = '';
+                }
+            }
+        }catch(e){}
+    }
+
+    var oldUpdateFloating = window.updateFloatingOrderButton;
+    window.updateFloatingOrderButton = function(){
+        try{ if(typeof oldUpdateFloating === 'function') oldUpdateFloating.apply(this, arguments); }catch(e){}
+        forceOrderButton();
+    };
+
+    var oldAdd = window.add;
+    if(typeof oldAdd === 'function'){
+        window.add = async function(id){
+            var r = await oldAdd.apply(this, arguments);
+            forceOrderButton();
+            setTimeout(forceOrderButton, 30);
+            return r;
+        };
+    }
+
+    var oldInc = window.inc;
+    if(typeof oldInc === 'function'){
+        window.inc = async function(id){
+            var r = await oldInc.apply(this, arguments);
+            forceOrderButton();
+            return r;
+        };
+    }
+
+    var oldDec = window.dec;
+    if(typeof oldDec === 'function'){
+        window.dec = async function(id){
+            var r = await oldDec.apply(this, arguments);
+            forceOrderButton();
+            return r;
+        };
+    }
+
+    var oldRemoveItem = window.removeItem;
+    if(typeof oldRemoveItem === 'function'){
+        window.removeItem = async function(id){
+            var r = await oldRemoveItem.apply(this, arguments);
+            forceOrderButton();
+            return r;
+        };
+    }
+
+    /* Order confirm slow hone ka main reason location wait tha, isko instant rakha */
+    window.getQuickCheckoutLocation = async function(){ return null; };
+
+    var oldShowSuccess = window.showSuccessScreen;
+    window.showSuccessScreen = function(customMessage){
+        try{
+            var checkout = document.getElementById('checkoutPanel');
+            if(checkout) checkout.classList.remove('open');
+            document.body.classList.remove('panel-open');
+            document.body.classList.remove('cart-full-open');
+        }catch(e){}
+        if(typeof oldShowSuccess === 'function') return oldShowSuccess.apply(this, arguments);
+        var screen = document.getElementById('successScreen');
+        var message = document.getElementById('successMessage');
+        if(customMessage && message) message.textContent = customMessage;
+        if(screen){
+            screen.style.display = 'flex';
+            requestAnimationFrame(function(){ screen.classList.add('show'); });
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', forceOrderButton);
+    window.addEventListener('load', function(){ setTimeout(forceOrderButton, 80); });
+    setInterval(forceOrderButton, 800);
+})();
+</script>
+
 </body>
 </html>
