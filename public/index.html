@@ -715,6 +715,53 @@ html[data-theme="dark"] #placeOrderLoader{
 }
 </style>
 
+
+<style id="floating-cart-split-style">
+.floating-order-wrap{
+position:fixed;
+right:14px;
+bottom:14px;
+display:flex;
+gap:10px;
+z-index:9999;
+align-items:center;
+}
+.floating-cart-mini{
+width:20%;
+min-width:58px;
+height:56px;
+border:none;
+border-radius:18px;
+background:#ffffff;
+box-shadow:0 8px 22px rgba(0,0,0,.15);
+font-size:26px;
+font-weight:800;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+.floating-order-btn{
+width:80% !important;
+min-width:220px !important;
+height:56px !important;
+display:flex !important;
+align-items:center;
+justify-content:center;
+border-radius:18px !important;
+}
+@media(max-width:600px){
+.floating-order-wrap{
+left:14px;
+right:14px;
+}
+.floating-order-btn{
+flex:1;
+min-width:auto !important;
+}
+}
+</style>
+
 </head>
 <body>
 
@@ -7796,6 +7843,35 @@ html[data-theme="dark"] #checkoutPanel .checkout-bottom-price .big{color:#e5e7eb
         }
     }, true);
 })();
+</script>
+
+
+<script id="floating-cart-split-js">
+document.addEventListener("DOMContentLoaded",function(){
+
+const oldBtn=document.querySelector(".floating-order-btn");
+if(!oldBtn || document.querySelector(".floating-order-wrap")) return;
+
+const wrap=document.createElement("div");
+wrap.className="floating-order-wrap";
+
+const cartBtn=document.createElement("button");
+cartBtn.className="floating-cart-mini";
+cartBtn.innerHTML="🛒";
+
+cartBtn.onclick=function(){
+const cartPanel=document.getElementById("cartPanel");
+if(cartPanel){
+cartPanel.classList.add("open");
+document.body.classList.add("cart-full-open");
+}
+};
+
+oldBtn.parentNode.insertBefore(wrap,oldBtn);
+wrap.appendChild(cartBtn);
+wrap.appendChild(oldBtn);
+
+});
 </script>
 
 </body>
