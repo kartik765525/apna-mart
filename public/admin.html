@@ -1335,6 +1335,45 @@ circle.chart-point,
 .line-orders{stroke-width:3 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
 .line-earning-seg{stroke-width:3.5 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
 
+
+/* TOTAL ORDERS SUB SECTION */
+.total-orders-sub-card{
+    min-height:190px !important;
+}
+.order-earning-subsec{
+    margin-top:16px;
+    border-top:1px solid #edf2f7;
+    padding-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+.order-earning-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:#f8fbff;
+    border:1px solid #e5edf6;
+    border-radius:12px;
+    padding:9px 11px;
+    font-size:13px;
+    font-weight:900;
+    color:#475569;
+}
+.order-earning-row b{
+    color:#0f172a;
+    font-size:15px;
+}
+.order-earning-row.shipping{
+    background:#ecfdf5;
+    border-color:#bbf7d0;
+    color:#166534;
+}
+.order-earning-row.shipping b{
+    color:#15803d;
+}
+
 </style>
 </head>
 <body>
@@ -2545,7 +2584,22 @@ function renderDashboard(){
         return 0;
     }
 
-    function parseAnyDateValue(value){
+    
+    function shippingOf(o){
+        const candidates = [
+            o.deliveryCharge, o.shippingCharge, o.shipping, o.delivery,
+            o.deliveryFee, o.delivery_fee, o.shipCharge, o.ship_charge,
+            o?.priceDetails?.deliveryCharge, o?.priceDetails?.shippingCharge,
+            o?.summary?.deliveryCharge, o?.summary?.shippingCharge
+        ];
+        for(const v of candidates){
+            const n = cleanNumber(v);
+            if(n > 0) return n;
+        }
+        return 0;
+    }
+
+function parseAnyDateValue(value){
         if(value === undefined || value === null) return null;
         const text = String(value).trim();
         if(!text) return null;
@@ -2679,6 +2733,7 @@ function renderDashboard(){
         return st.includes("delivered") || st.includes("complete") || st.includes("completed");
     }).length;
     const rangeEarnings = rangeOrders.reduce((s,o) => s + totalOf(o), 0);
+    const rangeShippingEarnings = rangeOrders.reduce((s,o) => s + shippingOf(o), 0);
     const rangeLabel = range === 1 ? "today" : "last " + range + " days";
 
     const maxVal = Math.max(10, ...days.map(d => Math.max(d.stock, d.earning, d.orders * 100)));
@@ -2730,11 +2785,21 @@ function renderDashboard(){
     if(!dashboardStats) return;
 
     dashboardStats.innerHTML = `
-        <div class="dash-card">
+        <div class="dash-card total-orders-sub-card">
             <div class="dash-card-title">Total Orders</div>
             <div class="dash-big-value">${rangeOrdersCount}</div>
-            <div class="dash-up">↑ ${rangeOrdersCount}</div>
             <div class="dash-subtext">${rangeLabel} orders</div>
+
+            <div class="order-earning-subsec">
+                <div class="order-earning-row">
+                    <span>Total Orders</span>
+                    <b>${rangeOrdersCount}</b>
+                </div>
+                <div class="order-earning-row shipping">
+                    <span>Shipping Charge Earning</span>
+                    <b>${money(rangeShippingEarnings)}</b>
+                </div>
+            </div>
         </div>
         <div class="dash-card">
             <div class="dash-card-title">Total Earnings</div>
