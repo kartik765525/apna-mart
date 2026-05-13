@@ -391,6 +391,100 @@ html[data-theme="dark"] .floating-order-count{background:#1f2937;color:#fff;}
 }
 </style>
 
+
+<style id="setu-floating-cart-order-80-20-patch">
+/* ===== CART + ORDER FLOATING BUTTON PATCH: 20% CART + 80% ORDER ===== */
+.floating-order-actions{
+    position:fixed;
+    left:14px;
+    right:14px;
+    bottom:14px;
+    z-index:900;
+    display:none;
+    gap:10px;
+    align-items:center;
+    padding-bottom:env(safe-area-inset-bottom);
+}
+.floating-order-actions.show{
+    display:flex;
+}
+.floating-order-actions .floating-order-btn{
+    position:static !important;
+    right:auto !important;
+    bottom:auto !important;
+    width:80% !important;
+    flex:1 1 80% !important;
+    min-width:0 !important;
+    height:56px !important;
+    padding:0 16px !important;
+    border-radius:18px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:8px !important;
+}
+.floating-cart-btn{
+    width:20%;
+    flex:0 0 20%;
+    min-width:58px;
+    height:56px;
+    border:none;
+    border-radius:18px;
+    background:#ffffff;
+    color:#17210f;
+    font-size:24px;
+    font-weight:900;
+    box-shadow:0 14px 30px rgba(0,0,0,.16);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+}
+.floating-cart-count{
+    position:absolute;
+    right:-5px;
+    top:-6px;
+    min-width:22px;
+    height:22px;
+    padding:0 6px;
+    border-radius:999px;
+    background:#2f4f25;
+    color:#fff;
+    font-size:12px;
+    font-weight:900;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+body.cart-full-open .floating-order-actions,
+body.checkout-full-open .floating-order-actions{
+    display:none !important;
+}
+html[data-theme="dark"] .floating-cart-btn{
+    background:#111827;
+    color:#fff;
+    box-shadow:none !important;
+}
+html[data-theme="dark"] .floating-cart-count{
+    background:#facc15;
+    color:#111827;
+}
+@media(max-width:600px){
+    .floating-order-actions{
+        left:12px;
+        right:12px;
+        bottom:12px;
+        gap:8px;
+    }
+    .floating-order-actions .floating-order-btn,
+    .floating-cart-btn{
+        height:54px !important;
+        border-radius:16px !important;
+    }
+}
+</style>
+
 </head>
 <body>
 
@@ -3951,9 +4045,10 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
 
     
 
-<button id="floatingOrderBtn" class="floating-order-btn" onclick="openCartPanel()">
-    🛒 Order <span id="floatingOrderCount" class="floating-order-count">0</span>
-</button>
+<div id="floatingOrderActions" class="floating-order-actions">
+    <button id="floatingCartBtn" class="floating-cart-btn" onclick="openCartPanel()" aria-label="Open Cart">🛒<span id="floatingCartCount" class="floating-cart-count">0</span></button>
+    <button id="floatingOrderBtn" class="floating-order-btn" onclick="placeOrder()">Order <span id="floatingOrderCount" class="floating-order-count">0</span></button>
+</div>
 
 <div class="side-panel" id="cartPanel">
         <div class="cart-panel-header">
@@ -4428,13 +4523,25 @@ function updateFloatingOrderButton(){
         const activeCart = getActiveCartForCheckout();
         const qty = activeCart.reduce((s,i)=>s + (Number(i.qty || i.quantity || 1) || 1),0);
         const btn = document.getElementById("floatingOrderBtn");
+        const wrap = document.getElementById("floatingOrderActions");
+        const cartBtn = document.getElementById("floatingCartBtn");
         const countEl = document.getElementById("floatingOrderCount");
+        const cartCountEl = document.getElementById("floatingCartCount");
         const topCountEl = document.getElementById("count");
         if(countEl) countEl.innerText = qty;
+        if(cartCountEl) cartCountEl.innerText = qty;
         if(topCountEl) topCountEl.innerText = qty;
         if(btn){
             if(qty > 0) btn.classList.add("show");
             else btn.classList.remove("show");
+        }
+        if(cartBtn){
+            if(qty > 0) cartBtn.classList.add("show");
+            else cartBtn.classList.remove("show");
+        }
+        if(wrap){
+            if(qty > 0) wrap.classList.add("show");
+            else wrap.classList.remove("show");
         }
     }catch(e){}
 }
@@ -6715,6 +6822,49 @@ window.addEventListener("load", function(){
             if(p && p.classList.contains("open")) setCartFullOpen(false);
         }
     });
+})();
+</script>
+
+
+<script id="setu-floating-checkout-visibility-patch">
+(function(){
+    function syncFloatingWithCheckout(){
+        try{
+            var checkout = document.getElementById("checkoutPanel");
+            document.body.classList.toggle("checkout-full-open", !!(checkout && checkout.classList.contains("open")));
+        }catch(e){}
+    }
+    var oldOpenCheckout = window.openCheckoutPanel;
+    if(typeof oldOpenCheckout === "function" && !oldOpenCheckout.__setuWrapped){
+        var wrappedOpen = function(){
+            var r = oldOpenCheckout.apply(this, arguments);
+            setTimeout(syncFloatingWithCheckout, 0);
+            return r;
+        };
+        wrappedOpen.__setuWrapped = true;
+        window.openCheckoutPanel = wrappedOpen;
+    }
+    var oldCloseAll = window.closeAllPanels;
+    if(typeof oldCloseAll === "function" && !oldCloseAll.__setuWrapped){
+        var wrappedClose = function(){
+            var r = oldCloseAll.apply(this, arguments);
+            setTimeout(syncFloatingWithCheckout, 0);
+            return r;
+        };
+        wrappedClose.__setuWrapped = true;
+        window.closeAllPanels = wrappedClose;
+    }
+    var oldCloseCheckout = window.closeCheckoutPanel;
+    if(typeof oldCloseCheckout === "function" && !oldCloseCheckout.__setuWrapped){
+        var wrappedCloseCheckout = function(){
+            var r = oldCloseCheckout.apply(this, arguments);
+            setTimeout(syncFloatingWithCheckout, 0);
+            return r;
+        };
+        wrappedCloseCheckout.__setuWrapped = true;
+        window.closeCheckoutPanel = wrappedCloseCheckout;
+    }
+    document.addEventListener("DOMContentLoaded", syncFloatingWithCheckout);
 })();
 </script>
 
