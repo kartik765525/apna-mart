@@ -537,6 +537,53 @@ html[data-theme="dark"] .checkout-steps{
     border-color:#263244 !important;
 }
 
+
+/* ===== FAST CLICK + CHECKOUT OVERLAY CLICK BLOCK FIX ===== */
+#cartPanel{
+    pointer-events:none !important;
+}
+#cartPanel.open{
+    pointer-events:auto !important;
+}
+button,
+.cart-btn,
+.floating-order-btn,
+.add-btn,
+.cat,
+.profile-trigger,
+.cart-place-order-btn,
+.main-btn,
+.change-address-btn,
+.close-btn,
+.cart-action-btn{
+    touch-action:manipulation !important;
+    cursor:pointer !important;
+}
+button:active,
+.cart-btn:active,
+.floating-order-btn:active,
+.add-btn:active,
+.cat:active,
+.profile-trigger:active,
+.cart-place-order-btn:active,
+.main-btn:active,
+.change-address-btn:active,
+.close-btn:active,
+.cart-action-btn:active{
+    transform:scale(.97) !important;
+    transition:transform .06s ease !important;
+}
+body:not(.checkout-open) #cartPanel{
+    visibility:hidden !important;
+}
+body.checkout-open #cartPanel.open{
+    visibility:visible !important;
+}
+.floating-order-btn{
+    pointer-events:auto !important;
+    z-index:99999 !important;
+}
+
 </style>
 <script>
 try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
@@ -7022,6 +7069,70 @@ window.addEventListener("load", function(){
         if(p) observer.observe(p, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
         refreshCheckoutUI();
     });
+})();
+</script>
+
+
+<script>
+/* ===== FAST ORDER CLICK FIX ===== */
+(function(){
+    function cartPanel(){
+        return document.getElementById("cartPanel");
+    }
+    function hardCloseGhostOverlay(){
+        const p = cartPanel();
+        if(!p) return;
+        if(!p.classList.contains("open")){
+            p.style.pointerEvents = "none";
+            p.style.visibility = "hidden";
+            document.body.classList.remove("checkout-open");
+        }
+    }
+    function hardOpenCheckout(){
+        const p = cartPanel();
+        if(!p) return;
+        p.style.visibility = "visible";
+        p.style.pointerEvents = "auto";
+        document.body.classList.add("checkout-open");
+        document.body.classList.add("panel-open");
+    }
+
+    document.addEventListener("DOMContentLoaded", hardCloseGhostOverlay);
+    setInterval(hardCloseGhostOverlay, 800);
+
+    document.addEventListener("click", function(e){
+        const orderBtn = e.target.closest(".floating-order-btn, [onclick*='openCart'], [onclick*='openCheckout']");
+        if(orderBtn){
+            const p = cartPanel();
+            if(p){
+                p.style.visibility = "visible";
+                p.style.pointerEvents = "auto";
+            }
+            setTimeout(hardOpenCheckout, 10);
+        }
+
+        const closeBtn = e.target.closest("[onclick*='closeCart'], #cartPanel .close-btn");
+        if(closeBtn){
+            setTimeout(hardCloseGhostOverlay, 10);
+        }
+    }, true);
+
+    const oldOpenCart = window.openCart;
+    if(typeof oldOpenCart === "function"){
+        window.openCart = function(){
+            hardOpenCheckout();
+            return oldOpenCart.apply(this, arguments);
+        };
+    }
+
+    const oldCloseCart = window.closeCart;
+    if(typeof oldCloseCart === "function"){
+        window.closeCart = function(){
+            const r = oldCloseCart.apply(this, arguments);
+            setTimeout(hardCloseGhostOverlay, 10);
+            return r;
+        };
+    }
 })();
 </script>
 
