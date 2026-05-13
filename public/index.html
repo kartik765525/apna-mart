@@ -584,6 +584,41 @@ body.checkout-open #cartPanel.open{
     z-index:99999 !important;
 }
 
+
+/* ===== FINAL CLICK WORKING PATCH ===== */
+#cartPanel{
+    pointer-events:none !important;
+    visibility:hidden !important;
+}
+#cartPanel.open{
+    pointer-events:auto !important;
+    visibility:visible !important;
+}
+body.checkout-open{
+    overflow:hidden !important;
+}
+body:not(.checkout-open) #cartPanel{
+    transform:translateX(100%) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    visibility:hidden !important;
+}
+body.checkout-open #cartPanel.open{
+    transform:translateX(0) !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    visibility:visible !important;
+}
+.floating-order-btn,
+button,
+.add-btn,
+.cat,
+.cart-btn,
+.profile-trigger{
+    touch-action:manipulation !important;
+    pointer-events:auto !important;
+}
+
 </style>
 <script>
 try{if(localStorage.getItem("apnaMartCustomerToken")){document.documentElement.classList.add("apnamart-has-token");}}catch(e){}
@@ -6902,237 +6937,86 @@ window.addEventListener("load", function(){
 </script>
 
 
-<script>
-/* ===== CHECKOUT PAGE STRUCTURE PATCH - FINAL ===== */
-(function(){
-    function byId(id){ return document.getElementById(id); }
-
-    function setCheckoutState(open){
-        document.body.classList.toggle("checkout-open", !!open);
-        document.body.classList.toggle("panel-open", !!open);
-    }
-
-    function ensureCheckoutTitle(){
-        const cartPanel = byId("cartPanel");
-        if(!cartPanel) return;
-        const title = cartPanel.querySelector(".cart-panel-title") || cartPanel.querySelector(".panel-top h3");
-        if(title) title.textContent = "Checkout";
-    }
-
-    function ensureSteps(){
-        const wrap = byId("cartPanel")?.querySelector(".cart-list-wrap");
-        if(!wrap || wrap.querySelector(".checkout-steps")) return;
-
-        const steps = document.createElement("div");
-        steps.className = "checkout-steps";
-        steps.innerHTML = `
-            <div class="checkout-step done"><span class="dot">✓</span><span>Cart</span></div>
-            <div class="checkout-line"></div>
-            <div class="checkout-step done"><span class="dot">✓</span><span>Address</span></div>
-            <div class="checkout-line"></div>
-            <div class="checkout-step active"><span class="dot">3</span><span>Checkout</span></div>
-            <div class="checkout-line"></div>
-            <div class="checkout-step"><span class="dot">4</span><span>Confirm</span></div>
-        `;
-        wrap.prepend(steps);
-    }
-
-    function enhanceCoupon(){
-        const cartPanel = byId("cartPanel");
-        if(!cartPanel) return;
-
-        const headings = Array.from(cartPanel.querySelectorAll("h4,h3,b,strong,div"));
-        const couponHead = headings.find(el => /apply coupon/i.test(el.textContent || ""));
-        if(couponHead){
-            const box = couponHead.closest(".cart-payment-box,.cart-summary-card,.summary-box,.cart-delivery-box,div") || couponHead.parentElement;
-            if(box && !box.classList.contains("coupon-box")){
-                box.classList.add("coupon-box");
-            }
-            if(box && !box.querySelector(".checkout-coupon-note")){
-                const note = document.createElement("div");
-                note.className = "checkout-coupon-note";
-                note.innerHTML = "🏷️ No coupon applied";
-                box.appendChild(note);
-            }
-        }
-
-        const couponInput = cartPanel.querySelector('input[placeholder*="coupon" i], input[id*="coupon" i]');
-        if(couponInput){
-            couponInput.id = couponInput.id || "couponInput";
-            const parent = couponInput.parentElement;
-            if(parent && !parent.classList.contains("coupon-row")){
-                parent.classList.add("coupon-row");
-            }
-        }
-    }
-
-    function enhancePayment(){
-        const cartPanel = byId("cartPanel");
-        if(!cartPanel) return;
-        const labels = Array.from(cartPanel.querySelectorAll(".cart-payment-box label"));
-        labels.forEach(label=>{
-            const txt = label.textContent || "";
-            if(label.querySelector(".payment-sub")) return;
-            const sub = document.createElement("span");
-            sub.className = "payment-sub";
-            sub.textContent = /prepaid|upi/i.test(txt)
-                ? "Pay securely using UPI, Card, Net Banking etc."
-                : "Pay when your order is delivered";
-            label.appendChild(sub);
-        });
-    }
-
-    function enhancePriceDetails(){
-        const cartPanel = byId("cartPanel");
-        if(!cartPanel) return;
-        const cards = Array.from(cartPanel.querySelectorAll(".cart-summary-card,.summary-box"));
-        const priceCard = cards.find(card => /price details|subtotal|total pay|total payable/i.test(card.textContent || ""));
-        if(priceCard && !priceCard.querySelector(".total-pay-box")){
-            const rows = Array.from(priceCard.querySelectorAll(".cart-summary-row"));
-            const totalRow = rows.reverse().find(r => /total/i.test(r.textContent || ""));
-            if(totalRow){
-                const value = totalRow.querySelector("span:last-child,strong:last-child,b:last-child")?.textContent || "";
-                totalRow.style.display = "none";
-                const box = document.createElement("div");
-                box.className = "total-pay-box";
-                box.innerHTML = `<span>Total Payable</span><b>${value || ""}</b>`;
-                priceCard.appendChild(box);
-            }
-            Array.from(priceCard.querySelectorAll(".cart-summary-row")).forEach(r=>{
-                if(/coupon/i.test(r.textContent || "")) r.classList.add("discount-row");
-            });
-        }
-    }
-
-    function ensureSecureCard(){
-        const wrap = byId("cartPanel")?.querySelector(".cart-list-wrap");
-        if(!wrap || wrap.querySelector(".secure-payment-card")) return;
-        const bottom = wrap.querySelector(".cart-bottom-bar");
-        const card = document.createElement("div");
-        card.className = "secure-payment-card";
-        card.innerHTML = `<div class="shield">🛡️</div><div><b>Safe & Secure Payments</b><p>Your payment details are 100% secure with us.</p></div>`;
-        if(bottom) wrap.insertBefore(card, bottom);
-        else wrap.appendChild(card);
-    }
-
-    function refreshCheckoutUI(){
-        ensureCheckoutTitle();
-        ensureSteps();
-        enhanceCoupon();
-        enhancePayment();
-        enhancePriceDetails();
-        ensureSecureCard();
-    }
-
-    const oldOpenCart = window.openCart;
-    if(typeof oldOpenCart === "function"){
-        window.openCart = function(){
-            const result = oldOpenCart.apply(this, arguments);
-            setTimeout(function(){
-                setCheckoutState(true);
-                refreshCheckoutUI();
-            }, 60);
-            return result;
-        };
-    }
-
-    const oldCloseCart = window.closeCart;
-    if(typeof oldCloseCart === "function"){
-        window.closeCart = function(){
-            const result = oldCloseCart.apply(this, arguments);
-            setCheckoutState(false);
-            return result;
-        };
-    }
-
-    document.addEventListener("click", function(e){
-        const node = e.target.closest("[onclick]");
-        if(!node) return;
-        const code = node.getAttribute("onclick") || "";
-        if(code.includes("openCart")){
-            setTimeout(function(){ setCheckoutState(true); refreshCheckoutUI(); }, 80);
-        }
-        if(code.includes("closeCart")){
-            setTimeout(function(){ setCheckoutState(false); }, 80);
-        }
-    }, true);
-
-    const observer = new MutationObserver(function(){
-        const p = byId("cartPanel");
-        if(p && p.classList.contains("open")){
-            setCheckoutState(true);
-            refreshCheckoutUI();
-        }
-    });
-    document.addEventListener("DOMContentLoaded", function(){
-        const p = byId("cartPanel");
-        if(p) observer.observe(p, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
-        refreshCheckoutUI();
-    });
-})();
-</script>
-
 
 <script>
-/* ===== FAST ORDER CLICK FIX ===== */
+/* ===== FINAL ORDER CLICK WORKING JS ===== */
 (function(){
-    function cartPanel(){
+    let opening = false;
+
+    function panel(){
         return document.getElementById("cartPanel");
     }
-    function hardCloseGhostOverlay(){
-        const p = cartPanel();
+
+    function setOpenState(open){
+        const p = panel();
         if(!p) return;
-        if(!p.classList.contains("open")){
+        if(open){
+            p.classList.add("open");
+            p.style.visibility = "visible";
+            p.style.pointerEvents = "auto";
+            p.style.opacity = "1";
+            document.body.classList.add("checkout-open");
+            document.body.classList.add("panel-open");
+        }else{
+            p.classList.remove("open");
             p.style.pointerEvents = "none";
             p.style.visibility = "hidden";
+            p.style.opacity = "0";
             document.body.classList.remove("checkout-open");
+            document.body.classList.remove("panel-open");
+            opening = false;
         }
     }
-    function hardOpenCheckout(){
-        const p = cartPanel();
-        if(!p) return;
-        p.style.visibility = "visible";
-        p.style.pointerEvents = "auto";
-        document.body.classList.add("checkout-open");
-        document.body.classList.add("panel-open");
+
+    function refreshCartSafe(){
+        try{ if(typeof renderCart === "function") renderCart(); }catch(e){}
+        try{ if(typeof updateCartUI === "function") updateCartUI(); }catch(e){}
+        try{ if(typeof updateFloatingOrderButton === "function") updateFloatingOrderButton(); }catch(e){}
     }
 
-    document.addEventListener("DOMContentLoaded", hardCloseGhostOverlay);
-    setInterval(hardCloseGhostOverlay, 800);
+    function openCheckoutDirect(){
+        if(opening) return;
+        opening = true;
+        refreshCartSafe();
+        setOpenState(true);
+        setTimeout(function(){ opening = false; }, 250);
+    }
 
+    function closeCheckoutDirect(){
+        setOpenState(false);
+    }
+
+    // Override functions directly
+    window.openCart = openCheckoutDirect;
+    window.openCheckout = openCheckoutDirect;
+    window.closeCart = closeCheckoutDirect;
+
+    // Capture click BEFORE old inline/wrapper bugs
     document.addEventListener("click", function(e){
-        const orderBtn = e.target.closest(".floating-order-btn, [onclick*='openCart'], [onclick*='openCheckout']");
-        if(orderBtn){
-            const p = cartPanel();
-            if(p){
-                p.style.visibility = "visible";
-                p.style.pointerEvents = "auto";
-            }
-            setTimeout(hardOpenCheckout, 10);
+        const openBtn = e.target.closest(".floating-order-btn, #topCartBtn, [onclick*='openCart'], [onclick*='openCheckout']");
+        if(openBtn){
+            e.preventDefault();
+            e.stopPropagation();
+            openCheckoutDirect();
+            return false;
         }
 
-        const closeBtn = e.target.closest("[onclick*='closeCart'], #cartPanel .close-btn");
+        const closeBtn = e.target.closest("#cartPanel .close-btn, [onclick*='closeCart']");
         if(closeBtn){
-            setTimeout(hardCloseGhostOverlay, 10);
+            e.preventDefault();
+            e.stopPropagation();
+            closeCheckoutDirect();
+            return false;
         }
     }, true);
 
-    const oldOpenCart = window.openCart;
-    if(typeof oldOpenCart === "function"){
-        window.openCart = function(){
-            hardOpenCheckout();
-            return oldOpenCart.apply(this, arguments);
-        };
-    }
+    document.addEventListener("keydown", function(e){
+        if(e.key === "Escape") closeCheckoutDirect();
+    });
 
-    const oldCloseCart = window.closeCart;
-    if(typeof oldCloseCart === "function"){
-        window.closeCart = function(){
-            const r = oldCloseCart.apply(this, arguments);
-            setTimeout(hardCloseGhostOverlay, 10);
-            return r;
-        };
-    }
+    document.addEventListener("DOMContentLoaded", function(){
+        setOpenState(false);
+    });
 })();
 </script>
 
