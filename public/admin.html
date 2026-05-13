@@ -1306,6 +1306,24 @@ stroke-linecap:round !important;
 stroke-linejoin:round !important;
 }
 
+
+/* FINAL SIMPLE CLEAN LINE GRAPH OVERRIDE */
+.chart-point,
+circle.chart-point,
+.line-chart-svg circle{
+    display:none !important;
+}
+.line-stock,
+.line-orders,
+.line-earning-seg{
+    stroke-linecap:round !important;
+    stroke-linejoin:round !important;
+    filter:none !important;
+}
+.line-stock{stroke-width:3 !important;}
+.line-orders{stroke-width:3 !important;}
+.line-earning-seg{stroke-width:3.5 !important;}
+
 </style>
 </head>
 <body>
@@ -2405,16 +2423,7 @@ setInterval(function(){
 function renderDashboard(){
     const orderList = Array.isArray(orders) ? orders : [];
     const productList = Array.isArray(products) ? products : [];
-    const totalOrders = orderList.length;
-    const todayOrders = orderList.filter(order => isTodayOrder(order));
-    const todaySales = todayOrders.reduce((sum, order) => sum + Number(order.total || order.grandTotal || order.totalAmount || 0), 0);
-    const needOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "need confirmation").length;
-    const pendingOrders = orderList.filter(order => {
-        const st = String(order.status || "").toLowerCase();
-        return st === "pending" || st === "out for delivery";
-    }).length;
-    const outOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "out for delivery").length;
-    const deliveredOrders = orderList.filter(order => String(order.status || "").toLowerCase() === "delivered").length;
+
     const totalProducts = productList.length;
     const outOfStock = productList.filter(product => Number(product.stock || 0) <= 0).length;
     const stockValue = productList.reduce((sum, p) => sum + (Number(p.price || 0) * Number(p.stock || 0)), 0);
@@ -2424,10 +2433,10 @@ function renderDashboard(){
     const range = Number(window.adminDashboardRange || 30);
 
     function money(v){ return "₹" + Number(v || 0).toLocaleString("en-IN", {maximumFractionDigits:0}); }
-    function parseDate(order){ return parseOrderDateValue(order) || new Date(); }
     function keyForDate(d){ return getISTDateKey(d); }
     function labelForDate(d){ return d.toLocaleDateString("en-IN", {timeZone:"Asia/Kolkata", day:"numeric", month:"short"}); }
     function statusOf(o){ return String(o.status || "").toLowerCase(); }
+
     function totalOf(o){
         const candidates = [
             o.total, o.grandTotal, o.totalAmount, o.finalTotal, o.payableAmount, o.amount,
@@ -2448,6 +2457,7 @@ function renderDashboard(){
         }
         return 0;
     }
+
     function parseAnyDateValue(value){
         if(value === undefined || value === null || String(value).trim() === "") return null;
         if(typeof value === "number" || /^\d{10,13}$/.test(String(value).trim())){
@@ -2458,46 +2468,99 @@ function renderDashboard(){
         const text = String(value).trim();
         const direct = new Date(text);
         if(!isNaN(direct.getTime())) return direct;
-        const m = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
-        if(m){
-            const day = Number(m[1]);
-            const month = Number(m[2]) - 1;
-            const year = Number(m[3].length === 2 ? "20" + m[3] : m[3]);
+
+        const ddmmyyyy = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+        if(ddmmyyyy){
+            const day = Number(ddmmyyyy[1]);
+            const month = Number(ddmmyyyy[2]) - 1;
+            const year = Number(ddmmyyyy[3].length === 2 ? "20" + ddmmyyyy[3] : ddmmyyyy[3]);
             const d = new Date(year, month, day);
             if(!isNaN(d.getTime())) return d;
         }
         return null;
     }
-    function earningDateOf(o){
+
+    function orderDateOf(order){
         const candidates = [
-            o.deliveredAt, o.delivered_at, o.deliveryTime, o.deliveredTime, o.completedAt,
-            o.completed_at, o.statusUpdatedAt, o.statusTime, o.updatedAt, o.updated_at,
-            o.date, o.createdAt, o.timestamp, o.time, o.orderDate
+            order?.createdAt,
+            order?.created_at,
+            order?.timestamp,
+            order?.time,
+            order?.date,
+            order?.orderDate,
+            order?.orderedAt,
+            order?.order_time
         ];
-        for(const v of candidates){
-            const d = parseAnyDateValue(v);
+        for(const value of candidates){
+            const d = parseAnyDateValue(value);
             if(d) return d;
         }
-        return parseOrderDateValue(o) || new Date();
+
+        const idText = String(order?.id || order?.orderId || "");
+        const timeMatch = idText.match(/(\d{13})/);
+        if(timeMatch){
+            const d = new Date(Number(timeMatch[1]));
+            if(!isNaN(d.getTime())) return d;
+        }
+        return null;
     }
-    function isDelivered(o){
-        const st = statusOf(o).replace(/[\s_-]+/g," ");
-        return st.includes("delivered") || st.includes("complete") || st.includes("completed");
+
+    function isBefore11PMIST(){
+        const hour = Number(new Intl.DateTimeFormat("en-IN", {
+            timeZone: "Asia/Kolkata",
+            hour: "2-digit",
+            hour12: false
+        }).format(new Date()));
+        return hour < 23;
     }
-    function dateMinus(days){ const d = new Date(); d.setDate(d.getDate() - days); return d; }
+
+    function dateMinus(days){
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return d;
+    }
 
     const days = [];
     const dayCount = Math.max(1, range);
     for(let i = dayCount - 1; i >= 0; i--){
         const d = dateMinus(i);
         const key = keyForDate(d);
-        const dayOrders = orderList.filter(o => keyForDate(parseDate(o)) === key);
-        const dayDeliveredOrders = orderList.filter(o => isDelivered(o) && keyForDate(earningDateOf(o)) === key);
-        const earning = dayDeliveredOrders.reduce((s,o)=>s + totalOf(o), 0);
+        const dayOrders = orderList.filter(o => {
+            const od = orderDateOf(o);
+            return od && keyForDate(od) === key;
+        });
+        const earning = dayOrders.reduce((s,o)=>s + totalOf(o), 0);
         const orderCount = dayOrders.length;
         const stock = Math.max(0, stockValue + (orderCount * 80) - (i * 25));
         days.push({key, label:labelForDate(d), stock, earning, orders:orderCount});
     }
+
+    const rangeKeys = new Set(days.map(d => d.key));
+    const rangeOrders = orderList.filter(o => {
+        const od = orderDateOf(o);
+        if(!od) return false;
+
+        // 1D = only today orders, 11 PM ke baad today zero ho jayega
+        if(range === 1){
+            return isBefore11PMIST() && keyForDate(od) === keyForDate(new Date());
+        }
+
+        // 5D / 15D / 30D = selected last days ke orders
+        return rangeKeys.has(keyForDate(od));
+    });
+
+    const rangeOrdersCount = rangeOrders.length;
+    const rangeNeedOrders = rangeOrders.filter(order => String(order.status || "").toLowerCase() === "need confirmation").length;
+    const rangePendingOrders = rangeOrders.filter(order => {
+        const st = String(order.status || "").toLowerCase();
+        return st === "pending" || st === "out for delivery";
+    }).length;
+    const rangeDeliveredOrders = rangeOrders.filter(order => {
+        const st = String(order.status || "").toLowerCase();
+        return st.includes("delivered") || st.includes("complete") || st.includes("completed");
+    }).length;
+    const rangeEarnings = rangeOrders.reduce((s,o) => s + totalOf(o), 0);
+    const rangeLabel = range === 1 ? "today" : "last " + range + " days";
 
     const maxVal = Math.max(10, ...days.map(d => Math.max(d.stock, d.earning, d.orders * 100)));
     const W = 980, H = 300, left = 58, right = 20, top = 28, bottom = 42;
@@ -2505,7 +2568,9 @@ function renderDashboard(){
     const innerH = H - top - bottom;
     function x(i){ return left + (days.length === 1 ? innerW / 2 : (i * innerW / (days.length - 1))); }
     function y(v){ return top + innerH - (Number(v || 0) / maxVal) * innerH; }
-    function points(series){ return days.map((d,i)=>`${x(i).toFixed(1)},${y(d[series] === undefined ? d.orders * 100 : d[series]).toFixed(1)}`).join(" "); }
+    function points(series){
+        return days.map((d,i)=>`${x(i).toFixed(1)},${y(d[series] === undefined ? d.orders * 100 : d[series]).toFixed(1)}`).join(" ");
+    }
     function earningSegments(){
         let html = "";
         for(let i=1;i<days.length;i++){
@@ -2514,41 +2579,32 @@ function renderDashboard(){
         }
         return html;
     }
-    function pointsDots(series, color, multiplier=1){
-        return days.map((d,i)=>`<circle class="chart-point" cx="${x(i)}" cy="${y((d[series] || 0) * multiplier)}" r="4.5" fill="${color}"></circle>`).join("");
-    }
+
     const grid = [0,.25,.5,.75,1].map(r => {
         const yy = top + innerH - r * innerH;
         const label = Math.round(maxVal * r / 1000) + "K";
         return `<line class="line-grid" x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}"></line><text class="line-axis-label" x="8" y="${yy+4}">${label}</text>`;
     }).join("");
+
     const xLabels = days.map((d,i)=>{
         if(range > 15 && i % 3 !== 0 && i !== days.length-1) return "";
         if(range > 5 && range <= 15 && i % 2 !== 0 && i !== days.length-1) return "";
         return `<text class="line-x-label" x="${x(i)}" y="${H-12}" text-anchor="middle">${d.label}</text>`;
     }).join("");
 
-    const safeTotal = Math.max(1, needOrders + pendingOrders + deliveredOrders);
-    const needDeg = Math.round((needOrders / safeTotal) * 360);
-    const pendingDeg = Math.round(((needOrders + pendingOrders) / safeTotal) * 360);
+    const safeTotal = Math.max(1, rangeNeedOrders + rangePendingOrders + rangeDeliveredOrders);
+    const needDeg = Math.round((rangeNeedOrders / safeTotal) * 360);
+    const pendingDeg = Math.round(((rangeNeedOrders + rangePendingOrders) / safeTotal) * 360);
+
     const topCategories = productList.slice(0,5).map((p,idx)=>({name:p.category || p.name || "Product", value:Number(p.price || 0) * Math.max(1, Number(p.stock || 0)), idx}));
     const maxCat = Math.max(1, ...topCategories.map(c=>c.value));
-    const recentOrders = orderList.slice(-5).reverse();
-    const rangeKeys = new Set(days.map(d => d.key));
-    const rangeOrders = orderList.filter(o => rangeKeys.has(keyForDate(parseDate(o))));
-    const rangeOrdersCount = rangeOrders.length;
-    const rangeNeedOrders = rangeOrders.filter(order => String(order.status || "").toLowerCase() === "need confirmation").length;
-    const rangePendingOrders = rangeOrders.filter(order => {
-        const st = String(order.status || "").toLowerCase();
-        return st === "pending" || st === "out for delivery";
-    }).length;
-    const rangeEarnings = rangeOrders.reduce((s,o) => s + totalOf(o), 0);
-    const rangeLabel = range === 1 ? "today" : "last " + range + " days";
+    const recentOrders = rangeOrders.slice(-5).reverse();
 
     window.setAdminDashRange = function(n){
         window.adminDashboardRange = Number(n || 30);
         renderDashboard();
     };
+
     const dashRangeLabelEl = document.getElementById("dashRangeLabel");
     if(dashRangeLabelEl) dashRangeLabelEl.textContent = "📅 " + (range === 1 ? "Today" : "Last " + range + " Days");
 
@@ -2597,10 +2653,7 @@ function renderDashboard(){
                     <line class="line-axis" x1="${left}" y1="${H-bottom}" x2="${W-right}" y2="${H-bottom}"></line>
                     <polyline class="line-stock" points="${points('stock')}"></polyline>
                     ${earningSegments()}
-                    <polyline class="line-orders" points="${points('orders').replace(/(\d+\.\d+,)(\d+\.\d+)/g, (m,a,b)=>m)}"></polyline>
-                    ${pointsDots('stock','#2f6fed')}
-                    ${pointsDots('earning','#2eb85c')}
-                    ${pointsDots('orders','#f5b700',100)}
+                    <polyline class="line-orders" points="${points('orders')}"></polyline>
                     ${xLabels}
                 </svg>
             </div>
@@ -2615,9 +2668,9 @@ function renderDashboard(){
             <div class="dash-card-title">Orders by Status</div>
             <div class="donut-wrap"><div class="donut-chart" style="--need:${needDeg}deg;--pending:${pendingDeg}deg"></div></div>
             <div class="donut-legend">
-              <span><i class="legend-dot" style="background:#7fa3d8"></i>Need ${needOrders}</span>
-              <span><i class="legend-dot" style="background:#88c177"></i>Pending ${pendingOrders}</span>
-              <span><i class="legend-dot" style="background:#ffca4b"></i>Delivered ${deliveredOrders}</span>
+              <span><i class="legend-dot" style="background:#7fa3d8"></i>Need ${rangeNeedOrders}</span>
+              <span><i class="legend-dot" style="background:#88c177"></i>Pending ${rangePendingOrders}</span>
+              <span><i class="legend-dot" style="background:#ffca4b"></i>Delivered ${rangeDeliveredOrders}</span>
             </div>
         </div>
         <div class="dash-card">
