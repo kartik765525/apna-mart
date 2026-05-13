@@ -656,6 +656,65 @@ html[data-theme="dark"] #placeOrderLoader{
     background:rgba(15,23,42,.98) !important;
 }
 </style>
+
+<style id="placing-order-loader-fix">
+#placingOrderLoader{
+    position:fixed !important;
+    inset:0 !important;
+    display:none !important;
+    align-items:center !important;
+    justify-content:center !important;
+    background:#eaf4fb !important;
+    z-index:2147483646 !important;
+    padding:24px !important;
+    color:#175a78 !important;
+}
+#placingOrderLoader.show{
+    display:flex !important;
+}
+#placingOrderLoader .commerce-loader-box{
+    width:100% !important;
+    max-width:360px !important;
+    text-align:center !important;
+}
+#placingOrderLoader .commerce-loader-visual{
+    width:150px !important;
+    height:150px !important;
+    margin:0 auto 18px !important;
+    position:relative !important;
+}
+#placingOrderLoader .commerce-loader-ring{
+    position:absolute !important;
+    inset:18px !important;
+    border:3px solid rgba(255,255,255,.95) !important;
+    border-top-color:#1696d2 !important;
+    border-radius:50% !important;
+    animation:setuEarlySpin .8s linear infinite !important;
+}
+#placingOrderLoader .commerce-loader-cart{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-50%,-50%) !important;
+    font-size:54px !important;
+}
+#placingOrderLoader .commerce-loader-title{
+    font-size:22px !important;
+    font-weight:800 !important;
+    color:#175a78 !important;
+}
+#placingOrderLoader .commerce-loader-sub{
+    margin-top:8px !important;
+    font-size:14px !important;
+    line-height:1.6 !important;
+    color:#5f7e8d !important;
+}
+#placingOrderLoader .commerce-loader-device,
+#placingOrderLoader .commerce-loader-dot{
+    display:none !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -677,6 +736,26 @@ html[data-theme="dark"] #placeOrderLoader{
         <div class="commerce-loader-sub">Please wait, products load ho rahe hain.</div>
     </div>
 </div>
+
+<div id="placingOrderLoader" class="commerce-loader placing-order-loader">
+    <div class="commerce-loader-box">
+        <div class="commerce-loader-visual">
+            <div class="commerce-loader-ring"></div>
+            <div class="commerce-loader-cart">🛒</div>
+            <div class="commerce-loader-device phone">📱</div>
+            <div class="commerce-loader-device pos"></div>
+            <div class="commerce-loader-device card">💳</div>
+            <div class="commerce-loader-device tap">✅</div>
+            <div class="commerce-loader-dot dot1"></div>
+            <div class="commerce-loader-dot dot2"></div>
+            <div class="commerce-loader-dot dot3"></div>
+            <div class="commerce-loader-dot dot4"></div>
+        </div>
+        <div class="commerce-loader-title">Placing order...</div>
+        <div class="commerce-loader-sub">Please wait, order place ho raha hai.</div>
+    </div>
+</div>
+
 
 <style>
 :root{
@@ -4620,7 +4699,7 @@ function getProductUnitText(product){return getProductUnit(product) || "piece";}
             <div class="commerce-loader-dot dot4"></div>
         </div>
         <div class="commerce-loader-title">Placing order...</div>
-        <div class="commerce-loader-sub">Please wait, aapka order place ho raha hai.</div>
+        <div class="commerce-loader-sub">Please wait, order place ho raha hai.</div>
     </div>
 </div>
 </div>
@@ -6216,6 +6295,7 @@ function removeCheckoutCoupon(){
 }
 
 async function placeOrder(){
+try{window.showPlacingOrderLoader&&window.showPlacingOrderLoader();}catch(e){}
     openCheckoutPanel(true);
 }
 
@@ -7685,6 +7765,36 @@ html[data-theme="dark"] #checkoutPanel .checkout-bottom-price .big{color:#e5e7eb
     document.addEventListener('DOMContentLoaded', forceOrderButton);
     window.addEventListener('load', function(){ setTimeout(forceOrderButton, 80); });
     setInterval(forceOrderButton, 800);
+})();
+</script>
+
+
+<script id="instant-place-order-loader-js">
+(function(){
+    window.showPlacingOrderLoader = function(){
+        var loader = document.getElementById('placingOrderLoader');
+        if(loader){
+            loader.classList.add('show');
+            loader.classList.remove('hidden');
+            loader.style.display = 'flex';
+        }
+    };
+    window.hidePlacingOrderLoader = function(){
+        var loader = document.getElementById('placingOrderLoader');
+        if(loader){
+            loader.classList.remove('show');
+            loader.style.display = 'none';
+        }
+    };
+
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('.cart-place-order-btn, .confirm-order-btn, button, .main-btn');
+        if(!btn) return;
+        var text = (btn.innerText || btn.textContent || '').toLowerCase();
+        if(text.includes('confirm order') || text.includes('place order') || text.includes('order place')){
+            window.showPlacingOrderLoader();
+        }
+    }, true);
 })();
 </script>
 
