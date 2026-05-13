@@ -616,6 +616,46 @@ html[data-theme="dark"] .checkout-coupon-row .form-input{background:#0f172a !imp
     .checkout-terms{font-size:10px;margin-top:8px;}
 }
 </style>
+
+<style>
+/* ===== PLACE ORDER ANIMATION RE-ENABLE FIX ONLY ===== */
+#placeOrderLoader{
+    position:fixed !important;
+    inset:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    background:rgba(234,244,251,.98) !important;
+    z-index:2147483646 !important;
+    transition:opacity .22s ease, visibility .22s ease !important;
+}
+#placeOrderLoader.hidden{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+}
+#placeOrderLoader.show{
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+}
+#placeOrderLoader .commerce-loader-visual{
+    width:132px !important;
+    height:132px !important;
+}
+#placeOrderLoader .commerce-loader-cart{
+    font-size:48px !important;
+}
+#placeOrderLoader .commerce-loader-title{
+    font-size:22px !important;
+}
+#placeOrderLoader .commerce-loader-sub{
+    font-size:14px !important;
+}
+html[data-theme="dark"] #placeOrderLoader{
+    background:rgba(15,23,42,.98) !important;
+}
+</style>
 </head>
 <body>
 
@@ -4620,16 +4660,36 @@ window.alert = function(message){
     showToast(message, "info");
 };
 
+let placeOrderLoaderStartTime = 0;
 function showPlaceOrderLoader(){
     const loader = document.getElementById("placeOrderLoader");
     if(!loader) return;
+    placeOrderLoaderStartTime = Date.now();
     loader.classList.remove("hidden");
+    loader.classList.add("show");
+    loader.style.display = "flex";
+    loader.style.opacity = "1";
+    loader.style.visibility = "visible";
+    loader.style.pointerEvents = "auto";
 }
 
 function hidePlaceOrderLoader(){
     const loader = document.getElementById("placeOrderLoader");
     if(!loader) return;
-    loader.classList.add("hidden");
+    const elapsed = Date.now() - placeOrderLoaderStartTime;
+    const minimumShowTime = 850;
+    const hideNow = () => {
+        loader.classList.remove("show");
+        loader.classList.add("hidden");
+        loader.style.opacity = "0";
+        loader.style.visibility = "hidden";
+        loader.style.pointerEvents = "none";
+    };
+    if(elapsed < minimumShowTime){
+        setTimeout(hideNow, minimumShowTime - elapsed);
+    }else{
+        hideNow();
+    }
 }
 
 function showSuccessScreen(customMessage){
